@@ -1,6 +1,7 @@
 
 from collections import deque
 from SearchSolution import SearchSolution
+from FoxProblem import *
 
 # you might find a SearchNode class useful to wrap state objects,
 #  keep track of current depth for the dfs, and point to parent nodes
@@ -10,11 +11,21 @@ class SearchNode:
 
     def __init__(self, state, parent=None):
         # you write this part
+        self.state = state
+        self.parent = parent
 
 # you might write other helper functions, too. For example,
 #  I like to separate out backchaining, and the dfs path checking functions
 
-def bfs_search(search_problem):
+
+def bfs_search(search_problem: FoxProblem):
+
+    solution = SearchSolution(search_problem, "BFS")
+
+    visit_queue = deque()
+    start_node = SearchNode(search_problem.state)
+    visit_queue.append(start_node)
+
 
 # Don't forget that your dfs function should be recursive and do path checking,
 #  rather than memoizing (no visited set!) to be memory efficient
@@ -34,3 +45,4 @@ def dfs_search(search_problem, depth_limit=100, node=None, solution=None):
 
 def ids_search(search_problem, depth_limit=100):
     # you write this part
+    solution = SearchSolution(search_problem, "IDS")

@@ -17,7 +17,7 @@ class SearchSolution:
             string += "path: {:s}\n"
 
             string = string.format(self.problem_name, self.search_method,
-                self.nodes_visited, len(self.path), str(self.path))
+                 self.nodes_visited, len(self.path), str(self.path))
         else:
             string += "no solution found after visiting {:d} nodes\n"
             string = string.format(self.problem_name, self.search_method, self.nodes_visited)
