@@ -3,8 +3,8 @@ class FoxProblem:
         self.start_state = start_state
         self.goal_state = (0, 0, 0)
         self.state = start_state
-        self.max_chickens = start_state[0]
-        self.max_foxes = start_state[1]
+        self.total_chickens = start_state[0]
+        self.total_foxes = start_state[1]
         self.boat_ashore = bool(start_state[2])
 
         # you might want to add other things to the problem,
@@ -18,28 +18,29 @@ class FoxProblem:
         next_states = set()
         for num_chickens in range(0, 3):
             for num_foxes in range(0, 3):
-                if 0 < (num_chickens + num_foxes) <= 2:  # ignore states the empty transition
-                    if bool(state[2]):
+                total = num_chickens + num_foxes
+                # print("total = ", total)
+                if 1 <= total <= 2:  # ignore states the empty transition
 
+                    if state[2] == 1:
                         # BOAT LEAVING SHORE
                         new_chickens = state[0] - num_chickens  # find new number of chicken ashore
                         new_foxes = state[1] - num_foxes  # find new number of foxes ashore
-                        boat_ashore = not bool(state[2])  # flip boat status
-                        next_state = (new_chickens, new_foxes, int(boat_ashore))
+                        next_state = (new_chickens, new_foxes, 0)
 
                         # check the state for validity, append to valid states
-                        if self.is_valid(next_state):
+                        if self.is_valid(next_state, num_chickens, num_foxes):
+                            # print("2", next_state)
                             next_states.add(next_state)
-                    else:
 
+                    elif state[2] == 0:
                         # BOAT RETURNING TO SHORE
                         new_chickens = state[0] + num_chickens  # find new number of chicken ashore
                         new_foxes = state[1] + num_foxes  # find new number of foxes ashore
-                        boat_ashore = not bool(state[2])  # flip boat status
-                        next_state = (new_chickens, new_foxes, int(boat_ashore))
+                        next_state = (new_chickens, new_foxes, 1)
 
                         # check the state for validity, append to valid states
-                        if self.is_valid(next_state):
+                        if self.is_valid(next_state, num_chickens, num_foxes):
                             next_states.add(next_state)
         # return set of states
         return next_states
@@ -48,11 +49,28 @@ class FoxProblem:
     def is_goal(self, state):
         return self.goal_state == state
 
-    def is_valid(self, state):
+    def is_valid(self, state, chickens_in_transit, foxes_in_transit):
 
-        if state[0] <= self.max_chickens and state[1] <= self.max_foxes:
-            return 0 <= state[1] <= state[0]
+        new_chicken_count = state[0]
+        chickens_side_B = self.total_chickens - new_chicken_count
 
+        new_fox_count = state[1]
+        foxes_side_B = self.total_foxes - new_fox_count
+
+        # 1, make sure proposed move is within bounds of how many chickens and foxes are available.
+        if new_chicken_count <= self.total_chickens and new_fox_count <= self.total_foxes:
+
+            # 2, if chickens >= foxes on both sides of the bank, move is valid.
+            if new_chicken_count >= new_fox_count and chickens_side_B >= foxes_side_B:
+                return True
+
+            # 3, otherwise, if there are more foxes on a bank that has 0 chickens, move is valid.
+            elif new_chicken_count < new_fox_count and new_chicken_count == 0:
+                return True
+            elif chickens_side_B < foxes_side_B and chickens_side_B == 0:
+                return True
+
+        # 4 move is invalid
         return False
 
     def __str__(self):
