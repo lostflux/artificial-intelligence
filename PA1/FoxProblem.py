@@ -29,7 +29,7 @@ class FoxProblem:
                         next_state = (new_chickens, new_foxes, 0)
 
                         # check the state for validity, append to valid states
-                        if self.is_valid(next_state, num_chickens, num_foxes):
+                        if self.is_valid(next_state):
                             # print("2", next_state)
                             next_states.add(next_state)
 
@@ -40,7 +40,7 @@ class FoxProblem:
                         next_state = (new_chickens, new_foxes, 1)
 
                         # check the state for validity, append to valid states
-                        if self.is_valid(next_state, num_chickens, num_foxes):
+                        if self.is_valid(next_state):
                             next_states.add(next_state)
         # return set of states
         return next_states
@@ -49,7 +49,11 @@ class FoxProblem:
     def is_goal(self, state):
         return self.goal_state == state
 
-    def is_valid(self, state, chickens_in_transit, foxes_in_transit):
+    def is_valid(self, state):
+
+        # A valid state cannot have negative chickens / foxes
+        if state[0] < 0 or state[1] < 0:
+            return False
 
         new_chicken_count = state[0]
         chickens_side_B = self.total_chickens - new_chicken_count
@@ -91,11 +95,27 @@ def check_states(state, goal_state):
 
 
 if __name__ == "__main__":
-    test_cp = FoxProblem((5, 5, 1))
-    print(test_cp.get_successors((5, 5, 1)))
-    start_state = (5, 5, 1)
-    goal_state = (0, 0, 0)
-    check_states(start_state, goal_state)
-    # while True:
+    # test_cp = FoxProblem((5, 5, 1))
+    # print(test_cp.get_successors((5, 5, 1)))
+    # start_state = (5, 5, 1)
+    # goal_state = (0, 0, 0)
+    # check_states(start_state, goal_state)
+    # # while True:
+    #
+    # print(test_cp)
 
-    print(test_cp)
+    # To test next states
+    start_state = (3, 3, 1)
+    test2 = FoxProblem(start_state)
+    print(test2.get_successors((0, 3, 1)))
+    for n_state in test2.get_successors(start_state):
+        for next_state_2 in test2.get_successors(n_state):
+            for next_state_3 in test2.get_successors(next_state_2):
+                for next_state_4 in test2.get_successors(next_state_3):
+                    print(f"{start_state} "
+                          f"-> {n_state} "
+                          f"-> {next_state_2} "
+                          f"-> {next_state_3} "
+                          f"-> {next_state_4} "
+                          f"-> {test2.get_successors(next_state_4)}")
+    # print(test2.get_successors((3, 3, 1)))
