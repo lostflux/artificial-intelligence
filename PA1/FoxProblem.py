@@ -1,3 +1,15 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""This module implements a data structure and associated methods for modelling Chicken - and - Foxes problems.
+"""
+__author__ = "Amittai"
+__copyright__ = "Copyright 2021"
+__credits__ = ["Amittai", "Alberto Quattrini Li"]
+__email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
+__github__ = "@siavava"
+
+
 class FoxProblem:
     def __init__(self, start_state=(3, 3, 1)):
         self.start_state = start_state
@@ -81,8 +93,8 @@ class FoxProblem:
         string = "Chickens and foxes problem: " + str(self.start_state)
         return string
 
+# A bit of test code
 
-## A bit of test code
 
 def check_states(state, goal_state):
     if state == goal_state:
@@ -95,27 +107,29 @@ def check_states(state, goal_state):
 
 
 if __name__ == "__main__":
-    # test_cp = FoxProblem((5, 5, 1))
-    # print(test_cp.get_successors((5, 5, 1)))
-    # start_state = (5, 5, 1)
-    # goal_state = (0, 0, 0)
-    # check_states(start_state, goal_state)
-    # # while True:
-    #
-    # print(test_cp)
+    test_cp = FoxProblem((5, 5, 1))
+    print(test_cp.get_successors((5, 5, 1)))
+    start_state = (5, 5, 1)
+    goal_state = (0, 0, 0)
+    check_states(start_state, goal_state)
+    # while True:
+
+    print(test_cp)
+
+# Note: I used these loops to hunt for a path to the solution for the (3, 3, 1) search problem using brute force.
 
     # To test next states
-    start_state = (3, 3, 1)
-    test2 = FoxProblem(start_state)
-    print(test2.get_successors((0, 3, 1)))
-    for n_state in test2.get_successors(start_state):
-        for next_state_2 in test2.get_successors(n_state):
-            for next_state_3 in test2.get_successors(next_state_2):
-                for next_state_4 in test2.get_successors(next_state_3):
-                    print(f"{start_state} "
-                          f"-> {n_state} "
-                          f"-> {next_state_2} "
-                          f"-> {next_state_3} "
-                          f"-> {next_state_4} "
-                          f"-> {test2.get_successors(next_state_4)}")
+    # start_state = (3, 3, 1)
+    # test2 = FoxProblem(start_state)
+    # print(test2.get_successors((0, 3, 1)))
+    # for n_state in test2.get_successors(start_state):
+    #     for next_state_2 in test2.get_successors(n_state):
+    #         for next_state_3 in test2.get_successors(next_state_2):
+    #             for next_state_4 in test2.get_successors(next_state_3):
+    #                 print(f"{start_state} "
+    #                       f"-> {n_state} "
+    #                       f"-> {next_state_2} "
+    #                       f"-> {next_state_3} "
+    #                       f"-> {next_state_4} "
+    #                       f"-> {test2.get_successors(next_state_4)}")
     # print(test2.get_successors((3, 3, 1)))

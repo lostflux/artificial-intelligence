@@ -1,3 +1,15 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""This file contains driver code for several Graph-search problems
+    for the algorithms and data structures implemented in the other files in this directory.
+"""
+__author__ = "Amittai"
+__copyright__ = "Copyright 2021"
+__credits__ = ["Amittai", "Alberto Quattrini Li"]
+__email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
+__github__ = "@siavava"
+
 from FoxProblem import FoxProblem
 from uninformed_search import bfs_search, dfs_search, ids_search
 

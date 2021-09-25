@@ -1,3 +1,14 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""This module implements several Graph Search algorithms, in particular; BFS, DFS, and IDS.
+"""
+__author__ = "Amittai"
+__copyright__ = "Copyright 2021"
+__credits__ = ["Amittai", "Alberto Quattrini Li"]
+__email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
+__github__ = "@siavava"
+
 from collections import deque
 from SearchSolution import SearchSolution
 from FoxProblem import *
@@ -15,13 +26,15 @@ class SearchNode:
         self.parent = parent
 
 
-# you might write other helper functions, too. For example,
-#  I like to separate out backchaining, and the dfs path checking functions
-
-
 def bfs_search(search_problem: FoxProblem):
-    solution = SearchSolution(search_problem, "BFS")
+    """This method runs BFS search on the implicit Graph
+     underlying a specified search  problem and start state.
+        :arg search_problem: a FoxProblem instance.
+        :return solution: a SearchSolution instance carrying information about the search run.
+    """
 
+    # Initialize search solution, start node, visit queue, and a set to track visited states.
+    solution = SearchSolution(search_problem, "BFS")
     start_node = SearchNode(search_problem.state)
     visit_queue = deque()
     visit_queue.append(start_node)
@@ -53,19 +66,21 @@ def bfs_search(search_problem: FoxProblem):
                 final_node = final_node.parent
             break
 
+    # finally, return the solution instance carrying data about the search run.
     return solution
 
 
-# Don't forget that your dfs function should be recursive and do path checking,
-#  rather than memoizing (no visited set!) to be memory efficient
-
-# We pass the solution along to each new recursive call to dfs_search
-#  so that statistics like number of nodes visited or recursion depth
-#  might be recorded
 def dfs_search(search_problem, depth_limit=100, node=None, solution=None):
-    # if no node object given, create a new search from starting state
+    """This method runs DFS search on the implicit Graph
+     underlying a specified search  problem and start state.
+        :arg search_problem: a FoxProblem instance.
+        :arg depth_limit: integer specifying maximum search depth. Defaults to 0.
+        :arg node: the current search node. Defaults to None.
+        :arg solution: The SearchSolution instance tracking search progress. Defaults to None.
+        :return solution: a SearchSolution instance carrying information about the search run.
+    """
 
-    # start_state = search_problem.start_state
+    # if no node object given, initialize node from start_state, and initialize the SearchSolution instance.
     if node is None:
         node = SearchNode(search_problem.start_state)
         solution = SearchSolution(search_problem, "DFS")
@@ -85,11 +100,17 @@ def dfs_search(search_problem, depth_limit=100, node=None, solution=None):
     if not search_problem.is_goal(solution.path[-1]):
         solution.path.pop()
 
-    # return final solution.
+    # return solution instance tracking the search information.
     return solution
 
 
 def ids_search(search_problem, depth_limit=30):
+    """This method runs IDS -- Iterative Deepening Search on the implicit Graph
+     underlying a specified search  problem and start state.
+        :arg search_problem: a FoxProblem instance.
+        :arg depth_limit: integer specifying maximum search depth. Defaults to 0.
+        :return solution: a SearchSolution instance carrying information about the search run.
+    """
     # 1. Initialize the start node and solution.
     start_node = SearchNode(search_problem.start_state)
     solution = SearchSolution(search_problem, "IDS")

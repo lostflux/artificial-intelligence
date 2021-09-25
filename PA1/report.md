@@ -1,4 +1,4 @@
-# COSCS 76: Artificial Intelligence
+# COSC 76: Artificial Intelligence
 
 ## Programming Assignment 1: Uninformed Search.
 
@@ -14,6 +14,10 @@ In general, given M chickens and N foxes, the resulting Graph will have a total 
 The number of *all* edges from each node will be twice the capacity of the boat (accounting for the combinations of chickens and foxes).
 
 Therefore, the total edges in the Graph will be (M+1) * (N+1) * (2x),  if the capacity of the boat is X. Therefore, the upper bound is O(M*N*x)
+
+I drew a Graph of the entire search tree for the `3, 3, 1` problem, from the start state to the goal state.
+
+![Graph for Problem (3, 3, 1)](graph.pdf)
 
 #### Discussion: BFS
 

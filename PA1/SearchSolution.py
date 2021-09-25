@@ -1,3 +1,15 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""This module implements a data structure and associated methods for modelling a Graph-search solution.
+"""
+__author__ = "Amittai"
+__copyright__ = "Copyright 2021"
+__credits__ = ["Amittai", "Alberto Quattrini Li"]
+__email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
+__github__ = "@siavava"
+
+
 class SearchSolution:
     def __init__(self, problem, search_method):
         self.problem_name = str(problem)
