@@ -15,9 +15,9 @@ The number of *all* edges from each node will be twice the capacity of the boat 
 
 Therefore, the total edges in the Graph will be (M+1) * (N+1) * (2x),  if the capacity of the boat is X. Therefore, the upper bound is O(M*N*x)
 
-I drew a Graph of the entire search tree for the `3, 3, 1` problem, from the start state to the goal state.
+I drew a Graph of the entire search tree showing all valid actions for the `3, 3, 1` problem, from the start state to the goal state of `(0, 0, 0)`.
 
-![Graph for Problem (3, 3, 1)](graph.pdf)
+![Graph for Problem (3, 3, 1)](graph.png)
 
 #### Discussion: BFS
 
@@ -159,4 +159,4 @@ path: [(3, 3, 1), (3, 1, 0), (3, 2, 1), (3, 0, 0), (3, 1, 1), (1, 1, 0), (2, 2, 
 Process finished with exit code 0
 ```
 
-Perhaps on a pre-constructed Graph it would be better to memoize the DFS and keep results between from one depth to the next. 
+Perhaps on a pre-constructed Graph it would be better to memoize the DFS and avoid repetition between different search depths. 
