@@ -34,3 +34,8 @@ print(ids_search(problem551))
 print(bfs_search(problem541))
 print(dfs_search(problem541))
 print(ids_search(problem541))
+
+# testprob = FoxProblem((12, 10, 1))
+# print(bfs_search(testprob))
+# print(dfs_search(testprob))
+# print(ids_search(testprob))
