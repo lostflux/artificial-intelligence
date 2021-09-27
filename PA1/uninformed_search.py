@@ -11,7 +11,7 @@ __github__ = "@siavava"
 
 from collections import deque
 from SearchSolution import SearchSolution
-from FoxProblem import *
+from FoxProblem import FoxProblem
 
 
 # you might find a SearchNode class useful to wrap state objects,
