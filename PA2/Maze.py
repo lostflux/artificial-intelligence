@@ -1,3 +1,15 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""This module implements a Data Structure to store important information
+    about a specific maze.
+"""
+__author__ = ["Amittai", "Alberto Quattrini Li"]
+__copyright__ = "Copyright 2021"
+__credits__ = ["Amittai", "Alberto Quattrini Li"]
+__email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
+__github__ = "@siavava"
+
 from time import sleep
 
 # Maze.py
