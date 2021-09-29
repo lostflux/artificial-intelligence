@@ -85,12 +85,17 @@ class Maze:
             return False
 
         return self.map[self.index(x, y)] == "."
+    
+    def can_move(self, x, y):
+        return self.is_floor(x, y) and not self.has_robot(x, y)
 
 
     def has_robot(self, x, y):
         if x < 0 or x >= self.width:
+            # print(f"x = {x} out of bounds")
             return False
         if y < 0 or y >= self.height:
+            # print(f"y = {y} out of bounds")
             return False
 
         for i in range(0, len(self.robotloc), 2):

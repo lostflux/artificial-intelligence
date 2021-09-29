@@ -28,6 +28,8 @@ class AstarNode:
         self.heuristic = heuristic
         self.parent = parent
         self.transition_cost = transition_cost
+        self.valid = True
+        
 
     def priority(self):
         """Return the current Node's priority value.
@@ -78,11 +80,13 @@ def astar_search(search_problem, heuristic_fn):
     visited_cost[start_node.state] = 0
 
     # while priority queue is not empty (i.e. there are still nodes to explore)...
-    while pqueue:
+    # AND the lowest priority node is still alive (was not replaced by a less costly node)...
+    while pqueue: #and visited_cost.get(pqueue[0].state, INFINITY) >= pqueue[0].priority():
         
         # get node in front of priority queue and check it's state.
         current_node = heappop(pqueue)
         current_state = current_node.state
+        solution.nodes_visited = solution.nodes_visited + 1
         
         # if it's the goal state, backtrack and return the path.
         if search_problem.is_goal(current_state):
@@ -97,14 +101,19 @@ def astar_search(search_problem, heuristic_fn):
         #   4. if a node's new cost is more favorable than its current cost,
         #      save the new cost to the costs dictionary and push it into the priority queue.
         current_cost = visited_cost[current_state]
+        
+        print(f"Current state: {current_state}, current cost: {current_cost}")
         for next_state in search_problem.get_successors(current_state):
             
-            next_cost = current_cost + current_node.transition_cost
-            next_node = AstarNode(next_state, heuristic_fn(next_state), current_node, next_cost)
+            next_cost = current_cost + 1
             
-            if visited_cost.get(next_state, INFINITY) > next_cost:
+            # (self, state, heuristic, parent=None, transition_cost=0)
+            next_node = AstarNode(next_state, heuristic_fn(next_state), parent=current_node, transition_cost=next_cost)
+            
+            if visited_cost.get(next_state, INFINITY) >= next_cost:
                 visited_cost[next_state] = next_cost
                 heappush(pqueue, next_node)
+                
 
     # once the priority queue is empty or an exit occurs 
     # (i.e. a goal state has been found), return the solution.
