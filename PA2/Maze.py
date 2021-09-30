@@ -62,8 +62,11 @@ class Maze:
                 y = int(parms[2])
                 self.robotloc.append(x)
                 self.robotloc.append(y)
+                
             else:
                 lines.append(line)
+                
+        print(f"Initialized robotloc = {self.robotloc}")
         f.close()
 
         self.width = len(lines[0])
@@ -116,6 +119,10 @@ class Maze:
 
         robot_number = 0
         for index in range(0, len(self.robotloc), 2):
+            
+            print(f"robotloc = {self.robotloc}")
+            
+            print(f"index = {index}, size = {len(self.robotloc)}")
 
             x = self.robotloc[index]
             y = self.robotloc[index + 1]

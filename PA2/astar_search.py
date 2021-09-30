@@ -81,7 +81,7 @@ def astar_search(search_problem, heuristic_fn):
 
     # while priority queue is not empty (i.e. there are still nodes to explore)...
     # AND the lowest priority node is still alive (was not replaced by a less costly node)...
-    while pqueue: #and visited_cost.get(pqueue[0].state, INFINITY) >= pqueue[0].priority():
+    while pqueue: # and visited_cost.get(pqueue[0].state, INFINITY) >= pqueue[0].priority():
         
         # get node in front of priority queue and check it's state.
         current_node = heappop(pqueue)

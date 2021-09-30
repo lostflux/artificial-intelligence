@@ -37,28 +37,32 @@ class MazeworldProblem:
         successors = []
         
         num_bots = len(state) // 2
+        # print(f"num bots = {num_bots}")
             
-        pos_steps = [-1, 1]
         for bot in range(num_bots):
-            x = state[2*bot]
-            y = state[2*bot + 1]
-            for dx in pos_steps:
+            
+            ix = 2 * bot
+            iy = ix + 1
+            x = state[ix]
+            y = state[iy]
+            for step in [-1, 1]:
                 
-                if self.maze.can_move(x+dx, y):
-                    index = 2*bot
-                    new_state = self.move(state, index=index, new_val=x+dx)
-                    if new_state:
-                        successors.append(new_state)
+                if self.maze.can_move(x+step, y):
                     
-            for dy in pos_steps:
+                    
+                    new_state = self.move(state, index=ix, new_val=x+step)
+                    # print(f"Can move from {state} to {new_state}")
+                    successors.append(new_state)
+                    
                 
-                if self.maze.can_move(x, y+dy):
-                    index = 2*bot + 1
-                    new_state = self.move(state, index=index, new_val=y+dy)
-                    if new_state:
-                        successors.append(new_state)
+                if self.maze.can_move(x, y+step):
+                    
+                    new_state = self.move(state, index=iy, new_val=y+step)
+                    # print(f"Can move from {state} to {new_state}")
+                    successors.append(new_state)
+
         
-        print(f"Successors: {successors}")
+        # print(f"Successors: {successors}")
         return successors
     
     # @staticmethod
@@ -66,8 +70,8 @@ class MazeworldProblem:
         """
         Given a state and an action, returns the new state.
         """
-        if not index or not new_val:
-            return None
+        # if not index or not new_val:
+        #     return None
         
         next_state = []
         for i in range(len(state)):
@@ -79,17 +83,20 @@ class MazeworldProblem:
         return tuple(next_state)
                 
     def is_goal(self, state):
-        return state in self.goal_locations
+        for i in range(len(state)):
+            if state[i] != self.goal_locations[i]:
+                return False
+        return True
 
     # given a sequence of states (including robot turn), modify the maze and print it out.
     #  (Be careful, this does modify the maze!)
     def animate_path(self, path):
         # reset the robot locations in the maze
-        self.maze.robotloc = tuple(self.start_state[1:])
+        self.maze.robotloc = tuple(self.start_state)
 
         for state in path:
             print(str(self))
-            self.maze.robotloc = tuple(state[1:])
+            self.maze.robotloc = tuple(state)
             sleep(1)
 
             print(str(self.maze))
@@ -103,7 +110,7 @@ class MazeworldProblem:
         for i in range(0, len(state), 2):
             x, goal_x = state[i], self.goal_locations[i]
             y, goal_y = state[i + 1], self.goal_locations[i + 1]
-            acc = acc +  abs(goal_x - x) + abs(goal_y - y)
+            acc = acc + abs(goal_x - x) + abs(goal_y - y)
             
         return acc
 
@@ -112,7 +119,11 @@ class MazeworldProblem:
 #  work as expected.
 
 if __name__ == "__main__":
-    test_maze3 = Maze("maze3.maz")
-    test_mp = MazeworldProblem(test_maze3, (1, 4, 1, 3, 1, 2))
+    # test_maze3 = Maze("maze3.maz")
+    # test_mp = MazeworldProblem(test_maze3, (1, 4, 1, 3, 1, 2))
 
-    print(test_mp.get_successors((0, 1, 0, 1, 2, 2, 1)))
+    # print(test_mp.get_successors((0, 1, 0, 1, 2, 2, 1)))
+    
+    test_maze4 = Maze("maze4.maz")
+    test_mp4 = MazeworldProblem(test_maze4, (20, 1))
+    # print(test_mp4.get_successors((5, 1)))
