@@ -138,7 +138,7 @@ def unit_test():
     
     test_maze4 = Maze("maze4.maz")
     test_mp4 = MazeworldProblem(test_maze4, (20, 1))
-    # print(test_mp4.get_successors((5, 1)))
+    print(test_mp4.get_successors((5, 1)))
 
 
 if __name__ == "__main__":

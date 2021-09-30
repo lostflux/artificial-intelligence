@@ -4,6 +4,12 @@ from time import sleep
 class SensorlessProblem:
 
     ## You write the good stuff here:
+    
+    def __init__(self, maze, goal_locations):
+        self.maze = maze
+        self.goal_locations = goal_locations
+        self.start_state = tuple(maze.robotloc)
+        self.visited_states = 0
 
     def __str__(self):
         string =  "Blind robot problem: "
