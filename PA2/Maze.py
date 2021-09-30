@@ -66,7 +66,6 @@ class Maze:
             else:
                 lines.append(line)
                 
-        print(f"Initialized robotloc = {self.robotloc}")
         f.close()
 
         self.width = len(lines[0])
@@ -90,15 +89,15 @@ class Maze:
         return self.map[self.index(x, y)] == "."
     
     def can_move(self, x, y):
-        return self.is_floor(x, y) and not self.has_robot(x, y)
+        if self.has_robot(x, y):
+            return False
+        return self.is_floor(x, y)
 
 
     def has_robot(self, x, y):
         if x < 0 or x >= self.width:
-            # print(f"x = {x} out of bounds")
             return False
         if y < 0 or y >= self.height:
-            # print(f"y = {y} out of bounds")
             return False
 
         for i in range(0, len(self.robotloc), 2):
@@ -114,15 +113,10 @@ class Maze:
     #  robot state, and generates a list of characters in order
     #  that they will need to be printed out in.
     def create_render_list(self):
-        #print(self.robotloc)
         renderlist = list(self.map)
 
         robot_number = 0
         for index in range(0, len(self.robotloc), 2):
-            
-            print(f"robotloc = {self.robotloc}")
-            
-            print(f"index = {index}, size = {len(self.robotloc)}")
 
             x = self.robotloc[index]
             y = self.robotloc[index + 1]

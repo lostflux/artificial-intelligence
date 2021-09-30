@@ -34,10 +34,11 @@ class MazeworldProblem:
         """
         Returns a list of (action, state, cost) tuples corresponding to edges in the graph.
         """
+        
+        # Initialzie successors, which is a list of tuples (action, state, cost)
         successors = []
         
         num_bots = len(state) // 2
-        # print(f"num bots = {num_bots}")
             
         for bot in range(num_bots):
             
@@ -49,30 +50,21 @@ class MazeworldProblem:
                 
                 if self.maze.can_move(x+step, y):
                     
-                    
                     new_state = self.move(state, index=ix, new_val=x+step)
-                    # print(f"Can move from {state} to {new_state}")
                     successors.append(new_state)
                     
                 
                 if self.maze.can_move(x, y+step):
                     
                     new_state = self.move(state, index=iy, new_val=y+step)
-                    # print(f"Can move from {state} to {new_state}")
                     successors.append(new_state)
 
-        
-        # print(f"Successors: {successors}")
         return successors
     
-    # @staticmethod
     def move(self, state, index=None, new_val=None):
         """
-        Given a state and an action, returns the new state.
-        """
-        # if not index or not new_val:
-        #     return None
-        
+            Given a state and an action, returns the new state.
+        """        
         next_state = []
         for i in range(len(state)):
             if i == index:
@@ -83,6 +75,9 @@ class MazeworldProblem:
         return tuple(next_state)
                 
     def is_goal(self, state):
+        """
+            Check if a given state is the goal state for a game instance.
+        """
         for i in range(len(state)):
             if state[i] != self.goal_locations[i]:
                 return False
@@ -102,6 +97,9 @@ class MazeworldProblem:
             print(str(self.maze))
             
     def manhattan_heuristic(self, state):
+        """
+            Calculate the manhattan distance between the current state and the goal state.
+        """
         
         if not state:
             return 0
