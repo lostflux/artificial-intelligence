@@ -35,25 +35,26 @@ class MazeworldProblem:
         Returns a list of (action, state, cost) tuples corresponding to edges in the graph.
         """
         
-        # Initialzie successors, which is a list of tuples (action, state, cost)
-        successors = []
+        # Initialzie successors, 
+        # loop over all bots and find their possible next movements,
+        # and add them to the array of possible next states.
         
+        successors = []
         num_bots = len(state) // 2
-            
+        
         for bot in range(num_bots):
-            
             ix = 2 * bot
             iy = ix + 1
-            x = state[ix]
-            y = state[iy]
+            x, y = state[ix], state[iy]
+            
             for step in [-1, 1]:
-                
+                # if bot can move in x direction, add to successors.
                 if self.maze.can_move(x+step, y):
                     
                     new_state = self.move(state, index=ix, new_val=x+step)
                     successors.append(new_state)
                     
-                
+                # if bot can move in y direction, add to successors.
                 if self.maze.can_move(x, y+step):
                     
                     new_state = self.move(state, index=iy, new_val=y+step)
@@ -64,28 +65,39 @@ class MazeworldProblem:
     def move(self, state, index=None, new_val=None):
         """
             Given a state and an action, returns the new state.
-        """        
+        """
+        
+        # initialize next state 
         next_state = []
+        
+        # copy values from original state, swapping out the value at index with new_val
         for i in range(len(state)):
             if i == index:
                 next_state.append(new_val)
             else:
                 next_state.append(state[i])
                 
+        # return an immutable tuple of the new state.
         return tuple(next_state)
                 
     def is_goal(self, state):
         """
             Check if a given state is the goal state for a game instance.
         """
+        
+        # loop over the state, checking if all positions match the goal state.
         for i in range(len(state)):
             if state[i] != self.goal_locations[i]:
                 return False
         return True
 
-    # given a sequence of states (including robot turn), modify the maze and print it out.
-    #  (Be careful, this does modify the maze!)
+
     def animate_path(self, path):
+        """
+            Given a sequence of states (including robot turn), modify the maze and print it out.
+            (Be careful, this does modify the maze!)
+        """
+        
         # reset the robot locations in the maze
         self.maze.robotloc = tuple(self.start_state)
 
@@ -104,12 +116,15 @@ class MazeworldProblem:
         if not state:
             return 0
         
+        # accumulate the sum of the distances between the robot 
+        # and its corresponding goal locaiton.
         acc = 0
         for i in range(0, len(state), 2):
             x, goal_x = state[i], self.goal_locations[i]
             y, goal_y = state[i + 1], self.goal_locations[i + 1]
             acc = acc + abs(goal_x - x) + abs(goal_y - y)
             
+        # return the accumulated sum.
         return acc
 
 

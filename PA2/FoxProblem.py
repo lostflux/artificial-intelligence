@@ -25,22 +25,17 @@ class FoxProblem:
 
     # get successor states for the given state
     def get_successors(self, state):
-        
-        # initialize set of next states.
+        # you write this part. I also had a helper function
+        #  that tested if states were safe before adding to successor list
         next_states = set()
-        
-        # iterate over all possible chickens and foxes leaving.
         for num_chickens in range(0, 3):
             for num_foxes in range(0, 3):
-                
-                # check the total animals leaving.
-                # It should not be greater than the size of the boat.
                 total = num_chickens + num_foxes
+                # print("total = ", total)
                 if 1 <= total <= 2:  # ignore states the empty transition
 
-                    # check if the boat is leaving side A or B.
                     if state[2] == 1:
-                        # BOAT LEAVING side A
+                        # BOAT LEAVING SHORE
                         new_chickens = state[0] - num_chickens  # find new number of chicken ashore
                         new_foxes = state[1] - num_foxes  # find new number of foxes ashore
                         next_state = (new_chickens, new_foxes, 0)
@@ -51,7 +46,7 @@ class FoxProblem:
                             next_states.add(next_state)
 
                     elif state[2] == 0:
-                        # BOAT RETURNING TO SIDE A
+                        # BOAT RETURNING TO SHORE
                         new_chickens = state[0] + num_chickens  # find new number of chicken ashore
                         new_foxes = state[1] + num_foxes  # find new number of foxes ashore
                         next_state = (new_chickens, new_foxes, 1)
@@ -59,8 +54,7 @@ class FoxProblem:
                         # check the state for validity, append to valid states
                         if self.is_valid(next_state):
                             next_states.add(next_state)
-                            
-        # return compiled set of states
+        # return set of states
         return next_states
 
     # I also had a goal test method. You should write one.

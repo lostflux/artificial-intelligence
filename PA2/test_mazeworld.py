@@ -38,7 +38,7 @@ def null_heuristic(state):
 
 # Your additional tests here:
 test_maze4 = Maze("maze4.maz")
-test_mp4 = MazeworldProblem(test_maze4, (22, 1, 17, 1))
+test_mp4 = MazeworldProblem(test_maze4, (22, 1, 17, 2))
 result = astar_search(test_mp4, test_mp4.manhattan_heuristic)
 print(result)
 test_mp4.animate_path(result.path)
