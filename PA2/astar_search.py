@@ -96,7 +96,6 @@ def astar_search(search_problem, heuristic_fn):
     visited_cost[start_node.state] = 0
 
     # while priority queue is not empty (i.e. there are still nodes to explore)...
-    # AND the lowest priority node is still alive (was not replaced by a less costly node)...
     while pqueue:
         
         # get node in front of priority queue and check it's state.
