@@ -112,8 +112,8 @@ def astar_search(search_problem, heuristic_fn):
         
         # if current state the goal state, backtrack and rebuild the path.
         if search_problem.is_goal(current_state):
-            solution.path = backchain(current_node)
             solution.cost = visited_cost[current_state]
+            solution.path = backchain(current_node)
             break
         
         # if current node is not the goal state:
@@ -125,12 +125,13 @@ def astar_search(search_problem, heuristic_fn):
         #   3. for each next state, calculate the cost of the transition 
         #      using the cost to current, transition cost, and heuristic and cost to current.
         for next_state in search_problem.get_successors(current_state):
-            next_node = AstarNode(next_state, heuristic_fn(next_state), parent=current_node, transition_cost=next_cost)
         
-        #   4. if a node's new cost is more favorable than its current cost,
-        #      save the new cost to the costs dictionary and push it into the priority queue.
+            #   4. if a node's new cost is more favorable than its current cost,
+            #      save the new cost to the costs dictionary and push it into the priority queue.
             if visited_cost.get(next_state, INFINITY) > next_cost:
                 visited_cost[next_state] = next_cost
+                next_node = AstarNode(next_state, heuristic_fn(next_state),
+                                      parent=current_node, transition_cost=next_cost)
                 heappush(pqueue, next_node)
                 
 

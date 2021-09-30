@@ -49,17 +49,18 @@ class MazeworldProblem:
             
             for step in [-1, 1]:
                 # if bot can move in x direction, add to successors.
-                if self.maze.can_move(x+step, y):
+                if self.maze.can_move(x+step, y, state):
                     
                     new_state = self.move(state, index=ix, new_val=x+step)
                     successors.append(new_state)
                     
                 # if bot can move in y direction, add to successors.
-                if self.maze.can_move(x, y+step):
+                if self.maze.can_move(x, y+step, state):
                     
                     new_state = self.move(state, index=iy, new_val=y+step)
                     successors.append(new_state)
 
+        # return compiled array of successors
         return successors
     
     def move(self, state, index=None, new_val=None):
@@ -128,15 +129,17 @@ class MazeworldProblem:
         return acc
 
 
-## A bit of test code. You might want to add to it to verify that things
-#  work as expected.
+# A unit test for the MazeworldProblem class.
+def unit_test():
+    test_maze3 = Maze("maze3.maz")
+    test_mp = MazeworldProblem(test_maze3, (1, 4, 1, 3, 1, 2))
 
-if __name__ == "__main__":
-    # test_maze3 = Maze("maze3.maz")
-    # test_mp = MazeworldProblem(test_maze3, (1, 4, 1, 3, 1, 2))
-
-    # print(test_mp.get_successors((0, 1, 0, 1, 2, 2, 1)))
+    print(test_mp.get_successors((0, 1, 0, 1, 2, 2, 1)))
     
     test_maze4 = Maze("maze4.maz")
     test_mp4 = MazeworldProblem(test_maze4, (20, 1))
     # print(test_mp4.get_successors((5, 1)))
+
+
+if __name__ == "__main__":
+   unit_test()

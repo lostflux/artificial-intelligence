@@ -52,19 +52,18 @@ class Maze:
         for line in f:
             line = line.strip()
             # ignore blank limes
-            if len(line) == 0:
-                pass
-            elif line[0] == "\\":
-                #print("command")
-                # there's only one command, \robot, so assume it is that
-                parms = line.split()
-                x = int(parms[1])
-                y = int(parms[2])
-                self.robotloc.append(x)
-                self.robotloc.append(y)
-                
-            else:
-                lines.append(line)
+            if len(line) != 0:
+                if line[0] == "\\":
+                    #print("command")
+                    # there's only one command, \robot, so assume it is that
+                    parms = line.split()
+                    x = int(parms[1])
+                    y = int(parms[2])
+                    self.robotloc.append(x)
+                    self.robotloc.append(y)
+                    
+                else:
+                    lines.append(line)
                 
         f.close()
 
@@ -88,24 +87,35 @@ class Maze:
 
         return self.map[self.index(x, y)] == "."
     
-    def can_move(self, x, y):
-        if self.has_robot(x, y):
-            return False
-        return self.is_floor(x, y)
+    def can_move(self, x, y, current_state):
+        """
+            Check if a given point in the maze can be moved to.
+            This method checks if the point is a valid room and doesn't have an occupant.
+        """
+        if self.is_floor(x, y):
+            return not self.has_robot(x, y, state=current_state)
+        
+        return False
 
 
-    def has_robot(self, x, y):
+    def has_robot(self, x, y, state=None):
         if x < 0 or x >= self.width:
             return False
         if y < 0 or y >= self.height:
             return False
+        
+        # if unspecified state, use the stating locations for the robots.
+        if state is None:
+            state = self.robotloc
 
-        for i in range(0, len(self.robotloc), 2):
-            rx = self.robotloc[i]
-            ry = self.robotloc[i + 1]
+        # check to make sure the point has a robot.
+        for i in range(0, len(state), 2):
+            rx = state[i]
+            ry = state[i + 1]
             if rx == x and ry == y:
                 return True
 
+        # if no match found, return False.
         return False
 
 
@@ -150,14 +160,13 @@ def robotchar(robot_number):
     return chr(ord("A") + robot_number)
 
 
-# Some test code
-
-if __name__ == "__main__":
+# A unit test for the Maze class.
+def unit_test():
     test_maze1 = Maze("maze1.maz")
     print(test_maze1)
 
-    #test_maze2 = Maze("maze2.maz")
-    #print(test_maze2)
+    test_maze2 = Maze("maze2.maz")
+    print(test_maze2)
 
     test_maze3 = Maze("maze3.maz")
     print(test_maze3)
@@ -170,3 +179,6 @@ if __name__ == "__main__":
     print(test_maze3.is_floor(1, 0))
 
     print(test_maze3.has_robot(1, 0))
+
+if __name__ == "__main__":
+    unit_test()
