@@ -12,9 +12,7 @@ __github__ = "@siavava"
 
 from Maze import Maze
 from time import sleep
-from MazeworldProblem import MazeworldProblem
 from astar_search import astar_search
-from random import randint
 
 class SensorlessProblem():
 
@@ -29,7 +27,6 @@ class SensorlessProblem():
     def __str__(self):
         string =  "Blind robot problem: "
         string += "Possible start locations: " + str(self.start_state) + "\n"
-        # string += "Goal state:" + str(self.goal_locations) + "\n"
         string += "Maze:\n" + str(self.maze) + "\n"
         return string
 
@@ -59,21 +56,57 @@ class SensorlessProblem():
         for i in range(0, len(state), 2):
             _state.add( (state[i], state[i+1]) )
             
-        return _state
-    
+        return _state    
     
     def locate(self):
             
         solution = astar_search(self, self.manhattan_heuristic)
         
-        print(f"Final *sure* position: {solution.path[-1]}")
         
-        print(solution)
+        if solution.path:
+            
+            final_state = self._state(solution.path[-1])
         
-        final_state = self._state(solution.path[-1])
+            (pos,) = final_state
+            print(f"Final positon: {pos}")
+            
+            self.animate_path(solution.path)
+            
+            steps = self.backtrack_directions(solution.path)
+            print(f"Steps taken: {steps}")
         
-        (pos,) = final_state
-        return pos
+        return solution
+    
+    def backtrack_directions(self, path) -> list:
+        """
+            Given a path, return a list of directions.
+        """
+        directions = []
+        
+        for i in range(len(path)-1):
+            state = path[i]
+            next_state = path[i+1]
+            
+            for ix in range(0, len(state), 2):
+                
+                if next_state[ix] > state[ix]:
+                    directions.append("E")
+                    break
+                    
+                elif next_state[ix] < state[ix]:
+                    directions.append("W")
+                    break
+                
+                elif next_state[ix+1] > state[ix+1]:
+                    directions.append("N")
+                    break
+                
+                elif next_state[ix+1] < state[ix+1]:
+                    directions.append("S")
+                    break
+
+                
+        return directions
             
             
     def get_successors(self, state):
@@ -155,10 +188,45 @@ class SensorlessProblem():
 ## A bit of test code
 
 if __name__ == "__main__":
-    test_maze3 = Maze("maze3.maz")
-    test_problem3 = SensorlessProblem(test_maze3)
     
-    final_state = test_problem3.locate()
+    # Run test on Maze 5
+    # test_maze5 = Maze("maze5.maz")
+    # test_problem5 = SensorlessProblem(test_maze5)
     
-    print(f"Final state = {final_state}")
+    # final_state = test_problem5.locate()
     
+    # print(f"Final state = {final_state}")
+    
+    
+    # Run test on Maze 6
+    # test_maze6 = Maze("maze6.maz")
+    # test_problem6 = SensorlessProblem(test_maze6)
+    
+    # final_state = test_problem6.locate()
+    
+    # print(f"Final state = {final_state}")
+    
+    # Run test on Maze 7
+
+    # test_maze7 = Maze("maze7.maz")
+    # test_problem7 = SensorlessProblem(test_maze7)
+    
+    # final_state = test_problem7.locate()
+    
+    # print(f"Final state = {final_state}")
+    
+    # Run test on Maze 8
+    # test_maze8 = Maze("maze8.maz")
+    # test_problem8 = SensorlessProblem(test_maze8)
+    
+    # solution = test_problem8.locate()
+    
+    # print(solution)
+    
+    # Run test on Maze 9
+    test_maze9 = Maze("maze9.maz")
+    test_problem9 = SensorlessProblem(test_maze9)
+    
+    solution = test_problem9.locate()
+    
+    print(solution)
