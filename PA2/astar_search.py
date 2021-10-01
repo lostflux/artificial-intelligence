@@ -98,7 +98,7 @@ def astar_search(search_problem, heuristic_fn):
     visited_cost[start_node.state] = 0
 
     # while priority queue is not empty (i.e. there are still nodes to explore)...
-    while not queue.is_empty():
+    while queue:
         
         # get node in front of priority queue and check it's state.
         current_node = queue.pop()

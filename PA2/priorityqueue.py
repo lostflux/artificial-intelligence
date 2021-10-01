@@ -22,6 +22,11 @@ class PriorityQueue(object):
 
     def __str__(self):
         return str(self._heap)
+    
+    def __bool__(self):
+        """Check if the queue is NOT empty.
+        """
+        return not self.is_empty()
 
     def push(self, item):
         """Push an item with a priority to the queue.
