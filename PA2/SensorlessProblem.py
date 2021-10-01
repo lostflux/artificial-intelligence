@@ -20,7 +20,7 @@ class SensorlessProblem():
 
     ## You write the good stuff here:
     
-    def __init__(self, maze, start_state=(0, 0, 1, 1, 2, 2, 3, 3)):
+    def __init__(self, maze):
         self.maze = maze
         self.start_state = tuple(maze.robotloc)
         self.visited_states = 0
