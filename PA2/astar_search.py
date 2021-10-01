@@ -101,7 +101,6 @@ def astar_search(search_problem, heuristic_fn):
     while not queue.is_empty():
         
         # get node in front of priority queue and check it's state.
-        # current_node = heappop(pqueue)
         current_node = queue.pop()
         current_state = current_node.state
         
