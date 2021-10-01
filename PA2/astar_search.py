@@ -15,6 +15,7 @@ __github__ = "@siavava"
 
 from SearchSolution import SearchSolution
 from heapq import heappush, heappop
+from priorityqueue import PriorityQueue
 
 # define global constant for infinite weight
 INFINITY = 2**20
@@ -34,7 +35,8 @@ class AstarNode:
         """Return the current Node's priority value.
             This value is the sum of the transition cost
             to the Node and the heuristic estimating distance
-            to the goal state."""
+            to the goal state.
+        """
         return self.heuristic + self.transition_cost
 
     # Comparators for the heapq module.
@@ -87,8 +89,8 @@ def astar_search(search_problem, heuristic_fn):
     # initialize the start node and priority queue,
     # then push the start node into the queue.
     start_node = AstarNode(search_problem.start_state, heuristic_fn(search_problem.start_state))
-    pqueue = []
-    heappush(pqueue, start_node)
+    queue = PriorityQueue()
+    queue.push(start_node)
 
     # initilize a dictionary to hold states and associated costs
     # to avoid evaluating paths that have been superseded by lesser-cost paths.
@@ -96,10 +98,11 @@ def astar_search(search_problem, heuristic_fn):
     visited_cost[start_node.state] = 0
 
     # while priority queue is not empty (i.e. there are still nodes to explore)...
-    while pqueue:
+    while not queue.is_empty():
         
         # get node in front of priority queue and check it's state.
-        current_node = heappop(pqueue)
+        # current_node = heappop(pqueue)
+        current_node = queue.pop()
         current_state = current_node.state
         
         # if the node has been superseded by another node (for the same state) 
@@ -132,7 +135,7 @@ def astar_search(search_problem, heuristic_fn):
                 visited_cost[next_state] = next_cost
                 next_node = AstarNode(next_state, heuristic_fn(next_state),
                                       parent=current_node, transition_cost=next_cost)
-                heappush(pqueue, next_node)
+                queue.push(next_node)
                 
 
     # once the priority queue is empty or an exit occurs 

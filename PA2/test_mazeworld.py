@@ -25,8 +25,8 @@ def null_heuristic(state):
 def main():
     # Test problems
 
-    # test_maze3 = Maze("maze3.maz")
-    # test_mp = MazeworldProblem(test_maze3, (1, 4, 1, 3, 1, 2))
+    test_maze3 = Maze("maze3.maz")
+    test_mp = MazeworldProblem(test_maze3, (1, 4, 1, 3, 1, 2))
 
     # print(test_mp.get_successors(test_mp.start_state))
 
@@ -35,19 +35,19 @@ def main():
     # print(result)
 
     # # # this should do a bit better:
-    # result = astar_search(test_mp, test_mp.manhattan_heuristic)
-    # print(result)
-    # test_mp.animate_path(result.path)
+    result = astar_search(test_mp, test_mp.manhattan_heuristic)
+    print(result)
+    test_mp.animate_path(result.path)
 
     # Your additional tests here:
 
     # Test 4
 
-    test_maze4 = Maze("maze4.maz")
-    test_mp4 = MazeworldProblem(test_maze4, (22, 1, 17, 2))
-    result = astar_search(test_mp4, test_mp4.manhattan_heuristic)
-    print(result)
-    test_mp4.animate_path(result.path)
+    # test_maze4 = Maze("maze4.maz")
+    # test_mp4 = MazeworldProblem(test_maze4, (22, 1, 17, 2))
+    # result = astar_search(test_mp4, test_mp4.manhattan_heuristic)
+    # print(result)
+    # test_mp4.animate_path(result.path)
 
 if __name__ == "__main__":
     main()
