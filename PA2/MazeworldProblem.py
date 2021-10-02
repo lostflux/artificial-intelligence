@@ -131,14 +131,14 @@ class MazeworldProblem:
 
 # A unit test for the MazeworldProblem class.
 def unit_test():
-    test_maze3 = Maze("maze3.maz")
-    test_mp = MazeworldProblem(test_maze3, (1, 4, 1, 3, 1, 2))
+    test_maze3 = Maze("maze5.maz")
+    test_mp = MazeworldProblem(test_maze3, (13, 13, 1, 13, 13, 1, 1, 1))
 
     print(test_mp.get_successors((0, 1, 0, 1, 2, 2, 1)))
     
-    test_maze4 = Maze("maze4.maz")
-    test_mp4 = MazeworldProblem(test_maze4, (20, 1))
-    print(test_mp4.get_successors((5, 1)))
+    # test_maze4 = Maze("maze4.maz")
+    # test_mp4 = MazeworldProblem(test_maze4, (20, 1))
+    # print(test_mp4.get_successors((5, 1)))
 
 
 if __name__ == "__main__":

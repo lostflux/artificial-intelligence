@@ -190,12 +190,12 @@ class SensorlessProblem():
 if __name__ == "__main__":
     
     # Run test on Maze 5
-    # test_maze5 = Maze("maze5.maz")
-    # test_problem5 = SensorlessProblem(test_maze5)
+    test_maze5 = Maze("maze5.maz")
+    test_problem5 = SensorlessProblem(test_maze5)
     
-    # final_state = test_problem5.locate()
+    final_state = test_problem5.locate()
     
-    # print(f"Final state = {final_state}")
+    print(f"Final state = {final_state}")
     
     
     # Run test on Maze 6
@@ -224,9 +224,9 @@ if __name__ == "__main__":
     # print(solution)
     
     # Run test on Maze 9
-    test_maze9 = Maze("maze9.maz")
-    test_problem9 = SensorlessProblem(test_maze9)
+    # test_maze9 = Maze("maze9.maz")
+    # test_problem9 = SensorlessProblem(test_maze9)
     
-    solution = test_problem9.locate()
+    # solution = test_problem9.locate()
     
-    print(solution)
+    # print(solution)
