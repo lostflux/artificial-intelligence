@@ -1,4 +1,10 @@
 class SearchSolution:
+    """
+        Data structure to handle the solution of a search session.
+        Stores important information about the run, such as the number of nodes visited,
+        eventual path, and cost.
+    """
+
     def __init__(self, problem, search_method):
         self.problem_name = str(problem)
         self.search_method = search_method

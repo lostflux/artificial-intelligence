@@ -14,45 +14,73 @@ __github__ = "@siavava"
 
 from MazeworldProblem import MazeworldProblem
 from Maze import Maze
-
-from uninformed_search import bfs_search
 from astar_search import astar_search
 
 # null heuristic, useful for testing astar search without heuristic (uniform cost search).
 def null_heuristic(state):
     return 0
 
+def test(map_file, final_state, animate=True):
+    test_maze = Maze(map_file)
+    test_mp = MazeworldProblem(test_maze, final_state)
+    solution = astar_search(test_mp, test_mp.manhattan_heuristic)
+    if solution.path:
+        test_mp.animate_path(solution.path)
+    print(solution)
+
 def main():
+    """
+        This method is triggered to run when one runs the file.
+    """
     # Test problems
-
-    test_maze3 = Maze("maze3.maz")
-    test_mp = MazeworldProblem(test_maze3, (1, 4, 1, 3, 1, 2))
     
-    # test_maze3 = Maze("maze5.maz")
-    # test_mp = MazeworldProblem(test_maze3, (13, 13, 1, 13, 13, 1, 1, 1))
-
-    # # print(test_mp.get_successors((0, 1, 0, 1, 2, 2, 1)))
-
-    # # print(test_mp.get_successors(test_mp.start_state))
-
-    # this should explore a lot of nodes; it's just uniform-cost search
-    result = astar_search(test_mp, null_heuristic)
-    print(result)
-
-    # # # this should do a bit better:
-    result = astar_search(test_mp, test_mp.manhattan_heuristic)
-    print(result)
-    # test_mp.animate_path(result.path)
-
-    # Your additional tests here:
-
-    # Test 4
-
-    # test_maze4 = Maze("maze4.maz")
-    # test_mp4 = MazeworldProblem(test_maze4, (22, 1, 17, 2))
-    # result = astar_search(test_mp4, test_mp4.manhattan_heuristic)
-    # print(result)
-    # test_mp4.animate_path(result.path)
+    m3, final3 = "mazes/maze3.maz", (1, 4, 1, 3, 1, 2)
+    m4, final4 = "mazes/maze4.maz", (22, 1, 17, 2)
+    
+    # Note: maze 5 to 9 are variations of the same mazee with increasing complexity.
+    m5, final5 = "mazes/maze5.maz", (13, 13, 1, 13, 13, 1, 1, 1)
+    m6, final6 = "mazes/maze6.maz", (13, 13, 1, 13, 13, 1, 1, 1)
+    m7, final7 = "mazes/maze7.maz", (13, 13, 1, 13, 13, 1, 1, 1)
+    m8, final8 = "mazes/maze8.maz", (13, 13, 1, 13, 13, 1, 1, 1)
+    m9, final9 = "mazes/maze9.maz", (13, 13, 1, 13, 13, 1, 1, 1)
+    
+    
+    ####################################################
+    ### un-mute one of these tests to run it.        ###
+    ### NOTE: running all at a go will take a while. ###
+    ### You may wish to simplify the goal,           ###
+    ### especially on the more advanced mazes.       ###
+    ### NOTE: Turning off the `animate` flag         ###
+    ### will turn off playing path animations.       ###
+    ####################################################
+    
+    # Test on Maze 3
+    # test(m3, final3)
+    
+    # # Test on Maze 4
+    # test(m4, final4)
+    
+    # # Test on Maze 5
+    test(m5, final5)
+    
+    # # Test on Maze 6
+    # test(m6, final6)
+    
+    # # Test on Maze 7
+    # test(m7, final7)
+    
+    # # Test on Maze8
+    # test(m8, final8)
+    
+    # Test on Maze9
+    # test(m9, final9)
+    
+    #######################################################
+    ### These additional tests are on Maps we developed ###
+    ### in my Spring CS50 class. ##########################
+    ### They are more complicated. ########################
+    ### Correct behavior is not assured. ##################
+    #######################################################
 
 if __name__ == "__main__":
     main()

@@ -10,6 +10,7 @@ __credits__ = ["Amittai", "Alberto Quattrini Li"]
 __email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
 __github__ = "@siavava"
 
+    
 from Maze import Maze
 from time import sleep
 from astar_search import astar_search
@@ -31,11 +32,10 @@ class SensorlessProblem():
         return string
 
 
-        # given a sequence of states (including robot turn), modify the maze and print it out.
-        #  (Be careful, this does modify the maze!)
-
     def animate_path(self, path):
-        # reset the robot locations in the maze
+        """
+            Given a path, animate the robot following it.
+        """
         self.maze.robotloc = tuple(self.start_state)
 
         for state in path:
@@ -44,43 +44,54 @@ class SensorlessProblem():
             sleep(1)
 
             print(str(self.maze))
-            
+           
     def is_goal(self, state):
-        
+        """
+            Given a state, returns True if it is a goal state,
+            i.e. all the robot start locations have converged.
+        """
         _state = self._state(state)
-        
         return len(_state) == 1
     
     def _state(self, state):
+        """
+            This method, given a final state, collapses the locations into a tuple of unique items.
+            This method is used internally and should not be used from outside the module.
+            :arg state: The state to be converged.
+        """
+        
         _state = set()
         for i in range(0, len(state), 2):
             _state.add( (state[i], state[i+1]) )
             
-        return _state    
+        return tuple(_state)    
     
     def locate(self):
-            
+        """
+            This method runs A* search on the current problem and returns the solution.
+            I found it easier than having to call A* each time.
+        """
         solution = astar_search(self, self.manhattan_heuristic)
-        
-        
-        if solution.path:
-            
-            final_state = self._state(solution.path[-1])
-        
-            (pos,) = final_state
-            print(f"Final positon: {pos}")
-            
-            self.animate_path(solution.path)
-            
-            steps = self.backtrack_directions(solution.path)
-            print(f"Steps taken: {steps}")
-        
         return solution
     
-    def backtrack_directions(self, path) -> list:
+    def get_final_position(self, path):
+        """
+            Given a path, return the final position.
+            :arg path: Path to follow.
+        """
+        final_state = self._state(path[-1])
+        (pos,) = final_state
+        return pos
+    
+    def get_directions(self, path) -> list:
         """
             Given a path, return a list of directions.
+            :arg path: Path to follow.
         """
+        
+        # Initialzie directions array,
+        # Step through the path, determine which direction 
+        # was taken at each successive step and append it to the array.
         directions = []
         
         for i in range(len(path)-1):
@@ -105,7 +116,6 @@ class SensorlessProblem():
                     directions.append("S")
                     break
 
-                
         return directions
             
             
@@ -139,10 +149,15 @@ class SensorlessProblem():
             Given a state and an action, returns the new state.
         """
         
-        # initialize next state 
-        next_state = []
+        # initialize next state
+        # For each possible direction of movement,
+        # attempt to move every robot in that direction.
+        # If resulting state is distinct from the current state (i.e. someone moved),
+        # return it as a valid state.
+        # NOTE: collisions are allowed -- 
+        # since the ultimate goal is to converge all the robots into a single point, anyway.
         
-        # copy values from original state, swapping out the value at index with new_val
+        next_state = []
         for i in range(0, len(state), 2):
             
             ix, iy = i, i+1
@@ -160,16 +175,23 @@ class SensorlessProblem():
             next_state.append(state[iy])
 
 
-        # return an immutable tuple of the new state.
+        # if no one moved, discard the state.
         if state == next_state:
             return None
             
+        #return immutable copy of the state.
         return tuple(next_state)
       
     def manhattan_heuristic(self, state):
         """
             Calculate the manhattan distance for the set of bots using the max and min x and y coordinates.
         """
+        
+        # rather than using the normal Manhattan distance, we seek to box in all the robots
+        # by finding the max and min coordinates in either both directions 
+        # then using those to calculate the heuristic.
+        
+        
         max_x, max_y = 0, 0
         min_x, min_y = 0, 0
         
@@ -188,45 +210,7 @@ class SensorlessProblem():
 ## A bit of test code
 
 if __name__ == "__main__":
-    
-    # Run test on Maze 5
-    test_maze5 = Maze("maze5.maz")
-    test_problem5 = SensorlessProblem(test_maze5)
-    
-    final_state = test_problem5.locate()
-    
-    print(f"Final state = {final_state}")
-    
-    
-    # Run test on Maze 6
-    # test_maze6 = Maze("maze6.maz")
-    # test_problem6 = SensorlessProblem(test_maze6)
-    
-    # final_state = test_problem6.locate()
-    
-    # print(f"Final state = {final_state}")
-    
-    # Run test on Maze 7
+    import sys
 
-    # test_maze7 = Maze("maze7.maz")
-    # test_problem7 = SensorlessProblem(test_maze7)
-    
-    # final_state = test_problem7.locate()
-    
-    # print(f"Final state = {final_state}")
-    
-    # Run test on Maze 8
-    # test_maze8 = Maze("maze8.maz")
-    # test_problem8 = SensorlessProblem(test_maze8)
-    
-    # solution = test_problem8.locate()
-    
-    # print(solution)
-    
-    # Run test on Maze 9
-    # test_maze9 = Maze("maze9.maz")
-    # test_problem9 = SensorlessProblem(test_maze9)
-    
-    # solution = test_problem9.locate()
-    
-    # print(solution)
+    print("Run 'test_sensorless.py' to test the SensorlessProblem module.", file=sys.stderr)
+

@@ -14,7 +14,6 @@ __email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
 __github__ = "@siavava"
 
 from SearchSolution import SearchSolution
-from heapq import heappush, heappop
 from priorityqueue import PriorityQueue
 
 # define global constant for infinite weight

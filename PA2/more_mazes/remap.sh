@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 
 # Script to refactor Maps!
+# Usage: ./remap.sh <input_file>
+# Output is automatically set to the same file name with a ".maz" extension.
+
+# Author: Amittai <@siavava>
 
 if [[ $# -ne 1 ]]; then
-  echo .&2 "Usage: $0 <map_file>"
+  echo >&2 "Usage: $0 <map_file>"
   exit 1
 fi
 
