@@ -16,8 +16,6 @@ from time import sleep
 from astar_search import astar_search
 
 class SensorlessProblem():
-
-    ## You write the good stuff here:
     
     def __init__(self, maze):
         self.maze = maze
