@@ -7,4 +7,4 @@ This directory contains code for robot navigation in a Maze
 
 Note: You might want to view the files to comment out or uncomment some tests, since running all of them at a go takes a lot of time.
 
-## Author: [Amittai](https://github.com/siavava)
+**Author: [Amittai](https://github.com/siavava)**
