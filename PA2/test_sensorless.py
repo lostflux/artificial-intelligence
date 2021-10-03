@@ -65,7 +65,7 @@ def main():
     # test(m4, animate=True)
     
     # # Test on Maze 5
-    test(m5, animate=False)
+    test(m5, animate=True)
     
     # # Test on Maze 6
     # test(m6, animate=False)

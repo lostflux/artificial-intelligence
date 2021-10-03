@@ -44,6 +44,7 @@ def main():
     m8, final8 = "mazes/maze8.maz", (13, 13, 1, 13, 13, 1, 1, 1)
     m9, final9 = "mazes/maze9.maz", (13, 13, 1, 13, 13, 1, 1, 1)
     m10, final10 = "mazes/maze10.maz", (2, 1, 3, 1, 1, 2, 2, 2, 3, 2, 1, 3, 2, 3, 3, 3)
+    m11, final11 = "mazes/hole.maz", (16, 3, 5, 5)
     
     
     ####################################################
@@ -62,7 +63,7 @@ def main():
     # test(m4, final4)
     
     # # Test on Maze 5
-    # test(m5, final5)
+    test(m5, final5)
     
     # # Test on Maze 6
     # test(m6, final6)
@@ -85,7 +86,12 @@ def main():
     
     # test 8-puzzle version.
     # NOTE: The final position of the puzzle is inverted due to the coordinate system used by the game.
-    test(m10, final10)
+    # test(m10, final10)
+    
+    # test maze with bridges and holes
+    # NOTE: Couldn't get this to work probably because of how the map is :(
+    # test(m11, final11)
+    
 
 if __name__ == "__main__":
     main()
