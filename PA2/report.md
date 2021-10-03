@@ -8,6 +8,7 @@
 
 $k$ robots live in an $n$ x $n$ rectangular maze. The coordinates of each robot are $(x_i, y_i)$, and each coordinate is an integer in the range $0...n-1$. For example, maybe the maze looks like this:
 
+```text
 . B . . . . .
 . # # . C . .
 . . # # . . .
@@ -15,8 +16,11 @@ $k$ robots live in an $n$ x $n$ rectangular maze. The coordinates of each robot 
 . . # # . . .
 . . # . . . .
 A . . . # # .
+```
+
 That's three robots $A$, $B$, $C$ in a 7x7 maze. You'd like to get the robots to another configuration. For example:
 
+```text
 . . . . . . .
 . # # . . . .
 . . # # . . .
@@ -24,6 +28,8 @@ That's three robots $A$, $B$, $C$ in a 7x7 maze. You'd like to get the robots to
 . . # # . . B
 . . # . . . A
 . . . . # # C
+```
+
 There are some rules. The robots only move in four directions, north, south, east, and west. The robots cannot pass through each other, and may not occupy the same square. The robots move one at a time. First robot $A$ moves, then robot $B$, then robot $C$, then $D$, $E$, and eventually, $A$ gets another turn. Any robot may decide to give up its turn and not move. So there are five possible actions from any state.
 
 Let's make the cost function the total fuel expended by the robots. A robot expends $1$ unit of fuel if it moves, and no fuel if it waits a turn.
