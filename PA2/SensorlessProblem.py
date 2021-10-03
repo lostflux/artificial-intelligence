@@ -10,8 +10,7 @@ __credits__ = ["Amittai", "Alberto Quattrini Li"]
 __email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
 __github__ = "@siavava"
 
-    
-from Maze import Maze
+
 from time import sleep
 from astar_search import astar_search
 
@@ -131,6 +130,7 @@ class SensorlessProblem():
             
             next_state_x = self.move(state, step, dir_x=True)
             next_state_y = self.move(state, step, dir_y=True)
+            
             if next_state_x:
                 successors.append(next_state_x)
                 
@@ -154,6 +154,10 @@ class SensorlessProblem():
         # return it as a valid state.
         # NOTE: collisions are allowed -- 
         # since the ultimate goal is to converge all the robots into a single point, anyway.
+        
+        if not dir_x and not dir_y:
+            print("Error: Please specify a direction to move in. Set either `dir_x` or `dir_y` to `True`.")
+            return None
         
         next_state = []
         for i in range(0, len(state), 2):
