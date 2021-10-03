@@ -12,6 +12,7 @@ __github__ = "@siavava"
 
 
 from time import sleep
+# from math import max, min
 from astar_search import astar_search
 
 class SensorlessProblem():
@@ -189,11 +190,9 @@ class SensorlessProblem():
             Calculate the manhattan distance for the set of bots using the max and min x and y coordinates.
         """
         
-        # rather than using the normal Manhattan distance, we seek to box in all the robots
+        # rather than using the normal Manhattan distance, box in all the robots
         # by finding the max and min coordinates in either both directions 
         # then using those to calculate the heuristic.
-        
-        
         max_x, max_y = 0, 0
         min_x, min_y = 0, 0
         
@@ -206,6 +205,53 @@ class SensorlessProblem():
             min_y = min(min_y, state[iy])
                 
         return abs(max_x - min_x) + abs(max_y - min_y)
+    
+    def manhattan_farthest(self, state):
+        """
+            Given a state, return the longest Manhattan distance between any two robots int he state.
+        """
+        
+        farthest = 0
+        
+        # For each robot, loop over every other robot in the maze, 
+        # find the manhattan distance between them, 
+        # and return the maximum of all such distances.
+        for ix in range(0, len(state), 2):
+            for jx in range(0, len(state), 2):
+                if ix == jx:
+                    continue
+                
+                dist = abs(state[ix]-state[jx]) + abs(state[ix+1]-state[jx+1])
+                if dist != 0:
+                    farthest = max(farthest, dist)
+                
+        return farthest
+    
+    def manhattan_closest(self, state):
+        """
+            Given a state, return the shortest Manhattan distance between any two robots in the state.
+        """
+        
+        closest = 2**20
+        
+        # For each robot, loop over every other robot in the maze, 
+        # find the manhattan distance between them, 
+        # and return the minimum of all such distances.
+        for ix in range(0, len(state), 2):
+            for jx in range(0, len(state), 2):
+                if ix == jx:
+                    continue
+                
+                dist = abs(state[ix]-state[jx]) + abs(state[ix+1]-state[jx+1])
+                
+                if dist != 0:
+                    closest = min(closest, dist)
+                
+        return closest
+            
+        
+    
+        
                   
 
 

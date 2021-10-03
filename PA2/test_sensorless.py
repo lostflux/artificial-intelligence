@@ -59,13 +59,13 @@ def main():
     ####################################################
     
     # Test on Maze 3
-    test(m3, animate=True)
+    # test(m3, animate=True)
     
     # # Test on Maze 4
     # test(m4, animate=True)
     
     # # Test on Maze 5
-    # test(m5, animate=True)
+    test(m5, animate=False)
     
     # # Test on Maze 6
     # test(m6, animate=False)

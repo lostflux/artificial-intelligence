@@ -43,7 +43,6 @@ def main():
     m7, final7 = "mazes/maze7.maz", (13, 13, 1, 13, 13, 1, 1, 1)
     m8, final8 = "mazes/maze8.maz", (13, 13, 1, 13, 13, 1, 1, 1)
     m9, final9 = "mazes/maze9.maz", (13, 13, 1, 13, 13, 1, 1, 1)
-    m10, final10 = "mazes/maze10.maz", (2, 1, 3, 1, 1, 2, 2, 2, 3, 2, 1, 3, 2, 3, 3, 3)
     
     
     ####################################################
@@ -82,10 +81,7 @@ def main():
     ### They are more complicated. ########################
     ### Correct behavior is not assured. ##################
     #######################################################
-    
-    # test 8-puzzle version.
-    # NOTE: The final position of the puzzle is inverted due to the coordinate system used by the game.
-    test(m10, final10)
+
 
 if __name__ == "__main__":
     main()
