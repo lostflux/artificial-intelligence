@@ -23,14 +23,16 @@ from ChessGame import ChessGame
 import sys
 
 
-player1 = HumanPlayer()
+# player1 = HumanPlayer()
+player1 = MinimaxAI(3)
 player2 = RandomAI()
 
-game = ChessGame(player1, player2)
+
+game = ChessGame(player2, player1)
 
 while not game.is_game_over():
     print(game)
     game.make_move()
 
 
-#print(hash(str(game.board)))
+print(hash(str(game.board)))
