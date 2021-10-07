@@ -10,11 +10,12 @@ __email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
 __github__ = "@siavava"
 
 import chess
+from chess import Board
 
 
 class ChessGame:
     def __init__(self, player1, player2):
-        self.board = chess.Board()
+        self.board = Board()
         self.players = [player1, player2]
 
     def make_move(self):
@@ -26,6 +27,12 @@ class ChessGame:
 
     def is_game_over(self):
         return self.board.is_game_over()
+    
+    def is_checkmate(self):
+        return self.board.is_checkmate()
+    
+    def is_stalemate(self):
+        return self.board.is_stalemate()
 
     def __str__(self):
 
