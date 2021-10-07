@@ -9,6 +9,7 @@ __credits__ = ["Amittai"]
 __email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
 __github__ = "@siavava"
 
+from chess import Board
 class TranspositionTable(object):
     def __init__(self):
         self.data: dict = {}
@@ -32,5 +33,10 @@ class TranspositionTable(object):
     
     def __len__(self):
         return len(self.data)
+    
+    # @staticmethod
+    # def zobrist_hash(board: Board):
+    #     hash_value = 0
+    #     for piece in board.pieces:
     
     

@@ -46,7 +46,7 @@ class AlphaBetaAI():
         best_move = None
         best_value = -inf
         all_moves = list(board.legal_moves)
-        shuffle(all_moves)
+        # shuffle(all_moves)
         
         # check every move and remember the last move that improves the utility.
         for move in all_moves:
@@ -63,7 +63,7 @@ class AlphaBetaAI():
                     print(f"move = {move}, Alpha-Beta score = {score}")
                 self.seen_states[board] = score
                 
-            if score > best_value:
+            if score >= best_value:
                 best_move = move
                 best_value = score
             
@@ -77,7 +77,7 @@ class AlphaBetaAI():
         if self.debug:
             print(f"Transposition Table size: {len(self.seen_states)}")
             
-        print("Minimax AI recommending move " + str(best_move))
+        print("Alpha-Beta AI recommending move " + str(best_move))
         return best_move
     
     def cutoff_test(self, board: Board, depth: int):
@@ -155,12 +155,25 @@ class AlphaBetaAI():
         if board in self.seen_states:
             return self.seen_states[board]
             
-        # otherwise, if cutoff point has been reached, evaluate the value of the board.
+        # otherwise, if cutoff point has been reached, evaluate the state of the board.
         elif self.cutoff_test(board, depth):
-            return self.evaluate(board)
+            value = self.evaluate(board)
+            self.seen_states[board] = value
+            return value
         
         # otherwise, recursively find the max of min for each next state,
         # remembering the state that gives the best outcome.
+         #
+        ###########################################################
+        #
+        # NOTE: If the value is greater than or equal to the worst value from the other search nodes,
+        # since we know the next player will be minimizing (and we are maximizing here),
+        # we can prune the remaining searches because they are insignificant.
+        #
+        # otherwise, we:
+        #   1. save the value to the transposition table, 
+        #   2. update the best value seen yet, 
+        #   3. and continue the looping search on other next states.
         else:
             highest_value = -inf
             all_moves = list(board.legal_moves)
@@ -170,13 +183,13 @@ class AlphaBetaAI():
                 board.pop()
                 
                 if highest_value >= worst:
-                    # self.seen_states[board] = highest_value
+                    self.seen_states[board] = highest_value
                     return highest_value
                     
                 else:
                     best = max(best, highest_value)
             
-            # self.seen_states[board] = highest_value
+            self.seen_states[board] = highest_value
             return highest_value
     
     def min_value(self, board, depth, best, worst):
@@ -190,24 +203,36 @@ class AlphaBetaAI():
             
         # otherwise, if cutoff point has been reached, evaluate the value of the board.
         elif self.cutoff_test(board, depth):
-            return self.evaluate(board)
+            value = self.evaluate(board)
+            self.seen_states[board] = value
+            return value
         
         # otherwise, recursively find the max of min for each next state,
         # remembering the state that gives the best outcome.
+        #
+        ###########################################################
+        #
+        # NOTE: If the value is less than or equal to the best value from the other search nodes,
+        # since we know the next player will be maximizing (and we are minimizing here),
+        # we can prune the remaining searches because they are insignificant.
+        #
+        # otherwise, we:
+        #   1. save the value to the transposition table, 
+        #   2. update the worst value seen yet, 
+        #   3. and continue the looping search on other next states.
         else: 
             lowest_value = inf
             all_moves = list(board.legal_moves)
-            # shuffle(all_moves)
             for move in all_moves:
                 board.push(move)
                 lowest_value = min(lowest_value, self.max_value(board, depth-1, best, worst))
                 board.pop()
                 if lowest_value <= best:
-                    # self.seen_states[board] = lowest_value
+                    self.seen_states[board] = lowest_value
                     return lowest_value
                     
                 else:
                     worst = min(worst, lowest_value)
                     
-            # self.seen_states[board] = lowest_value
+            self.seen_states[board] = lowest_value
             return lowest_value

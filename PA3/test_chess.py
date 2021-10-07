@@ -33,7 +33,7 @@ pr.enable()
 
 # player1 = HumanPlayer()
 # player1 = MinimaxAI(3, debug=True)
-player1 = AlphaBetaAI(3, debug=True)
+player1 = AlphaBetaAI(2, debug=True)
 player2 = RandomAI()
 
 
