@@ -9,12 +9,12 @@ __credits__ = ["Amittai"]
 __email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
 __github__ = "@siavava"
 
-from numpy import inf                               # infinity
-from chess import Board                             # Chess board
-import chess                                        # Chess module
-from random import shuffle
+from numpy import inf                                       # infinity
+from chess import Board                                     # Chess board
+import chess                                                # Chess module
+from random import shuffle                                  # functiont to shuffle moves.
 
-from erratum import (log_error, log_info, log_debug_info)
+from erratum import (log_error, log_info, log_debug_info)   # logging functions. see [../erratum.py] for more info.
 
 class MinimaxAI():
     """
