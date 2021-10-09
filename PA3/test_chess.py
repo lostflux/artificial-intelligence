@@ -17,7 +17,10 @@ from RandomAI import RandomAI
 from HumanPlayer import HumanPlayer
 from MinimaxAI import MinimaxAI
 from AlphaBetaAI import AlphaBetaAI
+from IterativeDeepeningAI import IterativeDeepeningAI
 from ChessGame import ChessGame
+
+from erratum import ( log_error, log_info, log_debug_info )
 
 
 import sys
@@ -25,19 +28,24 @@ import sys
 import cProfile, pstats, io
 from pstats import SortKey
 
+# ... initialize players ...
+random_player = RandomAI()
+minimax_white = MinimaxAI(2, debug=True)
+minimax_black = MinimaxAI(2, maximizing=False, debug=True)
 
+alpha_beta_white = AlphaBetaAI(3, debug=True)
+alpha_beta_black = AlphaBetaAI(2, maximizing=False, debug=True)
+
+ids_white = IterativeDeepeningAI(10, debug=True)
+ids_black = IterativeDeepeningAI(10, maximizing=False, debug=True)
+
+# start time tracker
 pr = cProfile.Profile()
 pr.enable()
 # ... do something ...
 
 
-# player1 = HumanPlayer()
-# player1 = MinimaxAI(3, debug=True)
-player1 = AlphaBetaAI(2, debug=True)
-player2 = RandomAI()
-
-
-game = ChessGame(player1, player2)
+game = ChessGame(alpha_beta_white, random_player)
 turns: int = 0
 while not game.is_game_over():
     print(game)
@@ -45,12 +53,9 @@ while not game.is_game_over():
     turns += 1
 print(game)
 
-print(f"Checkmate? {game.is_checkmate()}")
-print(f"Stalemate? {game.is_stalemate()}")
-print(f"Number of moves: {(turns // 2) + 1}")
-
-
-# print(hash(str(game.board)))
+log_info(f"Checkmate? {game.is_checkmate()}")
+log_info(f"Stalemate? {game.is_stalemate()}")
+log_info(f"Number of moves: {(turns // 2) + 1}")
 
 pr.disable()
 s = io.StringIO()
