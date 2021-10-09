@@ -102,54 +102,6 @@ class MinimaxAI():
         else:
             return self.min_value(board, self.depth)
         
-    @staticmethod
-    def end_status(board: Board):
-        """
-            Determine the desirability of a game end-state.
-        """
-        
-        # if game is not yet over, print error message and return 0.
-        if not board.is_game_over():
-            log_error("Game is not over yet.")
-            return 0
-        
-        result: str = board.outcome().result()
-        if result == "1-0":
-            return inf
-        elif result == "1/2-1/2":
-            return 0
-        else:
-            return -inf
-
-    def parse_color(self, board: Board, suit):
-        """
-            Given a board state and a suit, parses the pieces of that suit
-            on othe board and returns their total value.
-        """
-        
-        val = len(board.pieces(chess.PAWN, suit))           # Pawns -> value 1
-        val += 3 * len(board.pieces(chess.KNIGHT, suit))    # Knights -> value 3
-        val += 3 * len(board.pieces(chess.BISHOP, suit))    # Bishops -> value 3
-        val += 5 * len(board.pieces(chess.ROOK, suit))      # Rooks -> value 5
-        val += 9 * len(board.pieces(chess.QUEEN, suit))     # Queens -> value 9
-        
-        return val
-    
-    def evaluate(self, board: Board):
-        """
-            Evaluate a Chess position and determine its disirability.
-        """
-
-        # if the game is over, return infinity, neg infinity, or zero
-        # depending on whether the game has been won, lost, or drawn.
-        if board.is_game_over():
-            return self.end_status(board)
-            
-        # if the game is nto yet over, parse the pieces on the board
-        # to determine the value of the value of the state.
-        white = self.parse_color(board, chess.WHITE)
-        black = self.parse_color(board, chess.BLACK)
-        return white - black
     
     
     def max_value(self, board: Board, depth: int):
@@ -197,3 +149,61 @@ class MinimaxAI():
                 board.pop()
                 
             return lowest_value
+
+
+####################################################################################
+####################################################################################
+########################### Board Evaluation Functions #############################
+####################################################################################
+####################################################################################
+
+    @staticmethod
+    def end_status(board: Board):
+        """
+            Determine the desirability of a game end-state.
+        """
+        
+        # if game is not yet over, print error message and return 0.
+        if not board.is_game_over():
+            log_error("Game is not over yet.")
+            return 0
+        
+        result: str = board.outcome().result()
+        if result == "1-0":
+            return inf
+        elif result == "1/2-1/2":
+            return 0
+        else:
+            return -inf
+
+    @staticmethod
+    def parse_color(board: Board, suit):
+        """
+            Given a board state and a suit, parses the pieces of that suit
+            on othe board and returns their total value.
+        """
+        
+        val = len(board.pieces(chess.PAWN, suit))           # Pawns -> value 1
+        val += 3 * len(board.pieces(chess.KNIGHT, suit))    # Knights -> value 3
+        val += 3 * len(board.pieces(chess.BISHOP, suit))    # Bishops -> value 3
+        val += 5 * len(board.pieces(chess.ROOK, suit))      # Rooks -> value 5
+        val += 9 * len(board.pieces(chess.QUEEN, suit))     # Queens -> value 9
+        
+        return val
+    
+    def evaluate(self, board: Board):
+        """
+            Evaluate a Chess position and determine its disirability.
+        """
+
+        # if the game is over, return infinity, neg infinity, or zero
+        # depending on whether the game has been won, lost, or drawn.
+        if board.is_game_over():
+            return self.end_status(board)
+            
+        # if the game is not yet over, parse the pieces on the board
+        # to determine the value of the value of the state.
+        white = self.parse_color(board, chess.WHITE)
+        black = self.parse_color(board, chess.BLACK)
+        return white - black
+    
