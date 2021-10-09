@@ -11,11 +11,12 @@ __credits__ = ["Amittai"]
 __email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
 __github__ = "@siavava"
 
-from numpy import inf                               # infinity
-from chess import Board                             # Chess board
-import chess                                        # Chess module
-from TranspositionTable import TranspositionTable
-from random import shuffle
+from numpy import inf                                       # infinity
+from chess import Board                                     # Chess board
+import chess                                                # Chess module
+from random import shuffle                                  # functiont to shuffle moves.
+
+from erratum import (log_error, log_info, log_debug_info)   # logging functions. see [../erratum.py] for more info.
 
 class AlphaBetaAI():
     """
@@ -25,17 +26,17 @@ class AlphaBetaAI():
         might not be able to see as far down the road as it would
         in a game with less branching than Chess. 
     """
-    def __init__(self, depth, maximizing=True, debug=False):
+    def __init__(self, depth: int, maximizing=True, debug=False):
         """
             Constructor.
             :arg `depth`: maximum search depth.
             :arg `maximizing` [optional]: should be explicitly set to False
             if the goal is to minimize (not maximize) the heuristic. 
         """
-        self.depth: int = int(depth)
-        self.seen_states: TranspositionTable = TranspositionTable()
+        self.depth: int = depth
         self.maximizing: bool = maximizing
         self.debug: bool = debug
+        self.pruned_branches: int = 0
 
     def choose_move(self, board: Board):
         """
@@ -44,40 +45,28 @@ class AlphaBetaAI():
         
         # get all moves, initialize best utility to neg infinity.
         best_move = None
-        best_value = -inf
-        all_moves = list(board.legal_moves)
-        # shuffle(all_moves)
+        best_value = -inf if self.maximizing else inf
         
         # check every move and remember the last move that improves the utility.
-        for move in all_moves:
+        for move in board.legal_moves:
             
             board.push(move)
-            if board in self.seen_states:
-                score = self.seen_states[board]
+            score = self.alpha_beta_search(board)
             
-            else:
-                score = self.alpha_beta_search(board)
+            #########! if debug flag is set, print debug info. #########
+            if self.debug:
+                log_debug_info(f"move = {move}, Alpha-Beta score = {score}")                
                 
-                ######### if debug flag is set, print debug info. #########
-                if self.debug:
-                    print(f"move = {move}, Alpha-Beta score = {score}")
-                self.seen_states[board] = score
-                
-            if score >= best_value:
+            if ( (self.maximizing) and (score >= best_value) ) or \
+                ( (not self.maximizing) and (score <= best_value)):
                 best_move = move
                 best_value = score
             
             board.pop()
             
-            # if checkmate encountered, no need to keep searching.
-            if best_value == inf:
-                break
+        log_info(f"Total (cumulative) pruned brances: {self.pruned_branches}")
+        log_info("Alpha-Beta AI recommending move " + str(best_move))
         
-        ######### if debug flag is set, print debug info. #########
-        if self.debug:
-            print(f"Transposition Table size: {len(self.seen_states)}")
-            
-        print("Alpha-Beta AI recommending move " + str(best_move))
         return best_move
     
     def cutoff_test(self, board: Board, depth: int):
@@ -108,30 +97,112 @@ class AlphaBetaAI():
         # otherwise, return the min_value.
         else:
             return self.min_value(board, self.depth, -inf, inf)
-
-    def evaluate(self, board: Board):
-        """
-            Evaluate a Chess position and determine its disirability.
-        """
-
-        # if the game is over, return infinity, neg infinity, or zero
-        # depending on whether the game has been won, lost, or drawn.
-        if board.is_game_over():
-            result: str = board.outcome().result()
-            if result == "1-0":
-                return inf
-            elif result == "1/2-1/2":
-                return 0
-            else:
-                return -inf
             
-        # if the game is nto yet over, parse the pieces on the board
-        # to determine the value of the value of the state.
-        white = self.parse_color(board, chess.WHITE)
-        black = self.parse_color(board, chess.BLACK)
-        return white - black
     
-    def parse_color(self, board: Board, suit):
+    def max_value(self, board, depth, best, worst):
+        """
+            Given a board state, finds the maximum value for that state.
+        """
+            
+        # if cutoff point has been reached, evaluate the state of the board.
+        if self.cutoff_test(board, depth):
+            value = self.evaluate(board)
+            return value
+        
+        # otherwise, recursively find the max of min for each next state,
+        # remembering the state that gives the best outcome.
+        #
+        # NOTE: If the value is greater than or equal to the worst value from the other search nodes,
+        # since we know the next player will be minimizing (and we are maximizing here),
+        # we can prune the remaining searches because they are insignificant.
+        #
+        # otherwise, we:
+        #   1. save the value to the transposition table, 
+        #   2. update the best value seen yet, 
+        #   3. and continue the looping search on other next states.
+        else:
+            
+            highest_value = -inf
+            
+            for move in board.legal_moves:
+                board.push(move)
+                highest_value = max(highest_value, self.min_value(board, depth-1, best, worst))
+                board.pop()
+                
+                if highest_value >= worst:
+                    self.pruned_branches += 1
+                    return highest_value
+                    
+                else:
+                    best = max(best, highest_value)
+            
+            return highest_value
+    
+    def min_value(self, board, depth, best, worst):
+        """
+            Given a board state, finds the minimum value for that state.
+        """
+            
+        # if cutoff point has been reached, evaluate the value of the board.
+        if self.cutoff_test(board, depth):
+            value = self.evaluate(board)
+            return value
+        
+        # otherwise, recursively find the max of min for each next state,
+        # remembering the state that gives the best outcome.
+        #
+        # NOTE: If the value is less than or equal to the best value from the other search nodes,
+        # since we know the next player will be maximizing (and we are minimizing here),
+        # we can prune the remaining searches because they are insignificant.
+        #
+        # otherwise, we:
+        #   1. save the value to the transposition table, 
+        #   2. update the worst value seen yet, 
+        #   3. and continue the looping search on other next states.
+        else: 
+            lowest_value = inf
+            
+            for move in board.legal_moves:
+                board.push(move)
+                lowest_value = min(lowest_value, self.max_value(board, depth-1, best, worst))
+                board.pop()
+                if lowest_value <= best:
+                    self.pruned_branches += 1
+                    return lowest_value
+                    
+                else:
+                    worst = min(worst, lowest_value)
+                    
+            return lowest_value
+
+
+####################################################################################
+####################################################################################
+########################### Board Evaluation Functions #############################
+####################################################################################
+####################################################################################
+
+    @staticmethod
+    def end_status(board: Board):
+        """
+            Determine the desirability of a game end-state.
+        """
+        
+        # if game is not yet over, print error message and return 0.
+        if not board.is_game_over():
+            log_error("Game is not over yet.")
+            return 0
+        
+        result: str = board.outcome().result()
+        if result == "1-0":
+            return inf
+        elif result == "1/2-1/2":
+            return 0
+        else:
+            return -inf
+
+    @staticmethod
+    def parse_color(board: Board, suit):
         """
             Given a board state and a suit, parses the pieces of that suit
             on othe board and returns their total value.
@@ -144,95 +215,20 @@ class AlphaBetaAI():
         val += 9 * len(board.pieces(chess.QUEEN, suit))     # Queens -> value 9
         
         return val
-            
     
-    def max_value(self, board, depth, best, worst):
+    def evaluate(self, board: Board):
         """
-            Given a board state, finds the maximum value for that state.
+            Evaluate a Chess position and determine its disirability.
         """
 
-        # if state has been seen already, get the value from transposition table.
-        if board in self.seen_states:
-            return self.seen_states[board]
+        # if the game is over, return infinity, neg infinity, or zero
+        # depending on whether the game has been won, lost, or drawn.
+        if board.is_game_over():
+            return self.end_status(board)
             
-        # otherwise, if cutoff point has been reached, evaluate the state of the board.
-        elif self.cutoff_test(board, depth):
-            value = self.evaluate(board)
-            self.seen_states[board] = value
-            return value
-        
-        # otherwise, recursively find the max of min for each next state,
-        # remembering the state that gives the best outcome.
-         #
-        ###########################################################
-        #
-        # NOTE: If the value is greater than or equal to the worst value from the other search nodes,
-        # since we know the next player will be minimizing (and we are maximizing here),
-        # we can prune the remaining searches because they are insignificant.
-        #
-        # otherwise, we:
-        #   1. save the value to the transposition table, 
-        #   2. update the best value seen yet, 
-        #   3. and continue the looping search on other next states.
-        else:
-            highest_value = -inf
-            all_moves = list(board.legal_moves)
-            for move in all_moves:
-                board.push(move)
-                highest_value = max(highest_value, self.min_value(board, depth-1, best, worst))
-                board.pop()
-                
-                if highest_value >= worst:
-                    self.seen_states[board] = highest_value
-                    return highest_value
-                    
-                else:
-                    best = max(best, highest_value)
-            
-            self.seen_states[board] = highest_value
-            return highest_value
+        # if the game is not yet over, parse the pieces on the board
+        # to determine the value of the value of the state.
+        white = self.parse_color(board, chess.WHITE)
+        black = self.parse_color(board, chess.BLACK)
+        return white - black
     
-    def min_value(self, board, depth, best, worst):
-        """
-            Given a board state, finds the minimum value for that state.
-        """
-        
-        # if state has been seen already, get the value from transposition table.
-        if board in self.seen_states:
-            return self.seen_states[board]
-            
-        # otherwise, if cutoff point has been reached, evaluate the value of the board.
-        elif self.cutoff_test(board, depth):
-            value = self.evaluate(board)
-            self.seen_states[board] = value
-            return value
-        
-        # otherwise, recursively find the max of min for each next state,
-        # remembering the state that gives the best outcome.
-        #
-        ###########################################################
-        #
-        # NOTE: If the value is less than or equal to the best value from the other search nodes,
-        # since we know the next player will be maximizing (and we are minimizing here),
-        # we can prune the remaining searches because they are insignificant.
-        #
-        # otherwise, we:
-        #   1. save the value to the transposition table, 
-        #   2. update the worst value seen yet, 
-        #   3. and continue the looping search on other next states.
-        else: 
-            lowest_value = inf
-            all_moves = list(board.legal_moves)
-            for move in all_moves:
-                board.push(move)
-                lowest_value = min(lowest_value, self.max_value(board, depth-1, best, worst))
-                board.pop()
-                if lowest_value <= best:
-                    self.seen_states[board] = lowest_value
-                    return lowest_value
-                    
-                else:
-                    worst = min(worst, lowest_value)
-                    
-            self.seen_states[board] = lowest_value
-            return lowest_value
