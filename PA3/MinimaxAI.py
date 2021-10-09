@@ -166,7 +166,7 @@ class MinimaxAI():
         # remembering the best outcome.
         else:
             highest_value = -inf
-            all_moves = list(board.legal_moves)
+            all_moves = board.legal_moves
             
             for move in all_moves:
                 board.push(move)
@@ -189,7 +189,7 @@ class MinimaxAI():
         # remembering the best outcome.
         else: 
             lowest_value = inf
-            all_moves = list(board.legal_moves)
+            all_moves = board.legal_moves
             
             for move in all_moves:
                 board.push(move)
