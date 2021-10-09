@@ -22,6 +22,10 @@ def __text_color(r: int, g: int, b: int, text: str):
 
 
 def log_error(*args):
+    """
+        Given a list of arguments presumably representing an error message,
+        this function prints them in a distinct way to separate them from normal output.
+    """
     err_message = ""
     for arg in args:
         err_message += str(arg) + " "
@@ -29,6 +33,10 @@ def log_error(*args):
     print(__text_color(220, 20, 60, err_message))
     
 def log_info(*args):
+    """
+        Given a list of arguments presumably representing useful information,
+        this function prints them in a distinct way to separate them from normal output.
+    """
     err_message = ""
     for arg in args:
         err_message += str(arg) + " "
@@ -36,6 +44,10 @@ def log_info(*args):
     print(__text_color(30, 144, 255, err_message))
     
 def log_debug_info(*args):
+    """
+        Given a list of arguments presumably representing debug information,
+        this function prints them in a distinct way to separate them from normal output.
+    """
     debug_message = ""
     for arg in args:
         debug_message += str(arg) + " "
