@@ -36,6 +36,7 @@ class MinimaxAI():
         self.depth: int = depth
         self.maximizing: bool = maximizing
         self.debug: bool = debug
+        self.nodes_visited = 0
 
     def choose_move(self, board: Board, depth=None):
         """
@@ -48,11 +49,9 @@ class MinimaxAI():
         # get all moves, initialize best utility to neg infinity.
         best_move = None
         best_value = -inf if self.maximizing else inf
-        all_moves = list(board.legal_moves)
-        # shuffle(all_moves)
         
         # check every move and remember the last move that improves the utility.
-        for move in all_moves:
+        for move in board.legal_moves:
             
             board.push(move)
             score = self.minimax(board)

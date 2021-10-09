@@ -63,8 +63,10 @@ class AlphaBetaAI():
                 best_value = score
             
             board.pop()
+        
+        if self.debug:
+            log_info(f"Total (cumulative) pruned branches: {self.pruned_branches}")
             
-        log_info(f"Total (cumulative) pruned brances: {self.pruned_branches}")
         log_info("Alpha-Beta AI recommending move " + str(best_move))
         
         return best_move

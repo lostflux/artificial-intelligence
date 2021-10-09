@@ -33,7 +33,7 @@ random_player = RandomAI()
 minimax_white = MinimaxAI(2, debug=True)
 minimax_black = MinimaxAI(2, maximizing=False, debug=True)
 
-alpha_beta_white = AlphaBetaAI(3, debug=True)
+alpha_beta_white = AlphaBetaAI(2, debug=True)
 alpha_beta_black = AlphaBetaAI(2, maximizing=False, debug=True)
 
 ids_white = IterativeDeepeningAI(10, debug=True)
