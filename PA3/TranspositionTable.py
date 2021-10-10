@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""This module implements a Transposition Table.
+"""
+    This module implements a Transposition Table.
 """
 __author__ = "Amittai"
 __copyright__ = "Copyright 2021"
@@ -9,7 +10,6 @@ __credits__ = ["Amittai"]
 __email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
 __github__ = "@siavava"
 
-from chess import Board
 class TranspositionTable(object):
     def __init__(self):
         self.data: dict  ={}
