@@ -82,24 +82,26 @@ class MinimaxAI():
         """
         return (depth == 0) or (board.is_game_over())
     
-    def minimax(self, board: Board):
+    def minimax(self, board: Board, depth=None):
         """
             Given a board state, calculate the minimax value of that board state.
             :arg `board`: Chess board state.
             :arg `depth`:
         """
         
+        if not depth: depth = self.depth
+        
         # if cutoff point has been reached, return an evaluation of the board state.
-        if self.cutoff_test(board, self.depth):
+        if self.cutoff_test(board, depth):
             return self.evaluate(board)
         
         # otherwise, if the target is to maximize, return the max_value.
         elif self.maximizing:
-            return self.max_value(board, self.depth)
+            return self.max_value(board, depth)
         
         # otherwise, return the min_value.
         else:
-            return self.min_value(board, self.depth)
+            return self.min_value(board, depth)
         
     
     

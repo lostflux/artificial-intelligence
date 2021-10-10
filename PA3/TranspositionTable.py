@@ -12,10 +12,11 @@ __github__ = "@siavava"
 from chess import Board
 class TranspositionTable(object):
     def __init__(self):
+        self.keys = []
         self.data: dict = {}
         
     def __bool__(self):
-        return len(self.data) != 0
+        return len(self.keys) != 0
         
     def __getitem__(self, key):
         return self.data.get(hash(str(key)), None)
@@ -23,7 +24,10 @@ class TranspositionTable(object):
     def __contains__(self, key):
         """Check if the table contains an item.
         """
-        return hash((str(key))) in self.data.keys()
+        if hash(str(key)) in self.data:
+            return True
+        
+        return False
     
     def __setitem__(self, key, value):
         self.data[hash(str(key))] = value

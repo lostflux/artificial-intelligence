@@ -55,7 +55,7 @@ class AlphaBetaAI():
             
             #########! if debug flag is set, print debug info. #########
             if self.debug:
-                log_debug_info(f"move = {move}, Alpha-Beta score = {score}")                
+                log_debug_info(f"move = {move}, a/b score = {score}")                
                 
             if ( (self.maximizing) and (score >= best_value) ) or \
                 ( (not self.maximizing) and (score <= best_value)):
