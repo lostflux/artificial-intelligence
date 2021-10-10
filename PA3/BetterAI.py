@@ -11,13 +11,8 @@ __github__ = "@siavava"
 
 from numpy import inf                                       # infinity
 from chess import Board                                     # Chess board
-import chess                                                # Chess module
-
 from erratum import (log_error, log_info, log_debug_info)   # logging functions. see [../erratum.py] for more info.
-
-from EnhancedAlphaBetaAI import EnhancedAlphaBetaAI
-
-import _thread
+from EnhancedAlphaBetaAI import EnhancedAlphaBetaAI         # A/B AI for searching.
 
 class BetterAI():
     """
