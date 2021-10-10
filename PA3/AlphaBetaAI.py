@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-    This file implements several algorithms for intelligent Chess game-play,
-    including ALpha-Beta pruning Minimax AI.
+    This file implements the ALpha-Beta search algorithm for intelligent gameplay.
 """
 __author__ = "Amittai"
 __copyright__ = "Copyright 2021"
