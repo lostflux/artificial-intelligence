@@ -1,0 +1,88 @@
+.
+├── cs1lib.py
+├── Makefile
+├── PA1
+│   ├── foxes.py
+│   ├── FoxProblem.py
+│   ├── graph.png
+│   ├── README.md
+│   ├── report.md
+│   ├── SearchSolution.py
+│   └── uninformed_search.py
+├── PA2
+│   ├── astar_search.py
+│   ├── Maze.py
+│   ├── mazes
+│   │   ├── hole.maz
+│   │   ├── maze10.maz
+│   │   ├── maze1.maz
+│   │   ├── maze2.maz
+│   │   ├── maze3.maz
+│   │   ├── maze4.maz
+│   │   ├── maze5.maz
+│   │   ├── maze6.maz
+│   │   ├── maze7.maz
+│   │   ├── maze8.maz
+│   │   ├── maze9.maz
+│   │   ├── more_mazes
+│   │   │   ├── README.md
+│   │   │   ├── remapped
+│   │   │   │   ├── 13akersdozen-get_a_clue.maz
+│   │   │   │   ├── 13akersdozen.maz
+│   │   │   │   ├── 13akersdozen-spider.maz
+│   │   │   │   ├── big.maz
+│   │   │   │   ├── byteme.maz
+│   │   │   │   ├── cash.maz
+│   │   │   │   ├── challenge.maz
+│   │   │   │   ├── contrib.maz
+│   │   │   │   ├── crazy-eights-map.maz
+│   │   │   │   ├── edges.maz
+│   │   │   │   ├── fewspots.maz
+│   │   │   │   ├── foobarbaz.maz
+│   │   │   │   ├── fox1.maz
+│   │   │   │   ├── j3andme.maz
+│   │   │   │   ├── JMEGmap.maz
+│   │   │   │   ├── jt-and-partners.maz
+│   │   │   │   ├── jyre.maz
+│   │   │   │   ├── learning-fellas.maz
+│   │   │   │   ├── main.maz
+│   │   │   │   ├── narrow.maz
+│   │   │   │   ├── peter.maz
+│   │   │   │   ├── rar17.maz
+│   │   │   │   ├── rash.maz
+│   │   │   │   ├── remapped.maz
+│   │   │   │   ├── remap.sh.maz
+│   │   │   │   ├── sheep2.maz
+│   │   │   │   ├── sheep.maz
+│   │   │   │   ├── small.maz
+│   │   │   │   └── team-pine-map.maz
+│   │   │   └── remap.sh
+│   │   └── README.md
+│   ├── MazeworldProblem.py
+│   ├── priorityqueue.py
+│   ├── README.md
+│   ├── report.md
+│   ├── SearchSolution.py
+│   ├── SensorlessProblem.py
+│   ├── test_mazeworld.py
+│   └── test_sensorless.py
+├── PA3
+│   ├── AlphaBetaAI.py
+│   ├── BetterAI.py
+│   ├── ChessGame.py
+│   ├── EnhancedAlphaBetaAI.py
+│   ├── EnhancedMinimaxAI.py
+│   ├── erratum.py
+│   ├── gui_chess.py
+│   ├── HumanPlayer.py
+│   ├── IterativeDeepeningAI.py
+│   ├── Makefile
+│   ├── MinimaxAI.py
+│   ├── priorityqueue.py
+│   ├── RandomAI.py
+│   ├── test_chess.py
+│   └── TranspositionTable.py
+├── README.md
+└── tree.out
+
+6 directories, 79 files
