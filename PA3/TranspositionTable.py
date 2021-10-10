@@ -12,11 +12,10 @@ __github__ = "@siavava"
 from chess import Board
 class TranspositionTable(object):
     def __init__(self):
-        self.keys = []
-        self.data: dict = {}
+        self.data: dict  ={}
         
     def __bool__(self):
-        return len(self.keys) != 0
+        return len(self.data) != 0
         
     def __getitem__(self, key):
         return self.data.get(hash(str(key)), None)
