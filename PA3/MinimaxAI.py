@@ -12,7 +12,6 @@ __github__ = "@siavava"
 from numpy import inf                                       # infinity
 from chess import Board                                     # Chess board
 import chess                                                # Chess module
-from random import shuffle                                  # functiont to shuffle moves.
 
 from erratum import (log_error, log_info, log_debug_info)   # logging functions. see [../erratum.py] for more info.
 
@@ -37,39 +36,63 @@ class MinimaxAI():
         self.maximizing: bool = maximizing
         self.debug: bool = debug
         self.nodes_visited = 0
+        self.prev_moves = set()
 
-    def choose_move(self, board: Board, depth=None):
+    def choose_move(self, board: Board):
         """
             Given a board state, chooses the best move to play next.
         """
         
-        if depth:
-            self.depth = int(depth)
-        
         # get all moves, initialize best utility to neg infinity.
         best_move = None
-        best_value = -inf if self.maximizing else inf
+        best_cost = -inf if self.maximizing else inf
         
         # check every move and remember the last move that improves the utility.
         for move in board.legal_moves:
             
+            # try the move.
             board.push(move)
-            score = self.minimax(board)
+            cost = self.minimax(board)
             
-            #########! if debug flag is set, print debug info. #########
-            if self.debug:
-                log_debug_info(f"move = {move}, score = {score}")
+            #####! if debug flag is set, print debug info. #########
+            # if self.debug:
+            #     log_debug_info(f"move = {move}, score = {score}")
                 
-                
-                
-            if ( (self.maximizing) and (score >= best_value) ) or \
-                ( (not self.maximizing) and (score <= best_value)):
-                best_move = move
-                best_value = score
+            # check if the move improves the utility.
+            # NOTE: we check whether it *matches* the utility, OR if it *betters* the utility.
+            # This helps avoid a repetition loop where a sequence of first-occurring moves loop back
+            # to each other and the game gets stuck in a loop. 
+            # However, we also need to avoid blindly chosing the last move played -- 
+            # so we check if the state of the board after the move has been recorded before
+            # in the prev_moves set.
+            if ( (self.maximizing) and (cost >= best_cost) ) \
+                or ( (not self.maximizing) and (cost <= best_cost) ):
+                    
+                # if the cost strictly improves the utility, remember it and log progress.
+                if cost != best_cost:
+                    
+                    # if debug enabled, print progress
+                    if self.debug:
+                        if not (best_cost == -inf or best_cost == inf):
+                            log_debug_info(f"Better move found, score shift from {best_cost} to {cost}.")
+                        else:
+                            log_debug_info(f"First move found, score = {cost}.")
+                    
+                    best_move, best_cost = move, cost
+                    
+                elif not ((cost == best_cost) and (str(move) in self.prev_moves)):
+                    best_move, best_cost = move, cost
             
+            # undo the move.
             board.pop()
             
-        log_info(f"\nMinimax AI recommending move = {best_move}, move score = {best_value}\n")
+        # once the best move is found, remember it and return it.
+        self.prev_moves.add(str(best_move))
+        
+        # print information on chosen best move.
+        log_info(f"\nMinimax AI recommending move = {best_move}, move score = {best_cost}\n")
+        
+        # return chosen move.
         return best_move
     
     def cutoff_test(self, board: Board, depth: int):
@@ -102,8 +125,6 @@ class MinimaxAI():
         # otherwise, return the min_value.
         else:
             return self.min_value(board, depth)
-        
-    
     
     def max_value(self, board: Board, depth: int):
         """
@@ -151,13 +172,28 @@ class MinimaxAI():
                 
             return lowest_value
 
-
 ####################################################################################
 ####################################################################################
 ########################### Board Evaluation Functions #############################
 ####################################################################################
 ####################################################################################
 
+    def evaluate(self, board: Board):
+        """
+            Evaluate a Chess position and determine its disirability.
+        """
+
+        # if the game is over, return infinity, neg infinity, or zero
+        # depending on whether the game has been won, lost, or drawn.
+        if board.is_game_over():
+            return self.end_status(board)
+            
+        # if the game is not yet over, parse the pieces on the board
+        # to determine the value of the value of the state.
+        white = self.parse_color(board, chess.WHITE)
+        black = self.parse_color(board, chess.BLACK)
+        return white - black
+    
     @staticmethod
     def end_status(board: Board):
         """
@@ -184,6 +220,7 @@ class MinimaxAI():
             on othe board and returns their total value.
         """
         
+        # sum up the total value of the pieces of given suit on the board.
         val = len(board.pieces(chess.PAWN, suit))           # Pawns -> value 1
         val += 3 * len(board.pieces(chess.KNIGHT, suit))    # Knights -> value 3
         val += 3 * len(board.pieces(chess.BISHOP, suit))    # Bishops -> value 3
@@ -192,19 +229,4 @@ class MinimaxAI():
         
         return val
     
-    def evaluate(self, board: Board):
-        """
-            Evaluate a Chess position and determine its disirability.
-        """
-
-        # if the game is over, return infinity, neg infinity, or zero
-        # depending on whether the game has been won, lost, or drawn.
-        if board.is_game_over():
-            return self.end_status(board)
-            
-        # if the game is not yet over, parse the pieces on the board
-        # to determine the value of the value of the state.
-        white = self.parse_color(board, chess.WHITE)
-        black = self.parse_color(board, chess.BLACK)
-        return white - black
     
