@@ -11,6 +11,7 @@ __credits__ = ["Amittai"]
 __email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
 __github__ = "@siavava"
 
+from chess import Move
 from numpy import inf                                       # infinity
 from chess import Board                                     # Chess board
 import chess                                                # Chess module
@@ -20,6 +21,8 @@ from erratum import (log_error, log_info, log_debug_info)   # logging functions.
 from TranspositionTable import TranspositionTable           # Transposition table.  see [./TranspositionTable.py] for more info.
 from priorityqueue import PriorityQueue                     # Priority queue. see [./priorityqueue.py] for more info.
 
+
+################## Added abstraction for reordering moves ##################
 class OrderedMove():
     """
         This class represents a search node.
@@ -72,6 +75,7 @@ class OrderedMove():
     def __str__(self):
         return str(self.value)
 
+ ##################### Normal A/B functions ################################
 class EnhancedAlphaBetaAI():
     """
         A Chess AI that uses Alpha-Beta pruning with the Minimax algorithm to search for the best move.
@@ -80,7 +84,7 @@ class EnhancedAlphaBetaAI():
         might not be able to see as far down the road as it would
         in a game with less branching than Chess. 
     """
-    def __init__(self, depth, maximizing=True, debug=False):
+    def __init__(self, depth, maximizing=True, move_count=7, debug=False):
         """
             Constructor.
             :arg `depth`: maximum search depth.
@@ -91,6 +95,8 @@ class EnhancedAlphaBetaAI():
         self.memory: TranspositionTable = TranspositionTable()
         self.maximizing: bool = maximizing
         self.debug: bool = debug
+        self.prev_moves = set()
+        self.move_count = move_count
         
         # variables to track performance
         self.pruned_branches: int = 0
@@ -103,7 +109,7 @@ class EnhancedAlphaBetaAI():
         
         # get all moves, initialize best utility to neg infinity.
         best_move = None
-        best_value = -inf if self.maximizing else inf
+        best_cost = -inf if self.maximizing else inf
         
         legal_moves: list = list(board.legal_moves)
         reordered_moves = self.reorder_moves(board, legal_moves, max_heap=self.maximizing)
@@ -114,37 +120,58 @@ class EnhancedAlphaBetaAI():
             board.push(move)
             
             if board in self.memory:
-                score = self.memory[board]
+                cost = self.memory[board]
                 self.remembered_states += 1
             
             else:
-                score = self.alpha_beta_search(board)
-                self.memory[board] = score
+                cost = self.alpha_beta_search(board)
+                self.memory[board] = cost
                 
-            #########! if debug flag is set, print debug info. #########
-            if self.debug:
-                log_debug_info(f"move = {move}, enhanced a/b score = {score}")
-                
-                
-            if ( (self.maximizing) and (score > best_value) ) or \
-                ( (not self.maximizing) and (score < best_value)):
-                best_move = move
-                best_value = score
+            # check if the move improves the utility.
+            # NOTE: we check whether it *matches* the utility, OR if it *betters* the utility.
+            # This helps avoid a repetition loop where a sequence of first-occurring moves loop back
+            # to each other and the game gets stuck in a loop. 
+            # However, we also need to avoid blindly chosing the last move played -- 
+            # so we check if the state of the board after the move has been recorded before
+            # in the prev_moves set.
+            if ( (self.maximizing) and (cost >= best_cost) ) \
+                or ( (not self.maximizing) and (cost <= best_cost) ):
+                    
+                # if the cost strictly improves the utility, remember it and log progress.
+                if cost != best_cost:
+                    
+                    # if debug enabled, print progress
+                    if self.debug:
+                        if not (best_cost == -inf or best_cost == inf):
+                            log_debug_info(f"Better move found, score shift from {best_cost} to {cost}.")
+                        else:
+                            log_debug_info(f"First move found, score = {cost}.")
+                    
+                    best_move, best_cost = move, cost
+                    
+                elif not ((cost == best_cost) and (str(move) in self.prev_moves)):
+                    best_move, best_cost = move, cost
             
+            # undo the move.
             board.pop()
             
             # if checkmate encountered, no need to keep searching.
-            if best_value == inf:
+            if best_cost == inf:
                 break
+        
+        # once the best move is found, remember it and return it.
+        self.prev_moves.add(str(best_move))
         
         #########! if debug flag is set, print debug info. #########
         if self.debug:
             log_info(f"Transposition Table size: {len(self.memory)}.")
             log_info(f"Pruned {self.pruned_branches} branches.")
             log_info(f"Re-encountered {self.remembered_states} states (cumulative)")
-            
-        log_info("\nEnhanced A/B AI recommending move " + str(best_move))
+           
+        # print information on chosen best move. 
+        log_info(f"\nEnhanced A/B recommending move = {str(best_move)}, move score = {best_cost}")
         
+        # return chosen move
         return best_move
     
     def cutoff_test(self, board: Board, depth: int):
@@ -157,33 +184,35 @@ class EnhancedAlphaBetaAI():
         """
         return (depth == 0) or (board.is_game_over())
     
-    def alpha_beta_search(self, board: Board):
+    def alpha_beta_search(self, board: Board, depth=None, memoized=True):
         """
             Given a board state, calculate the minimax value of that board state.
             :arg `board`: Chess board state.
             :arg `depth`:
         """
         
+        if not depth: depth = self.depth
+        
         # if cutoff point has been reached, return an evaluation of the board state.
-        if self.cutoff_test(board, self.depth):
+        if self.cutoff_test(board, depth):
             return self.evaluate(board)
         
         # otherwise, if the target is to maximize, return the max_value.
         elif self.maximizing:
-            return self.max_value(board, self.depth, -inf, inf)
+            return self.max_value(board, depth, -inf, inf, memoized=memoized)
         
         # otherwise, return the min_value.
         else:
-            return self.min_value(board, self.depth, -inf, inf)
+            return self.min_value(board, depth, -inf, inf, memoized=memoized)
             
     
-    def max_value(self, board, depth, best, worst):
+    def max_value(self, board, depth, best, worst, memoized=True):
         """
             Given a board state, finds the maximum value for that state.
         """
 
         # if state has been seen already, get the value from transposition table.
-        if board in self.memory:
+        if memoized and (board in self.memory):
             self.remembered_states += 1
             return self.memory[board]
             
@@ -224,16 +253,16 @@ class EnhancedAlphaBetaAI():
                 else:
                     best = max(best, highest_value)
             
-            self.memory[board] = highest_value
+            if memoized: self.memory[board] = highest_value
             return highest_value
     
-    def min_value(self, board, depth, best, worst):
+    def min_value(self, board, depth, best, worst, memoized=True):
         """
             Given a board state, finds the minimum value for that state.
         """
         
         # if state has been seen already, get the value from transposition table.
-        if board in self.memory:
+        if memoized and (board in self.memory):
             self.remembered_states += 1
             return self.memory[board]
             
@@ -275,9 +304,12 @@ class EnhancedAlphaBetaAI():
                 else:
                     worst = min(worst, lowest_value)
                     
-            self.memory[board] = lowest_value
+            if memoized: self.memory[board] = lowest_value
             return lowest_value
-        
+       
+    ###############################################################################
+    ################# Added functionality for reordering moves ####################
+    ############################################################################### 
     def reorder_moves(self, board: Board, moves: list, max_heap=True):
         """
             Given a board state and a list of legal moves, reorders the moves
@@ -285,26 +317,25 @@ class EnhancedAlphaBetaAI():
             :arg board: Chess board object.
             :arg moves: list of legal moves.
         """
+        
+        # Initialize Priority Queue
         ordered_moves = PriorityQueue()
+
+        # For each move, calculate the value of the board *after* the move is made and add it to the queue.
+        for move in moves:
+            ordered_move = OrderedMove(self, board, move, max_heap=max_heap)
+            ordered_moves.push(ordered_move)
 
         new_moves = []
         if self.debug:
             values = []
-        
-        for move in moves:
-            ordered_move = OrderedMove(self, board, move, max_heap=max_heap)
-            ordered_moves.push(ordered_move)
-            
-            
-            
-        while ordered_moves:
+        while ordered_moves and len(new_moves) < self.move_count:
             ordered_move = ordered_moves.pop()
             new_moves.append(ordered_move.move)
             if self.debug:
                 values.append(ordered_move.value)
             
-        # if self.debug:
-            # log_info(f"max_heap = {max_heap}, reordered move costs: {values}")
+        # return list of reordered moves.
         return new_moves
             
         
@@ -314,7 +345,23 @@ class EnhancedAlphaBetaAI():
 ########################### Board Evaluation Functions #############################
 ####################################################################################
 ####################################################################################
+ 
+    def evaluate(self, board: Board):
+        """
+            Evaluate a Chess position and determine its disirability.
+        """
 
+        # if the game is over, return infinity, neg infinity, or zero
+        # depending on whether the game has been won, lost, or drawn.
+        if board.is_game_over():
+            return self.end_status(board)
+            
+        # if the game is not yet over, parse the pieces on the board
+        # to determine the value of the value of the state.
+        white = self.parse_color(board, chess.WHITE)
+        black = self.parse_color(board, chess.BLACK)
+        return white - black
+    
     @staticmethod
     def end_status(board: Board):
         """
@@ -348,21 +395,4 @@ class EnhancedAlphaBetaAI():
         val += 9 * len(board.pieces(chess.QUEEN, suit))     # Queens -> value 9
         
         return val
-    
-    
-    def evaluate(self, board: Board):
-        """
-            Evaluate a Chess position and determine its disirability.
-        """
-
-        # if the game is over, return infinity, neg infinity, or zero
-        # depending on whether the game has been won, lost, or drawn.
-        if board.is_game_over():
-            return self.end_status(board)
-            
-        # if the game is not yet over, parse the pieces on the board
-        # to determine the value of the value of the state.
-        white = self.parse_color(board, chess.WHITE)
-        black = self.parse_color(board, chess.BLACK)
-        return white - black
     
