@@ -48,7 +48,6 @@ class BetterAI():
             EnhancedAlphaBetaAI(0, maximizing=self.maximizing, memoized=False, move_count=move_count, debug=debug)
         self.prev_moves = set()
         self.timeout = timeout
-        self.move_count = move_count
        
      
     def choose_move(self, board: Board):
