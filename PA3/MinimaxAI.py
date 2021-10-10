@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""This file implements several algorithms for intelligent gameplay, including Miniman AI.
+"""
+    This file implements the Minimax search algorithm for intelligent gameplay.
 """
 __author__ = "Amittai"
 __copyright__ = "Copyright 2021"
@@ -53,10 +54,6 @@ class MinimaxAI():
             # try the move.
             board.push(move)
             cost = self.minimax(board)
-            
-            #####! if debug flag is set, print debug info. #########
-            # if self.debug:
-            #     log_debug_info(f"move = {move}, score = {score}")
                 
             # check if the move improves the utility.
             # NOTE: we check whether it *matches* the utility, OR if it *betters* the utility.
