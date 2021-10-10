@@ -84,7 +84,7 @@ class EnhancedAlphaBetaAI():
         might not be able to see as far down the road as it would
         in a game with less branching than Chess. 
     """
-    def __init__(self, depth, maximizing=True, move_count=7, debug=False):
+    def __init__(self, depth, maximizing=True, move_count=7, debug=False, memoized=True):
         """
             Constructor.
             :arg `depth`: maximum search depth.
@@ -92,7 +92,10 @@ class EnhancedAlphaBetaAI():
             if the goal is to minimize (not maximize) the heuristic. 
         """
         self.depth: int = int(depth)
-        self.memory: TranspositionTable = TranspositionTable()
+        
+        if memoized: self.memory: TranspositionTable = TranspositionTable()
+        else: self.memory = None
+        
         self.maximizing: bool = maximizing
         self.debug: bool = debug
         self.prev_moves = set()
@@ -119,13 +122,13 @@ class EnhancedAlphaBetaAI():
             
             board.push(move)
             
-            if board in self.memory:
+            if self.memory and board in self.memory:
                 cost = self.memory[board]
                 self.remembered_states += 1
             
             else:
                 cost = self.alpha_beta_search(board)
-                self.memory[board] = cost
+                if self.memory: self.memory[board] = cost
                 
             # check if the move improves the utility.
             # NOTE: we check whether it *matches* the utility, OR if it *betters* the utility.
@@ -199,20 +202,20 @@ class EnhancedAlphaBetaAI():
         
         # otherwise, if the target is to maximize, return the max_value.
         elif self.maximizing:
-            return self.max_value(board, depth, -inf, inf, memoized=memoized)
+            return self.max_value(board, depth, -inf, inf)
         
         # otherwise, return the min_value.
         else:
-            return self.min_value(board, depth, -inf, inf, memoized=memoized)
+            return self.min_value(board, depth, -inf, inf)
             
     
-    def max_value(self, board, depth, best, worst, memoized=True):
+    def max_value(self, board, depth, best, worst):
         """
             Given a board state, finds the maximum value for that state.
         """
 
         # if state has been seen already, get the value from transposition table.
-        if memoized and (board in self.memory):
+        if self.memory and (board in self.memory):
             self.remembered_states += 1
             return self.memory[board]
             
@@ -253,16 +256,16 @@ class EnhancedAlphaBetaAI():
                 else:
                     best = max(best, highest_value)
             
-            if memoized: self.memory[board] = highest_value
+            if self.memory: self.memory[board] = highest_value
             return highest_value
     
-    def min_value(self, board, depth, best, worst, memoized=True):
+    def min_value(self, board, depth, best, worst):
         """
             Given a board state, finds the minimum value for that state.
         """
         
         # if state has been seen already, get the value from transposition table.
-        if memoized and (board in self.memory):
+        if self.memory and (board in self.memory):
             self.remembered_states += 1
             return self.memory[board]
             
@@ -289,8 +292,6 @@ class EnhancedAlphaBetaAI():
             legal_moves: list = list(board.legal_moves)
             reordered_moves = self.reorder_moves(board, legal_moves, max_heap=(not self.maximizing))
             
-            # log_info(f"Returned {len(reordered_moves)} best moves.")
-            
             for move in reordered_moves:
                 
                 board.push(move)
@@ -304,7 +305,7 @@ class EnhancedAlphaBetaAI():
                 else:
                     worst = min(worst, lowest_value)
                     
-            if memoized: self.memory[board] = lowest_value
+            if self.memory: self.memory[board] = lowest_value
             return lowest_value
        
     ###############################################################################

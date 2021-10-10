@@ -21,6 +21,7 @@ from IterativeDeepeningAI import IterativeDeepeningAI
 from ChessGame import ChessGame
 
 from EnhancedAlphaBetaAI import EnhancedAlphaBetaAI
+from BetterAI import BetterAI
 
 from erratum import ( log_error, log_info, log_debug_info )
 
@@ -35,14 +36,17 @@ random_player = RandomAI()
 minimax_white = MinimaxAI(2, debug=True)
 minimax_black = MinimaxAI(2, maximizing=False, debug=True)
 
-alpha_beta_white = AlphaBetaAI(2, debug=True)
+alpha_beta_white = AlphaBetaAI(3, debug=True)
 alpha_beta_black = AlphaBetaAI(3, maximizing=False, debug=True)
 
-ids_white = IterativeDeepeningAI(10, debug=True)
-ids_black = IterativeDeepeningAI(10, maximizing=False, debug=True)
+ids_white = IterativeDeepeningAI(4, timeout=30, debug=True)
+ids_black = IterativeDeepeningAI(4, maximizing=False, debug=True)
 
 enhanced_alpha_beta_white = EnhancedAlphaBetaAI(3, debug=True)
 enhanced_alpha_beta_black = EnhancedAlphaBetaAI(5, maximizing=False, debug=True)
+
+better_ai_white = BetterAI(timeout=100, debug=True)
+better_ai_black = BetterAI(timeout=30, maximizing=False, debug=True)
 
 # start time tracker
 pr = cProfile.Profile()
@@ -51,7 +55,7 @@ pr.enable()
 
 
 ######################## Game Loop #########################
-game = ChessGame(enhanced_alpha_beta_white, alpha_beta_black)
+game = ChessGame(better_ai_white, random_player)
 turns: int = 0
 while not game.is_game_over():
     print(game)
