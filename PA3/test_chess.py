@@ -33,8 +33,8 @@ from pstats import SortKey
 
 # ... initialize players ...
 random_player = RandomAI()
-minimax_white = MinimaxAI(2, debug=True)
-minimax_black = MinimaxAI(2, maximizing=False, debug=True)
+minimax_white = MinimaxAI(1, debug=True)
+minimax_black = MinimaxAI(1, maximizing=False, debug=True)
 
 alpha_beta_white = AlphaBetaAI(3, debug=True)
 alpha_beta_black = AlphaBetaAI(3, maximizing=False, debug=True)
@@ -53,9 +53,35 @@ pr = cProfile.Profile()
 pr.enable()
 # ... do something ...
 
+######### Initialze game #########
+###! Unmute one of these definitions to play the game.
+
+# # minimax
+game = ChessGame(minimax_white, random_player)
+# game = ChessGame(random_player, minimax_black)
+# game = ChessGame(minimax_white, minimax_black)
+
+# # alpha beta
+# game = ChessGame(alpha_beta_white, random_player)
+# game = ChessGame(random_player, alpha_beta_black)
+# game = ChessGame(alpha_beta_white, alpha_beta_black)
+
+# # iterative deepening
+# game = ChessGame(ids_white, random_player)
+# game = ChessGame(random_player, ids_black)
+# game = ChessGame(ids_white, ids_black)
+
+# # enhanced alpha beta
+# game = ChessGame(enhanced_alpha_beta_white, random_player)
+# game = ChessGame(random_player, enhanced_alpha_beta_black)
+# game = ChessGame(enhanced_alpha_beta_white, enhanced_alpha_beta_black)
+
+# # better ai (my version with a bunch of changes)
+# game = ChessGame(better_ai_white, random_player)
+# game = ChessGame(random_player, better_ai_black)
+# game = ChessGame(better_ai_white, better_ai_black)
 
 ######################## Game Loop #########################
-game = ChessGame(better_ai_white, random_player)
 turns: int = 0
 while not game.is_game_over():
     print(game)
