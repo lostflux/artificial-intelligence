@@ -502,845 +502,480 @@ For instance, if the current level of the search is a maximizing node, then we k
             return lowest_value
 ```
 
-Using basic pruning, the algorithm was able to easily search $1$ to $2$ depths deeper than `minimax`.
-### 4. Implement Iterative Deepening
+#### Discussion of basic algorithm and pruning
 
-I used minimax in my iterative deepening implementation, where, for each call, the iterative deepening polls minimax for the best move, tracking the scores. I also added a quirk in my implementation that, for each depth, the best move from the previous depth is evaluated first so that if its score decreases and another move gets a better score than the new best score (but not necessarily the "best score" from the previous depth), then the algorithm can detect that move $A$'s value went down and move $B$ surpassed it.
+Using basic pruning, the algorithm was able to easily search $1$ to $2$ depths deeper than `minimax`, with comparable results.
 
-
-
-
-
-
-
-
-
-
-$k$ robots live in an $n$ x $n$ rectangular maze. The coordinates of each robot are $(x_i, y_i)$, and each coordinate is an integer in the range $0...n-1$. For example, maybe the maze looks like this:
-
+The ability to search deeper consistently allowed the algorithm to find better moves than the singular  move minimax would find, or one reassignment.
 ```text
-. B . . . . .
-. # # . C . .
-. . # # . . .
-. . . . # . .
-. . # # . . .
-. . # . . . .
-A . . . # # .
-```
+White to move
 
-That's three robots $A$, $B$, $C$ in a 7x7 maze. You'd like to get the robots to another configuration. For example:
+First move found, score = 26.  
+Better move found, score shift from 26 to 27.  
+Better move found, score shift from 27 to 34.  
+Better move found, score shift from 34 to 35.  
 
-```text
-. . . . . . .
-. # # . . . .
-. . # # . . .
-. . . . # . .
-. . # # . . B
-. . # . . . A
-. . . . # # C
-```
-
-There are some rules. The robots only move in four directions, north, south, east, and west. The robots cannot pass through each other, and may not occupy the same square. The robots move one at a time. First robot $A$ moves, then robot $B$, then robot $C$, then $D$, $E$, and eventually, $A$ gets another turn. Any robot may decide to give up its turn and not move. So there are five possible actions from any state.
-
-Let's make the cost function the total fuel expended by the robots. A robot expends $1$ unit of fuel if it moves, and no fuel if it waits a turn.
-
-Only one robot may occupy one square at a time. You are given a map ahead of time, and it will not change during the course of the game.
-
-#### Discussion Questions (Mazeworld)
-
-1. If there are $k$ robots, how would you represent the state of the system? Hint -- how many numbers are needed to exactly reconstruct the locations of all the robots, if we somehow forgot where all of the robots were? Further hint. Do you need to know anything else to determine exactly what actions are available from this state?
-
-  > Given $k$ robots, we first have to know their exact locations. We can store this as either an array or struct carrying location information for each robot. Here, we can either make sure each robot's location coordinates remain in a certain index in the array (for instance, by using an immutable tuple) or use a dictionary to associate each robot with location. In total, we would need $2k$ numbers to be able to place each of the $k$ robots in exact $x$ and $y$ position.
-  > We further need to know a robot's immediate surroundings to determine possible movements, but these can be inferred from the map data.
-  > We also need to consider other robot locations so robots don't run into each other.
-
-2. Give an upper bound on the number of states in the system, in terms of n and k.
+Alpha-Beta AI recommending move = d4d5, move score = 35
   
-  > Suppose the maze does not have walls, then there are $n^{2}$ possible position in the maze. Since the bots cannot collide (i.e. be in the same position at the same time), the first of the $k$ robots will have $n^{2}$ possible spots, the second will have $n^{2}-1$ possible spots, and the $k$'th robot will have $n^{2}-k$ possible locations. This sums up to a possible total of $\frac{n^{2}!}{k!}$ possible states.
+. . . Q . B r .
+. . . . p . . p
+p . n . . . . .
+. . . P . p . .
+P P k . . . . .
+. . . . . . . .
+. . . . P P P P
+R N . Q K B N R
+----------------
+a b c d e f g h
 
-3. Give a rough estimate on how many of these states represent collisions if the number of wall squares is w, and n is much larger than k.
+```
+
+Sometimes the algorithm was also able to devise a checkmate faster, but on average most games lasted about 2 or three moves less than `minimax`'s games when playing random AI.
+
+```text
+Black to move
+
+Random AI recommending move e7e5
+. . . Q . B r .
+. . . . . . . .
+p . P . . . . .
+. . . . p p . p
+P P k . . . . .
+. . . . . . . .
+. . . . P P P P
+R N . Q K B N R
+----------------
+a b c d e f g h
+
+White to move
+
+First move found, score = 37.  
+Better move found, score shift from 37 to inf.  
+
+Alpha-Beta AI recommending move = e2e4, move score = inf
   
-  > Given that $w$ positions are walls, the number of possible positions reduces from $n^{2}$ to $n^{2}-w$. Thus, possible states without collissions will reduce to $\frac{(n^{2}-w)!}{k!}$. Thus, the number of collission states will be the difference: $\frac{n^{2}!}{k!}$ $-$ $\frac{(n^{2}-w)!}{k!}$
+. . . Q . B r .
+. . . . . . . .
+p . P . . . . .
+. . . . p p . p
+P P k . P . . .
+. . . . . . . .
+. . . . . P P P
+R N . Q K B N R
+----------------
+a b c d e f g h
 
-4. If there are not many walls, n is large (say 100x100), and several  robots (say 10), do you expect a straightforward breadth-first search on the state space to be computationally feasible for all start and goal pairs? Why or why not?
+Black to move
 
-  > No, I do not expect a straightforward **BFS** to be able to find the path in reasonable time because, at that scale, the maze will have about $\frac{100!}{10!}$ possible states to check, which is a lot to search using an uninformed algorithm.
+Checkmate? True  
+Stalemate? False  
+Number of moves: 16  
+```
 
-5. Describe a useful, monotonic heuristic function for this search space. Show that your heuristic is monotonic. See the textbook for a formal definition of monotonic.
-It may seem that you can just plan paths for the robots independently using three different breadth-first-searches, but this approach won't work very well if the robots get close to one another or have to move around one another. Therefore, you should plan paths in the complete state space for the system.
+Each call to `alpha_beta_search` ***with depth $3$*** lasted an average of $0.100$ seconds, while comparable calls to `minimax` ***with depth $2$*** lasted $0.120$ per call.
 
-  > In the 2D space, finding the Manhattan distance between points is a better heuristic than using direct distance, since diagonal movement is not permitted. If obstacles do exist, then the robot will be forced to take detours which results in a longer path. The **Manhattan distance** will be the shortest distance attainable between any two points in the maze.
+At depth $4$, `alpha_beta` takes comparabke time to `minimax`'s depth $2$ performance. However, the number of better move reassignments didn't seem to change from the previous depth.
 
-6. Describe why the 8-puzzle in the book is a special case of this problem. Is the heuristic function you chose a good one for the 8-puzzle?
+In a game that dragged out, lasting $42$ moves with `alpha_beta` playing as white, a total of $98021$ search prunes were executed (counting each time the algorithm is absconds a search as a single "prune"). The total number of pruned branches is definitely higher, but the book-keeping required to track all those was slowing down the algorithm.
 
-  > The 8-puzzel problem is akin to a special version of the Mazeworld problem. In the 8-puzzle problem, only one number (corrollary to robot) can move at a time. Similarly, numbers can only be moved in a directikon with an empty adjacent square. The catch is that in the 8-puzzle problem numbers are closer together and at any time only a maximum of 4 numbers can move, and each can only move in a single direction. The goal is also to get to a specific configuration/arrangement. The same can be interprated as moving the empty cell around in either of the four (up, down, left, right) directions, each time replacing it with whatever number is on the desired direction, until the numbers give a specific arrangement. The heuristic function used in `Mazeworld` is not necessarily a good one because numbers might need to be 
+```text
+Black to move
 
-7. The state space of the 8-puzzle is made of two disjoint sets.  Describe how you would modify your program to prove this. (You do not have to implement this.)
+Random AI recommending move d4e5
+Q . . Q . Q . .
+. B . . . . . .
+. . . . . . . .
+. . . P k . . .
+. . . . . . . B
+. . . . . . . P
+R . . N . . . .
+. K . . . . N R
+----------------
+a b c d e f g h
+
+White to move
+
+First move found, score = 42.  
+Better move found, score shift from 42 to 51.  
+Better move found, score shift from 51 to inf.  
+Prune actions (cumulative): 98021  
+
+Alpha-Beta AI recommending move = g1f3, move score = inf
   
-  > Suppose the number of total inversions (larger numbers occurring before smaller numbers in the game) is $N$. The 8-puzzle game maintains the game that every move made must not change the value of $N$ `mod` 2. Because the solution has zero inversions (i.e. all the numbers are in order), then only puzzles from a starting state with $N$ `mod` $2 = 0$ can be solved.
-  > To modify the Mazeworld problem, check the starting state of every puzzle and ascertain that they have an even number of inversions. Any puzzle with an odd number of inversions is unsolvable, so don't waste time trying it.
+Q . . Q . Q . .
+. B . . . . . .
+. . . . . . . .
+. . . P k . . .
+. . . . . . . B
+. . . . . N . P
+R . . N . . . .
+. K . . . . . R
+----------------
+a b c d e f g h
 
+Black to move
 
-#### Discussion Questions (Blind Robot)
+Checkmate? True  
+Stalemate? False  
+Number of moves: 42  
+```
 
-1. Describe what heuristic you used for the A* search. Is the heuristic optimistic? Are there other heuristics you might use? (An excellent might compare a few different heuristics for effectiveness and make an argument about optimality.)
+#### Discussion of move reordering
 
-  > For the Sensorless robot, my first intuition was to find the shortest Manhattan distance between two robots in any state, but I quickly realized that the strategy would return $0$ as soon as any two robots converged, and the strategy would crumble into another version of uninformed search.
-  > The other ideas I had was to either use the closest pair that's nonzero or the farthest pair. Of these, the farthest pair worked better. I then tried finding the smallest reactangle that contains the robots then finding the Manhattan distance using the length and width of that square. This ultimately gave the best results of the three methods.
+NOTE: In order to avoid corrupting my original alpha-beta version, I implemented this in a separate [file](./EnhancedAlphaBetaAI.py).
 
-##### Implementation of closest neighbor's Manhattan distance
+To implement move reordering, I utilized my priority queue from PA3 to and a new `OrderedMove` abstraction that holds a move and its capacity. This algorithm has other enhancements, including a transposition table and a possible directive to only consider the $N$ moves. To run it without these other enhancements, call the constructor with `memoized=False`
 
 ```python
-    def manhattan_closest(self, state):
-        """
-            Given a state, return the shortest Manhattan distance between any two robots in the state.
-        """
+
+################## Added abstraction for reordering moves ##################
+class OrderedMove():
+    """
+        This class represents a search node.
+        A search node is a state of the game, along with its value.
+    """
+    def __init__(self, caller, board: Board, move: chess.Move, max_heap=True):
         
-        closest = 2**20
+        self.max_heap: bool = max_heap
+        self.move = move
         
-        # For each robot, loop over every other robot in the maze, 
-        # find the manhattan distance between them, 
-        # and return the minimum of all such distances.
-        for ix in range(0, len(state), 2):
-            for jx in range(0, len(state), 2):
-                if ix == jx:
-                    continue
-                
-                dist = abs(state[ix]-state[jx]) + abs(state[ix+1]-state[jx+1])
-                
-                if dist != 0:
-                    closest = min(closest, dist)
-                
-        return closest
-```
-
-###### Test results for closest pair
-
-```text
-----
-Blind robot problem: Possible start locations: (1, 1, 13, 1, 1, 13, 13, 13)
-Maze:
-###############
-#C...........D#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#A...........B#
-###############
-
-
-attempted with search method Astar with heuristic manhattan_closest
-number of nodes visited: 8113
-solution length: 25
-cost: 24
-path: ...
-
-Directions to take:
-['N', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'N', 'E']
-Final position = (13, 13)
-```
-
-##### Implementation of farthest neighbor's Manhattan distance
-
-```python
-    def manhattan_farthest(self, state):
-        """
-            Given a state, return the farthest distance between any two robots in the state.
-        """
+        board.push(move)
+        self.value = caller.evaluate(board)
+        board.pop()
         
-        farthest = 0
-        
-        # For each robot, loop over every other robot in the maze, 
-        # find the manhattan distance between them, 
-        # and return the maximum of all such distances.
-        for ix in range(0, len(state), 2):
-            for jx in range(0, len(state), 2):
-                if ix == jx:
-                    continue
-                
-                dist = abs(state[ix]-state[jx]) + abs(state[ix+1]-state[jx+1])
-                if dist != 0:
-                    farthest = max(farthest, dist)
-                
-        return farthest
-```
-
-###### Test results for farthest pair
-
-```text
-----
-Blind robot problem: Possible start locations: (1, 1, 13, 1, 1, 13, 13, 13)
-Maze:
-###############
-#C...........D#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#A...........B#
-###############
-
-
-attempted with search method Astar with heuristic manhattan_farthest
-number of nodes visited: 119
-solution length: 25
-cost: 24
-path: ...
-
-Directions to take:
-['N', 'N', 'N', 'N', 'E', 'N', 'N', 'E', 'N', 'N', 'N', 'N', 'E', 'E', 'N', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'N']
-Final position = (13, 13)
-```
-
-##### Implementation of largest containing square's Manhattan distance
-
-```python
-    def manhattan_heuristic(self, state):
-        """
-            Calculate the manhattan distance for the set of bots using the max and min x and y coordinates.
-        """
-        
-        # rather than using the normal Manhattan distance, box in all the robots
-        # by finding the max and min coordinates in either both directions 
-        # then using those to calculate the heuristic.
-        max_x, max_y = 0, 0
-        min_x, min_y = 0, 0
-        
-        for i in range(0, len(state), 2):
-            ix, iy = i, i+1
-            max_x = max(max_x, state[ix])
-            min_x = min(min_x, state[ix])
-            
-            max_y = max(max_y, state[iy])
-            min_y = min(min_y, state[iy])
-                
-        return abs(max_x - min_x) + abs(max_y - min_y)
-```
-
-###### Test results for containing rectangle
-
-```text
-----
-Blind robot problem: Possible start locations: (1, 1, 13, 1, 1, 13, 13, 13)
-Maze:
-###############
-#C...........D#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#A...........B#
-###############
-
-
-attempted with search method Astar with heuristic manhattan_heuristic
-number of nodes visited: 107
-solution length: 25
-cost: 24
-path: ...
-
-Directions to take:
-['W', 'W', 'W', 'W', 'W', 'S', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S']
-Final position = (1, 1)
-```
-
-#### TL;DR
-
-1. While Looking at the closest pair, A\* search had to search a total of $8113$ nodes to find a solution. This was expectedly the worst performance since the closest distance is dominated by the other heuristics.
-2. While looking at the farthest pair, A\* search did way better, only considering $119$ nodes before chancing upon a solution.
-3. However, the containing box's Manhattan distance gave the best performance of all, with A\* search only searching $107$ nodes to find a solution.
-
-#### Implementation Discusison
-
-##### Priority Queue Implementation
-
-To use *A\* search*, I implemented a [Priority Queue](priorityqueue.py) supporting the following methods:
-
-```python
-    def push(self, item):
-        """Push an item with a priority to the queue.
-        """
-        heappush(self._heap, item)
-
-    def pop(self):
-        """Pop the item with the highest priority from the queue.
-        """
-        if not self._heap:
-            raise IndexError('Pop from empty queue.')
-        
-        return heappop(self._heap)
-    
-    def is_empty(self):
-        """Check if the queue is empty.
-        """
-        if not self._heap:
-            return True
-        return False
-```
-
-The methods are used in the *A\* search algorithm* to order search nodes by heuristics.
-
-##### A\* Search's Search Nodes and Back-chaining
-
-I used a custom class, *AStarNode*, to store node information while searching the Graph. The node system is a linked tree where each node has a pointer to its parent. Once the goal state is found, we backtrack to find the path taken....
-
-```python
-class AstarNode:
-    # each search node except the root has a parent node
-    # and all search nodes wrap a state object
-
-    def __init__(self, state, heuristic, parent=None, transition_cost=0):
-        self.state = state
-        self.heuristic = heuristic
-        self.parent = parent
-        self.transition_cost = transition_cost
-        
-
     def priority(self):
         """Return the current Node's priority value.
             This value is the sum of the transition cost
             to the Node and the heuristic estimating distance
             to the goal state.
         """
-        return self.heuristic + self.transition_cost
+        return self.value
 
     # Comparators for the heapq module.
     # These functions are used ot devise an ordering for AstarNode instances,
     # in order to arrange them in the priority queue.
+    #
+    # NOTE: My PriorityQueue module was designed to order items using a Min-Heap.
+    # To generate a Max-Heap, I reversed the comparators.
     def __gt__(self, other):
-        return self.priority() > other.priority()
+        if self.max_heap:
+            return self.value < other.value
+        else:
+            return self.value > other.value
     
     def __lt__(self, other):
-        return self.priority() < other.priority()
+        if self.max_heap:
+            return self.value > other.value
+        else:
+            return self.value < other.value
     
     def __eq__(self, other):
-        return self.priority() == other.priority()
+        return self.value == other.value
     
     def __ge__(self, other):
-        return self.priority() >= other.priority()
+        return self > other or self == other
     
     def __le__(self, other):
-        return self.priority() <= other.priority()
+        return self < other or self == other
     
-
-def backchain(node):
-    """
-        Backtrack and rebuild the path generated by the search.
-    """
-    
-    # initialize an array to hold the sequence of states in the path.
-    result = []
-    current = node
-    
-    # backtrack until the root node is reached, 
-    # i.e. a node is found whose predecessor is None.
-    while current:
+    def __str__(self):
+        return str(self.value)
+    ###############################################################################
+    ################# Added functionality for reordering moves ####################
+    ############################################################################### 
+    def reorder_moves(self, board: Board, moves: list, max_heap=True):
+        """
+            Given a board state and a list of legal moves, reorders the moves
+            so that the best move is at the front of the list.
+            :arg board: Chess board object.
+            :arg moves: list of legal moves.
+        """
         
-        # append states to the path.
-        result.append(current.state)
-        current = current.parent
+        # Initialize Priority Queue
+        ordered_moves = PriorityQueue()
 
-    # reverse the path to get the correct order, and return the result.
-    result.reverse()
-    return result
+        # For each move, calculate the value of the board *after* the move is made and add it to the queue.
+        for move in moves:
+            ordered_move = OrderedMove(self, board, move, max_heap=max_heap)
+            ordered_moves.push(ordered_move)
+
+        new_moves = []
+        while ordered_moves and len(new_moves) < self.move_count:
+            ordered_move = ordered_moves.pop()
+            new_moves.append(ordered_move.move)
+            
+        # return list of reordered moves.
+        return new_moves
 ```
 
-##### A\* Search Implementation
+First, each move is loaded into the `OrderedMove` abstraction and added into the priority queue.
+While considering the "best" moves first seemed to increase the number of pruned branches, the extra work done in reordering the moves appeared to slow down the algorithm and lose the gain. I thought capping the algorithm to, for instance, only considering the $10$ or $15$ "best" moves might improve performance -- and it did.
 
-I implemented A\* using the above Priority Queue, which offers a nicer interface than direct use of `heapq`'s `heappush` and `heappop` functions.
+```text
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       51    0.001    0.000   49.906    0.979 /workspace/personal/python/cs76/PA3/ChessGame.py:21(make_move)
+       25    0.001    0.000   25.040    1.002 /workspace/personal/python/cs76/PA3/RandomAI.py:21(choose_move)
+       25   25.032    1.001   25.032    1.001 {built-in method time.sleep}
+       26    0.003    0.000   24.861    0.956 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:111(choose_move)
+      251    0.001    0.000   24.548    0.098 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:193(alpha_beta_search)
+      250    0.117    0.000   24.530    0.098 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:215(max_value)
+     2161    0.072    0.000   23.804    0.011 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:265(min_value)
+     6925    0.399    0.000   20.451    0.003 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:317(reorder_moves)
+```
+
+Now, random ai took more time guessing moves than the enhanced version of alpha-beta took to generate next moves. While each call to the `alpha_beta_search` algorithm lasts almost the same time ($0.100$ in the original to $0.098$ in the new version), the number of calls reduces because we are only considering a select number of best moves.In total, we only spend $24$ seconds in alpha-beta while the call to reorder moves knocks $20$ seconds to our performance. As an experiment, I tried aggressively limiting the algorithm to the $3$ best moves, and searching deeper depths. That led to even better performance against random moves but was easily outsmarted by the basic alpha-beta which had the advantange of evaluating a wider repertoire of moves.
+
+Additionally, because we are now evaluating less moves, the number of prune actions went down.
+
+##### Enhanced Alpha Beta, depth $7$, move consideration limit of $4$ vs random AI
+
+```text
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       53    0.001    0.000  117.805    2.223 /workspace/personal/python/cs76/PA3/ChessGame.py:21(make_move)
+       27    0.002    0.000   91.761    3.399 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:111(choose_move)
+      105    0.000    0.000   91.349    0.870 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:193(alpha_beta_search)
+      104    0.319    0.000   91.339    0.878 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:215(max_value)
+      359    0.248    0.000   91.050    0.254 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:265(min_value)
+    27371    1.310    0.000   81.222    0.003 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:317(reorder_moves)
+   644542    1.340    0.000   78.302    0.000 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:31(__init__)
+   673890    1.346    0.000   64.800    0.000 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:351(evaluate)
+   702338    0.673    0.000   32.971    0.000 /usr/local/lib/python3.9/dist-packages/chess/__init__.py:1865(is_game_over)
+   703254    3.001    0.000   32.363    0.000 /usr/local/lib/python3.9/dist-packages/chess/__init__.py:1872(outcome)
+  1345948    5.199    0.000   31.795    0.000 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:386(parse_color)
+```
+
+Here, the time spent in each call to alpha_beta increases to $0.870$ (from $0.100$ in the original version), but the total calls to alpha_beta also decrease dramatically to the low $100$'s. On the other hand, the number of calls to `evaluate` -- used by the function that reorder's moves -- increases to $673,890$ over the $7$ depths, for a game that lasted $27$ moves. Clearly, there's an advantage to limiting the number of moves considered, especially when there is some ordering of which moves are ore likely best. However, there is also the problem of not evaluating more moves and missing moves that do not result in immediate material gain but offer better gain after several moves.
+
+##### Enhanced Alpha Beta (white), depth $7$, move consideration limit of $4$ vs Alpha Beta (Black), depth $3$, no move consideration limit
+
+White wins after $96$ moves.
+
+```text
+Black to move
+
+First move found, score = 0.  
+Prune actions (cumulative): 40446  
+
+Alpha-Beta AI recommending move = d5d6, move score = 0
+  
+. . . . Q . . .
+. . . . . R . .
+. . . k . . . .
+. K . . . . . .
+. . . . . . . P
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+----------------
+a b c d e f g h
+
+White to move
+
+First move found, score = inf.  
+Pruned 12656 branches.  
+
+Enhanced A/B recommending move = f7d7, move score = inf  
+. . . . Q . . .
+. . . R . . . .
+. . . k . . . .
+. K . . . . . .
+. . . . . . . P
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+----------------
+a b c d e f g h
+
+Black to move
+
+Checkmate? True  
+Stalemate? False  
+Number of moves: 96  
+```
+
+
+### 4. Implement Iterative Deepening
+
+I used minimax in my iterative deepening implementation, where, for each call, the iterative deepening polls minimax for the best move, tracking the scores. I also added a quirk in my implementation that, for each depth, the best move from the previous depth is evaluated first so that if its score decreases and another move gets a better score than the new best score (but not necessarily the "best score" from the previous depth), then the algorithm can detect that move $A$'s value went down and move $B$ surpassed it.
 
 ```python
-INFINITY = 2**20
-
-def astar_search(search_problem, heuristic_fn):
-    """Run A* search on the search problem with the specified heuristic function."""
+class IterativeDeepeningAI():
     
-    # initialize the handler for the search solution.
-    solution = SearchSolution(search_problem, "Astar with heuristic " + heuristic_fn.__name__)
     
-    # initialize the start node and priority queue,
-    # then push the start node into the queue.
-    start_node = AstarNode(search_problem.start_state, heuristic_fn(search_problem.start_state))
-    queue = PriorityQueue()
-    queue.push(start_node)
-
-    # initilize a dictionary to hold states and associated costs
-    # to avoid evaluating paths that have been superseded by lesser-cost paths.
-    visited_cost = {}
-    visited_cost[start_node.state] = 0
-
-    # while priority queue is not empty (i.e. there are still nodes to explore)...
-    while queue:
+    def __init__(self, max_depth, maximizing=True, timeout=30, debug=False):
+        self.maximizing = maximizing
+        self.max_depth = max_depth
+        self.debug = debug
+        self.search_engine: MinimaxAI = MinimaxAI(0, maximizing=maximizing, debug=False)
+        self.timeout = timeout
+        self.prev_moves = set()
+    
+    def choose_move(self, board: Board):
+        """
+            Given a board state, chooses the best move to play next.
+        """
         
-        # get node in front of priority queue and check it's state.
-        current_node = queue.pop()
-        current_state = current_node.state
+        # check every move and remember the last move that improves the utility.
         
-        # if the node has been superseded by another node (for the same state) 
-        # that had a lesser cost, skip the current node
-        # and proceed to the next node in the queue.
-        if visited_cost[current_state] != current_node.transition_cost:
-            continue
+        
+        best_move, best_cost = None, -inf
+        counter = self.timeout
+        
+    
+        # iterate over allowed depths.
+        for depth in range(1, self.max_depth):
             
-        solution.nodes_visited = solution.nodes_visited + 1
-        
-        # if current state the goal state, backtrack and rebuild the path.
-        if search_problem.is_goal(current_state):
-            solution.cost = visited_cost[current_state]
-            solution.path = backchain(current_node)
-            break
-        
-        # if current node is not the goal state:
-        #   1. get cost of current state and compute cost for next state.
-        current_cost = current_node.transition_cost
-        next_cost = current_cost + 1
-        
-        #   2. get all possible next states for the current state
-        #   3. for each next state, calculate the cost of the transition 
-        #      using the cost to current, transition cost, and heuristic and cost to current.
-        for next_state in search_problem.get_successors(current_state):
-        
-            #   4. if a node's new cost is more favorable than its current cost,
-            #      save the new cost to the costs dictionary and push it into the priority queue.
-            if visited_cost.get(next_state, INFINITY) > next_cost:
-                visited_cost[next_state] = next_cost
-                next_node = AstarNode(next_state, heuristic_fn(next_state),
-                                      parent=current_node, transition_cost=next_cost)
-                queue.push(next_node)
+            if best_move:
+                board.push(best_move)
+                new_cost = self.search_engine.minimax(board, depth=depth)
+                board.pop()
                 
-
-    # once the priority queue is empty or an exit occurs 
-    # (i.e. a goal state has been found), return the solution.
-    return solution
-```
-
-##### Getting Successors; Mazeworld
-
-In the Mazeworld, only a single robot can move at a time, collissions are not allowed, and the goal state is the state that exactly matches whatever state was specified at the beginnign of the search.
-
-```python
-def get_successors(self, state):
-        """
-        Returns a list of (action, state, cost) tuples corresponding to edges in the graph.
-        """
-        
-        # Initialzie successors, 
-        # loop over all bots and find their possible next movements,
-        # and add them to the array of possible next states.
-        
-        successors = []
-        num_bots = len(state) // 2
-        
-        for bot in range(num_bots):
-            ix = 2 * bot
-            iy = ix + 1
-            x, y = state[ix], state[iy]
+                # First, recheck the best move from previous depth and update cost if it changes.
+                if new_cost != best_cost:
+                    if self.debug:
+                        log_error(f"Move {best_move} changed in score from {best_cost} to {new_cost}.")
+                    best_cost = new_cost
             
-            for step in [-1, 1]:
-                # if bot can move in x direction, add to successors.
-                if self.maze.can_move(x+step, y, state):
-                    
-                    new_state = self.move(state, index=ix, new_val=x+step)
-                    successors.append(new_state)
-                    
-                # if bot can move in y direction, add to successors.
-                if self.maze.can_move(x, y+step, state):
-                    
-                    new_state = self.move(state, index=iy, new_val=y+step)
-                    successors.append(new_state)
-
-        # return compiled array of successors
-        return successors
-    
-
-def move(self, state, index=None, new_val=None):
-    """
-        Given a state and an action, returns the new state.
-    """
-    
-    # initialize next state 
-    next_state = []
-    
-    # copy values from original state, swapping out the value at index with new_val
-    for i in range(len(state)):
-        if i == index:
-            next_state.append(new_val)
-        else:
-            next_state.append(state[i])
-            
-    # return an immutable tuple of the new state.
-    return tuple(next_state)
+            # get every possible move and explore it to the current depth.
+            for move in board.legal_moves:
                 
-
-def is_goal(self, state):
-    """
-        Check if a given state is the goal state for a game instance.
-    """
-    
-    # loop over the state, checking if all positions match the goal state.
-    for i in range(len(state)):
-        if state[i] != self.goal_locations[i]:
-            return False
-    return True
-```
-
-##### Getting Successors; Blind Robot
-
-In the Blind Robot problem, collissions are allowed and the goal location is the one where each robot in the Maze is standing in the same location. Furthermore, each robot must take every step made; whether it actually moves or not depends on the Maze.
-
-```python
-def get_successors(self, state):
-        """
-        Returns a list of (action, state, cost) tuples corresponding to edges in the graph.
-        """
-        
-        # Initialzie successors, 
-        # for each possible robot location, attempt to move it
-        # in the appropriate direction.
-        successors = []
-        
-        for step in [-1, 1]:
-            
-            next_state_x = self.move(state, step, dir_x=True)
-            next_state_y = self.move(state, step, dir_y=True)
-            
-            if next_state_x:
-                successors.append(next_state_x)
+                # try the move
+                board.push(move)
                 
-            if next_state_y:
-                successors.append(next_state_y)
-
-
-        # return compiled array of successors
-        return successors
-
-    
-def move(self, state, step, dir_x=False, dir_y=False):
-    """
-        Given a state and an action, returns the new state.
-    """
-    
-    # initialize next state
-    # For each possible direction of movement,
-    # attempt to move every robot in that direction.
-    # If resulting state is distinct from the current state (i.e. someone moved),
-    # return it as a valid state.
-    # NOTE: collisions are allowed -- 
-    # since the ultimate goal is to converge all the robots into a single point, anyway.
-    
-    if not dir_x and not dir_y:
-        print("Error: Please specify a direction to move in. Set either `dir_x` or `dir_y` to `True`.")
-        return None
-    
-    next_state = []
-    for i in range(0, len(state), 2):
-        
-        ix, iy = i, i+1
-        if dir_x and self.maze.is_floor(state[ix]+step, state[iy]):
-            next_state.append(state[ix]+step)
-            next_state.append(state[iy])
-            continue
+                # get the utility of the board after the move.
+                cost = self.search_engine.minimax(board, depth=depth)
+                
+                # check if the move improves the utility.
+                # NOTE: we check whether it *matches* the utility, OR if it *betters* the utility.
+                # This helps avoid a repetition loop where a sequence of first-occurring moves loop back
+                # to each other and the game gets stuck in a loop. 
+                # However, we also need to avoid blindly chosing the last move played -- 
+                # so we check if the state of the board after the move has been recorded before
+                # in the prev_moves set.
+                if ( (self.maximizing) and (cost >= best_cost) ) \
+                    or ( (not self.maximizing) and (cost <= best_cost) ):
+                        
+                    # if the cost strictly improves the utility, remember it and log progress.
+                    if cost != best_cost:
+                        
+                        # if debug enabled, print progress
+                        if self.debug:
+                            if not (best_cost == -inf or best_cost == inf):
+                                log_debug_info(f"Depth {depth}; better move found, score shift from {best_cost} to {cost}.")
+                            else:
+                                log_debug_info(f"First move found at depth {depth}; score = {cost}.")
+                        
+                        best_move, best_cost = move, cost
+                        
+                    elif not ((cost == best_cost) and (str(move) in self.prev_moves)):
+                        best_move, best_cost = move, cost
+                        
+                
+                # undo the move
+                board.pop()
+                
+                # if the timeout is reached, stop searching other moves. Otherwise, decrement the timeout.
+                if counter <= 0: break
+                else: counter -= 1
+                
+            if counter <= 0:
+                break
             
-        elif dir_y and self.maze.is_floor(state[ix], state[iy]+step):
-            next_state.append(state[ix])
-            next_state.append(state[iy]+step)
-            continue
+            # if debug is enabled, print progress
+            if self.debug:
+                log_debug_info(f"Depth {depth}, best move: {best_move}, cost: {best_cost}.")
+         
         
-        next_state.append(state[ix])
-        next_state.append(state[iy])
-
-
-    # if no one moved, discard the state.
-    if state == next_state:
-        return None
+        # once the best move is found, remember it and return it.
+        self.prev_moves.add(str(move))
         
-    #return immutable copy of the state.
-    return tuple(next_state)
-
-
-
-def _state(self, state):
-    """
-        This method, given a final state, collapses the locations into a tuple of unique items.
-        This method is used internally and should not be used from outside the module.
-        :arg state: The state to be converged.
-    """
-    
-    _state = set()
-    for i in range(0, len(state), 2):
-        _state.add( (state[i], state[i+1]) )
+        # print information on chosen best move.
+        log_info(f"Iterative Deepening AI recommends move {best_move} with cost {best_cost}")
         
-    return tuple(_state) 
-
-
-def is_goal(self, state):
-    """
-        Given a state, returns True if it is a goal state,
-        i.e. all the robot start locations have converged.
-    """
-    _state = self._state(state)
-    return len(_state) == 1
+        # return chosen move.
+        return best_move
 ```
 
-### Demonstration of Results
-
-#### Mazeworld
-
-##### Start State
+**Instances when the same move improved:**
 
 ```text
-Maze:
-###############
-#C...........D#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#A...........B#
-###############
+Black to move
+
+Random AI recommending move d8d7
+r n b . . . n .
+p p . q . . p .
+. . . . . k . p
+. . p . p . . .
+. . . . . . . .
+. P . . . . P .
+P . P P P P . P
+R . B Q K B N R
+----------------
+a b c d e f g h
+
+White to move
+
+First move found at depth 1; score = 7.  
+Depth 1, best move: c2c4, cost: 7.  
+Move c2c4 changed in score from 7 to 15.  
+Depth 2, best move: c2c4, cost: 15.  
+Iterative Deepening AI recommends move b3b4 with cost 15  
+r n b . . . n .
+p p . q . . p .
+. . . . . k . p
+. . p . p . . .
+. P . . . . . .
+. . . . . . P .
+P . P P P P . P
+R . B Q K B N R
+----------------
+a b c d e f g h
 ```
 
-##### Halfway through
+**Instances when a better move was found:**
 
 ```text
-Maze:
-###############
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.......B.....#
-#........A....#
-#.............#
-#.............#
-#..........C..#
-#.............#
-#.............#
-#D............#
-###############
+Black to move
+
+Random AI recommending move d8f6
+r n b . k b n r
+. p p p . . p .
+p . . . p q . p
+. . . . . . . .
+. . . . . . . .
+. P . . . . P .
+P . P P P P . P
+R . B Q K B N R
+----------------
+a b c d e f g h
+
+White to move
+
+First move found at depth 1; score = -2.  
+Depth 1, best move: c2c4, cost: -2.  
+Depth 2; better move found, score shift from -2 to 6.  
+Depth 2, best move: b3b4, cost: 6.  
+Iterative Deepening AI recommends move b3b4 with cost 6 
 ```
 
-##### Final State
+### 5. Writeup and Discussion
 
-```text
-###############
-#B...........A#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#D...........C#
-###############
-```
+1. Description: How do your implemented algorithms work? What design decisions did you make?
+    **discussed above.**
+  
+2. Evaluation: Do your implemented algorithms actually work? How well? If it doesn’t work, can you tell why not? What partial successes did you have that deserve partial credit? **All my algorithms worked, as discussed above.**
 
-##### Summary of Results
+3. Responses to discussion questions that are included within the points in "The Task". Here the discussion questions are reported for ensuring that you found all of them: **discussed above.**
 
-```text
-----
-Mazeworld problem:
-Goal state:(13, 13, 1, 13, 13, 1, 1, 1)
-Maze:
-###############
-#C...........D#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#A...........B#
-###############
-
-
-attempted with search method Astar with heuristic manhattan_heuristic
-number of nodes visited: 9246
-solution length: 97
-cost: 96
-path: ...
-```
-
-#### Blind Robot
-
-##### Start State
-
-```text
-Maze:
-###############
-#C...........D#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#A...........B#
-###############
-```
-
-##### Halfway Through
-
-```text
-Maze:
-###############
-#.............#
-#C...D........#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#A...B........#
-###############
-```
-
-##### Final State
-
-```text
-###############
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#D............#
-###############
-```
-
-##### Results Summary
-
-```text
-----
-Blind robot problem: Possible start locations: (1, 1, 13, 1, 1, 13, 13, 13)
-Maze:
-###############
-#C...........D#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#.............#
-#A...........B#
-###############
-
-
-attempted with search method Astar with heuristic manhattan_heuristic
-number of nodes visited: 107
-solution length: 25
-cost: 24
-path: ...
-
-Directions to take:
-['W', 'W', 'W', 'W', 'W', 'S', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S']
-Final position = (1, 1)
-```
-
-### Extra Implementations
-
-Here is a version of the 8-Puzzle problem.
-
-###### Start state
-
-```python
-Maze:
-#####
-#FBA#
-#EDG#
-#.HC#
-#####
-```
-
-###### Goal state
-
-```text
-#####
-#FGH#
-#CDE#
-#.AB#
-#####
-```
-
-###### Search results
-
-```text
-----
-Mazeworld problem:
-Goal state:(2, 1, 3, 1, 1, 2, 2, 2, 3, 2, 1, 3, 2, 3, 3, 3)
-Maze:
-#####
-#FBA#
-#EDG#
-#.HC#
-#####
-
-
-attempted with search method Astar with heuristic manhattan_heuristic
-number of nodes visited: 958
-solution length: 25
-cost: 24
-path: ...
-```
+> 1) (minimax and cutoff test) Vary maximum depth to get a feeling of the speed of the algorithm. Also, have the program print the number of calls it made to minimax as well as the maximum depth.  Record your observations in your document.
+>
+> 2) (evaluation function) Describe the evaluation function used and vary the allowed depth, and discuss in your document the results.
+>
+> 3) (alpha-beta) Record your observations on move-reordering in your document.
+>
+> 4) (iterative deepening) Verify that for some start states, best_move changes (and hopefully improves) as deeper levels are searched. Discuss the observations in your document.
+> 
