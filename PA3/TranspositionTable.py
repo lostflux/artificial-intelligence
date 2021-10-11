@@ -12,30 +12,32 @@ __github__ = "@siavava"
 
 class TranspositionTable(object):
     def __init__(self):
-        self.data: dict  ={}
+        self.data: dict = {}
+        self.len = 0
         
     def __bool__(self):
-        return len(self.data) != 0
+        return self.len != 0
         
     def __getitem__(self, key):
-        return self.data.get(hash(str(key)), None)
+        return self.data.get(str(key), None)
     
     def __contains__(self, key):
         """Check if the table contains an item.
         """
-        if hash(str(key)) in self.data:
+        if str(key) in self.data:
             return True
         
         return False
     
     def __setitem__(self, key, value):
-        self.data[hash(str(key))] = value
+        self.data[str(key)] = value
+        self.len += 1
        
     def __str__(self):
         return str(self.data)
     
     def __len__(self):
-        return len(self.data)
+        return self.len
     
     # @staticmethod
     # def zobrist_hash(board: Board):

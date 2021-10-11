@@ -34,7 +34,7 @@ class OrderedMove():
         self.move = move
         
         board.push(move)
-        self.value = caller.evaluate(board)
+        self.value = caller.get_score(board)
         board.pop()
         
     def priority(self):
@@ -102,11 +102,18 @@ class EnhancedAlphaBetaAI():
         self.maximizing: bool = maximizing
         self.debug: bool = debug
         self.prev_moves = set()
-        self.move_count = move_count
+        self.move_count: int = move_count
         
         # variables to track performance
         self.pruned_branches: int = 0
         self.remembered_states: int = 0
+        
+    def get_score(self, board: Board):
+        # if self.memory and board in self.memory:
+        #     self.remembered_states += 1
+        #     return self.memory[board]
+        
+        return self.evaluate(board)
 
     def choose_move(self, board: Board):
         """
@@ -118,10 +125,13 @@ class EnhancedAlphaBetaAI():
         best_cost = -inf if self.maximizing else inf
         
         legal_moves: list = list(board.legal_moves)
-        reordered_moves = self.reorder_moves(board, legal_moves, max_heap=self.maximizing)
+        reordered_moves: PriorityQueue = self.reorder_moves(board, legal_moves, max_heap=self.maximizing)
         
-        # check every move and remember the last move that improves the utility.
-        for move in reordered_moves:
+        num_moves = self.move_count
+        while num_moves > 0 and reordered_moves:
+            
+            num_moves -= 1
+            move = reordered_moves.pop().move
             
             board.push(move)
             
@@ -177,6 +187,8 @@ class EnhancedAlphaBetaAI():
         # print information on chosen best move. 
         log_info(f"\nEnhanced A/B recommending move = {str(best_move)}, move score = {best_cost}")
         
+        if self.memory: self.memory[best_move] = best_cost
+        
         # return chosen move
         return best_move
     
@@ -201,7 +213,9 @@ class EnhancedAlphaBetaAI():
         
         # if cutoff point has been reached, return an evaluation of the board state.
         if self.cutoff_test(board, depth):
-            return self.evaluate(board)
+            cost = self.evaluate(board)
+            if self.memory: self.memory[board] = cost
+            return cost
         
         # otherwise, if the target is to maximize, return the max_value.
         elif self.maximizing:
@@ -225,6 +239,7 @@ class EnhancedAlphaBetaAI():
         # otherwise, if cutoff point has been reached, evaluate the state of the board.
         if self.cutoff_test(board, depth):
             value = self.evaluate(board)
+            if self.memory: self.memory[board] = value
             return value
         
         # otherwise, recursively find the max of min for each next state,
@@ -243,13 +258,23 @@ class EnhancedAlphaBetaAI():
             highest_value = -inf
             
             legal_moves: list = list(board.legal_moves)
-            reordered_moves = self.reorder_moves(board, legal_moves, max_heap=self.maximizing)
+            reordered_moves: PriorityQueue = self.reorder_moves(board, legal_moves, max_heap=self.maximizing)
             
-            
-            for move in reordered_moves:
+            num_moves = self.move_count
+            while num_moves > 0 and reordered_moves:
+                
+                num_moves -= 1
+                move = reordered_moves.pop().move
                 
                 board.push(move)
-                highest_value = max(highest_value, self.min_value(board, depth-1, best, worst))
+                
+                if self.memory and board in self.memory:
+                    highest_value = max(highest_value, self.memory[board])
+                    self.remembered_states += 1
+                
+                else:
+                    highest_value = max(highest_value, self.min_value(board, depth-1, best, worst))
+                    
                 board.pop()
                 
                 if highest_value >= worst:
@@ -258,7 +283,7 @@ class EnhancedAlphaBetaAI():
                     
                 else:
                     best = max(best, highest_value)
-            
+                    
             if self.memory: self.memory[board] = highest_value
             return highest_value
     
@@ -275,6 +300,7 @@ class EnhancedAlphaBetaAI():
         # otherwise, if cutoff point has been reached, evaluate the value of the board.
         elif self.cutoff_test(board, depth):
             value = self.evaluate(board)
+            if self.memory: self.memory[board] = value
             return value
         
         # otherwise, recursively find the max of min for each next state,
@@ -293,12 +319,23 @@ class EnhancedAlphaBetaAI():
             lowest_value = inf
             
             legal_moves: list = list(board.legal_moves)
-            reordered_moves = self.reorder_moves(board, legal_moves, max_heap=(not self.maximizing))
+            reordered_moves: PriorityQueue = self.reorder_moves(board, legal_moves, max_heap=self.maximizing)
             
-            for move in reordered_moves:
+            num_moves = self.move_count
+            while num_moves > 0 and reordered_moves:
+                
+                num_moves -= 1
+                move = reordered_moves.pop().move
                 
                 board.push(move)
-                lowest_value = min(lowest_value, self.max_value(board, depth-1, best, worst))
+                
+                if self.memory and board in self.memory:
+                    lowest_value = min(lowest_value, self.memory[board])
+                    self.remembered_states += 1
+                
+                else:
+                    lowest_value = min(lowest_value, self.max_value(board, depth-1, best, worst))
+                    
                 board.pop()
                 
                 if lowest_value <= best:
@@ -330,17 +367,18 @@ class EnhancedAlphaBetaAI():
             ordered_move = OrderedMove(self, board, move, max_heap=max_heap)
             ordered_moves.push(ordered_move)
 
-        new_moves = []
-        if self.debug:
-            values = []
-        while ordered_moves and len(new_moves) < self.move_count:
-            ordered_move = ordered_moves.pop()
-            new_moves.append(ordered_move.move)
-            if self.debug:
-                values.append(ordered_move.value)
+        return ordered_moves
+        # new_moves = []
+        # if self.debug:
+        #     values = []
+        # while ordered_moves and len(new_moves) < self.move_count:
+        #     ordered_move = ordered_moves.pop()
+        #     new_moves.append(ordered_move.move)
+        #     if self.debug:
+        #         values.append(ordered_move.value)
             
-        # return list of reordered moves.
-        return new_moves
+        # # return list of reordered moves.
+        # return new_moves
             
 ####################################################################################
 ####################################################################################

@@ -978,4 +978,112 @@ Iterative Deepening AI recommends move b3b4 with cost 6
 > 3) (alpha-beta) Record your observations on move-reordering in your document.
 >
 > 4) (iterative deepening) Verify that for some start states, best_move changes (and hopefully improves) as deeper levels are searched. Discuss the observations in your document.
-> 
+>
+
+### 6. Extra Implementations
+
+#### 1. Transposition Table
+
+I implemented a transposition table enabling computed move scores to be stored and retrieved faster when positions are re-encountered. In my tests, the alpha-beta algorithm performed faster and was able to search deeper with the transposition table activated. However, when terminal state computations were computed, the algorithm occassionally lost points in positions that were first found as terminal states and saved, without foresight of what happens afterward. As a result, I prefer not to store the terminal state values.
+
+```python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+    This module implements a Transposition Table.
+"""
+__author__ = "Amittai"
+__copyright__ = "Copyright 2021"
+__credits__ = ["Amittai"]
+__email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
+__github__ = "@siavava"
+
+class TranspositionTable(object):
+    def __init__(self):
+        self.data: dict = {}
+        self.len = 0
+        
+    def __bool__(self):
+        return self.len != 0
+        
+    def __getitem__(self, key):
+        return self.data.get(str(key), None)
+    
+    def __contains__(self, key):
+        """Check if the table contains an item.
+        """
+        if str(key) in self.data:
+            return True
+        
+        return False
+    
+    def __setitem__(self, key, value):
+        self.data[str(key)] = value
+        self.len += 1
+       
+    def __str__(self):
+        return str(self.data)
+    
+    def __len__(self):
+        return self.len
+    
+    # @staticmethod
+    # def zobrist_hash(board: Board):
+    #     hash_value = 0
+    #     for piece in board.pieces:
+```
+
+Performance
+
+```text
+Black to move
+
+Random AI recommending move f7f6
+r . b q k . n Q
+p . p p p . . .
+P . . . . p . .
+. . . . . . p p
+. P P . . . . .
+. . . . . . . .
+. . . . P P P P
+R N B . K B N R
+----------------
+a b c d e f g h
+
+White to move
+
+First move found, score = inf.  
+Transposition Table size: 14457.  
+Pruned 3127 branches.  
+Re-encountered 3558 states (cumulative)  
+
+Enhanced A/B recommending move = h8g8, move score = inf  
+r . b q k . Q .
+p . p p p . . .
+P . . . . p . .
+. . . . . . p p
+. P P . . . . .
+. . . . . . . .
+. . . . P P P P
+R N B . K B N R
+----------------
+a b c d e f g h
+
+Black to move
+
+Checkmate? True  
+Stalemate? False  
+Number of moves: 9  
+         86227600 function calls (86213373 primitive calls) in 56.330 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       17    0.000    0.000   57.845    3.403 /workspace/personal/python/cs76/PA3/ChessGame.py:21(make_move)
+        9    0.001    0.000   49.830    5.537 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:118(choose_move)
+       35    0.000    0.000   49.641    1.418 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:205(alpha_beta_search)
+  4010/34    0.111    0.000   49.639    1.460 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:229(max_value)
+10402/151    0.079    0.000   49.333    0.327 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:290(min_value)
+     5410    0.204    0.000   38.815    0.007 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:354(reorder_moves)
+```
