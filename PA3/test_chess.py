@@ -57,12 +57,12 @@ pr.enable()
 ###! Unmute one of these definitions to play the game.
 
 # # minimax
-game = ChessGame(minimax_white, random_player)
+# game = ChessGame(minimax_white, random_player)
 # game = ChessGame(random_player, minimax_black)
 # game = ChessGame(minimax_white, minimax_black)
 
 # # alpha beta
-# game = ChessGame(alpha_beta_white, random_player)
+game = ChessGame(alpha_beta_white, random_player)
 # game = ChessGame(random_player, alpha_beta_black)
 # game = ChessGame(alpha_beta_white, alpha_beta_black)
 

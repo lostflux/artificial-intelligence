@@ -398,9 +398,116 @@ Stalemate? False
 Number of moves: 37  
 ```
 
-### 2. Implement Iterative Deepening
+### 3. Implement Alpha Beta
+
+My `alpha-beta` implementation is very similar to minimax, with the exception that successive calls to `max_value` and `min_value` perform book-keeping on the highest and lowest values, prune unneeded branches, and in return update these values if needed and pass them to child calls.
+
+For instance, if the current level of the search is a maximizing node, then we know that the parent node is a minimizer and we don't need to keep searching if we encounter a value higher than the lowest value encountered from the parent node. Similarly, the next level of the search will be a minimizer, so they need not bother to keep searching if their current lowest value is lower than the highest value we reported to them (since we're maximizing, we'll just keep our value).
+
+```python
+    def alpha_beta_search(self, board: Board):
+        """
+            Given a board state, calculate the minimax value of that board state.
+            :arg `board`: Chess board state.
+            :arg `depth`:
+        """
+        
+        # if cutoff point has been reached, return an evaluation of the board state.
+        if self.cutoff_test(board, self.depth):
+            return self.evaluate(board)
+        
+        # otherwise, if the target is to maximize, return the max_value.
+        elif self.maximizing:
+            return self.max_value(board, self.depth, -inf, inf)
+        
+        # otherwise, return the min_value.
+        else:
+            return self.min_value(board, self.depth, -inf, inf)
+            
+    
+    def max_value(self, board, depth, best, worst):
+        """
+            Given a board state, finds the maximum value for that state.
+        """
+            
+        # if cutoff point has been reached, evaluate the state of the board.
+        if self.cutoff_test(board, depth):
+            value = self.evaluate(board)
+            return value
+        
+        # otherwise, recursively find the max of min for each next state,
+        # remembering the state that gives the best outcome.
+        #
+        # NOTE: If the value is greater than or equal to the worst value from the other search nodes,
+        # since we know the next player will be minimizing (and we are maximizing here),
+        # we can prune the remaining searches because they are insignificant.
+        #
+        # otherwise, we:
+        #   1. save the value to the transposition table, 
+        #   2. update the best value seen yet, 
+        #   3. and continue the looping search on other next states.
+        else:
+            
+            highest_value = -inf
+            
+            for move in board.legal_moves:
+                board.push(move)
+                highest_value = max(highest_value, self.min_value(board, depth-1, best, worst))
+                board.pop()
+                
+                if highest_value >= worst:
+                    self.pruned_branches += 1
+                    return highest_value
+                    
+                else:
+                    best = max(best, highest_value)
+            
+            return highest_value
+    
+    def min_value(self, board, depth, best, worst):
+        """
+            Given a board state, finds the minimum value for that state.
+        """
+            
+        # if cutoff point has been reached, evaluate the value of the board.
+        if self.cutoff_test(board, depth):
+            value = self.evaluate(board)
+            return value
+        
+        # otherwise, recursively find the max of min for each next state,
+        # remembering the state that gives the best outcome.
+        #
+        # NOTE: If the value is less than or equal to the best value from the other search nodes,
+        # since we know the next player will be maximizing (and we are minimizing here),
+        # we can prune the remaining searches because they are insignificant.
+        #
+        # otherwise, we:
+        #   1. save the value to the transposition table, 
+        #   2. update the worst value seen yet, 
+        #   3. and continue the looping search on other next states.
+        else: 
+            lowest_value = inf
+            
+            for move in board.legal_moves:
+                board.push(move)
+                lowest_value = min(lowest_value, self.max_value(board, depth-1, best, worst))
+                board.pop()
+                if lowest_value <= best:
+                    self.pruned_branches += 1
+                    return lowest_value
+                    
+                else:
+                    worst = min(worst, lowest_value)
+                    
+            return lowest_value
+```
+
+Using basic pruning, the algorithm was able to easily search $1$ to $2$ depths deeper than `minimax`.
+### 4. Implement Iterative Deepening
 
 I used minimax in my iterative deepening implementation, where, for each call, the iterative deepening polls minimax for the best move, tracking the scores. I also added a quirk in my implementation that, for each depth, the best move from the previous depth is evaluated first so that if its score decreases and another move gets a better score than the new best score (but not necessarily the "best score" from the previous depth), then the algorithm can detect that move $A$'s value went down and move $B$ surpassed it.
+
+
 
 
 
