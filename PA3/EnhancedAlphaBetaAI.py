@@ -84,7 +84,7 @@ class EnhancedAlphaBetaAI():
         might not be able to see as far down the road as it would
         in a game with less branching than Chess. 
     """
-    def __init__(self, depth, maximizing=True, move_count=7, debug=False, memoized=True):
+    def __init__(self, depth, maximizing=True, move_count=inf, debug=False, memoized=True):
         """
             Constructor.
             :arg `depth`: maximum search depth.
@@ -93,8 +93,11 @@ class EnhancedAlphaBetaAI():
         """
         self.depth: int = int(depth)
         
-        if memoized: self.memory: TranspositionTable = TranspositionTable()
-        else: self.memory = None
+        if memoized:
+            self.memory: TranspositionTable = TranspositionTable()
+            self.memory["*"] = 0
+        else:
+            self.memory = None
         
         self.maximizing: bool = maximizing
         self.debug: bool = debug
@@ -167,9 +170,9 @@ class EnhancedAlphaBetaAI():
         
         #########! if debug flag is set, print debug info. #########
         if self.debug:
-            log_info(f"Transposition Table size: {len(self.memory)}.")
+            if self.memory: log_info(f"Transposition Table size: {len(self.memory)}.")
             log_info(f"Pruned {self.pruned_branches} branches.")
-            log_info(f"Re-encountered {self.remembered_states} states (cumulative)")
+            if self.memory: log_info(f"Re-encountered {self.remembered_states} states (cumulative)")
            
         # print information on chosen best move. 
         log_info(f"\nEnhanced A/B recommending move = {str(best_move)}, move score = {best_cost}")

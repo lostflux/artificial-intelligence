@@ -9,7 +9,7 @@ __credits__ = ["Amittai"]
 __email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
 __github__ = "@siavava"
 
-from numpy import inf                                       # infinity
+from numpy import inf, log                                       # infinity
 from chess import Board                                     # Chess board
 import chess                                                # Chess module
 from random import shuffle                                  # functiont to shuffle moves.
@@ -40,8 +40,20 @@ class IterativeDeepeningAI():
         best_move, best_cost = None, -inf
         counter = self.timeout
         
+    
         # iterate over allowed depths.
         for depth in range(1, self.max_depth):
+            
+            if best_move:
+                board.push(best_move)
+                new_cost = self.search_engine.minimax(board, depth=depth)
+                board.pop()
+                
+                # First, recheck the best move from previous depth and update cost if it changes.
+                if new_cost < best_cost:
+                    if self.debug:
+                        log_error(f"Move with best score changed score from {best_cost} to {new_cost}.")
+                    best_cost = new_cost
             
             # get every possible move and explore it to the current depth.
             for move in board.legal_moves:
@@ -75,6 +87,7 @@ class IterativeDeepeningAI():
                         best_move, best_cost = move, cost
                         
                     elif not ((cost == best_cost) and (str(move) in self.prev_moves)):
+                        # log_error(f"Depth {depth}; move {move} has same score as previous move {best_move}.")
                         best_move, best_cost = move, cost
                         
                 

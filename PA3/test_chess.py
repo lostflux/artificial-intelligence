@@ -33,16 +33,19 @@ from pstats import SortKey
 
 # ... initialize players ...
 random_player = RandomAI()
-minimax_white = MinimaxAI(1, debug=True)
-minimax_black = MinimaxAI(1, maximizing=False, debug=True)
+minimax_white = MinimaxAI(2, debug=True)
+minimax_black = MinimaxAI(2, maximizing=False, debug=True)
 
 alpha_beta_white = AlphaBetaAI(3, debug=True)
 alpha_beta_black = AlphaBetaAI(3, maximizing=False, debug=True)
 
-ids_white = IterativeDeepeningAI(4, timeout=30, debug=True)
-ids_black = IterativeDeepeningAI(4, maximizing=False, debug=True)
+# toggle timeout to limit search operations.
+ids_white = IterativeDeepeningAI(7, timeout=50, debug=True)
+ids_black = IterativeDeepeningAI(7, timeout=30, maximizing=False, debug=True)
 
-enhanced_alpha_beta_white = EnhancedAlphaBetaAI(3, debug=True)
+# toggle memoized to True to use Transposition Table, 
+# vary move_count to change number of best moves that are considered
+enhanced_alpha_beta_white = EnhancedAlphaBetaAI(5, move_count=4, memoized=False, debug=True)
 enhanced_alpha_beta_black = EnhancedAlphaBetaAI(5, maximizing=False, debug=True)
 
 better_ai_white = BetterAI(timeout=100, debug=True)
@@ -62,19 +65,19 @@ pr.enable()
 # game = ChessGame(minimax_white, minimax_black)
 
 # # alpha beta
-game = ChessGame(alpha_beta_white, random_player)
+# game = ChessGame(alpha_beta_white, random_player)
 # game = ChessGame(random_player, alpha_beta_black)
 # game = ChessGame(alpha_beta_white, alpha_beta_black)
 
 # # iterative deepening
-# game = ChessGame(ids_white, random_player)
+game = ChessGame(ids_white, random_player)
 # game = ChessGame(random_player, ids_black)
 # game = ChessGame(ids_white, ids_black)
 
 # # enhanced alpha beta
 # game = ChessGame(enhanced_alpha_beta_white, random_player)
 # game = ChessGame(random_player, enhanced_alpha_beta_black)
-# game = ChessGame(enhanced_alpha_beta_white, enhanced_alpha_beta_black)
+# game = ChessGame(enhanced_alpha_beta_white, alpha_beta_black)
 
 # # better ai (my version with a bunch of changes)
 # game = ChessGame(better_ai_white, random_player)

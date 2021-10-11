@@ -70,7 +70,7 @@ class BetterAI():
                 # First, recheck the best move from previous depth and update cost if it changes.
                 if new_cost != best_cost:
                     if self.debug:
-                        log_error(f"Move {move} changed in score from {best_cost} to {new_cost}.")
+                        log_error(f"Move {best_move} changed in score from {best_cost} to {new_cost}.")
                     best_cost = new_cost
             
             # get every possible move and explore it to the current depth.

@@ -85,6 +85,9 @@ class AlphaBetaAI():
         # once the best move is found, remember it and return it.
         self.prev_moves.add(str(best_move))
         
+        if self.debug:
+            log_debug_info(f"Prune actions (cumulative): {self.pruned_branches}")
+        
         # print information on chosen best move.
         log_info(f"\nAlpha-Beta AI recommending move = {best_move}, move score = {best_cost}\n")
         
