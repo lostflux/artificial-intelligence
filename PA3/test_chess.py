@@ -80,13 +80,13 @@ pr.enable()
 # game = ChessGame(enhanced_alpha_beta_white, alpha_beta_black)
 
 # # better ai (my version with a bunch of changes)
-# game = ChessGame(better_ai_white, random_player)
+game = ChessGame(better_ai_white, random_player)
 # game = ChessGame(random_player, better_ai_black)
 # game = ChessGame(better_ai_white, better_ai_black)
 
 ## Tests for Transpotition Table
-enhanced_alpha_beta_white = EnhancedAlphaBetaAI(4, move_count=5, memoized=True, debug=True)
-game = ChessGame(enhanced_alpha_beta_white, random_player)
+# enhanced_alpha_beta_white = EnhancedAlphaBetaAI(4, move_count=5, memoized=True, debug=True)
+# game = ChessGame(enhanced_alpha_beta_white, random_player)
 
 ######################## Game Loop #########################
 turns: int = 0

@@ -19,12 +19,13 @@ class PriorityQueue(object):
     """
     def __init__(self):
         self._heap = list()
+        self.len = 0
 
     def __len__(self):
         """
             Return the length of the queue.
         """
-        return len(self._heap)
+        return self.len
 
     def __str__(self):
         """
@@ -35,7 +36,7 @@ class PriorityQueue(object):
     def __bool__(self):
         """Check if the queue is NOT empty.
         """
-        return not self.is_empty()
+        return self.len != 0
     
     def __iter__(self):
         """Return an iterator for the queue.
@@ -65,14 +66,16 @@ class PriorityQueue(object):
     def push(self, item):
         """Push an item with a priority to the queue.
         """
+        self.len += 1
         heappush(self._heap, item)
 
     def pop(self):
         """Pop the item with the highest priority from the queue.
         """
-        if not self._heap:
+        if self.len == 0:
             raise IndexError('Pop from empty queue.')
         
+        self.len -= 1
         return heappop(self._heap)
     
     def is_empty(self):

@@ -13,7 +13,9 @@ from numpy import inf                                       # infinity
 from chess import Board                                     # Chess board
 from erratum import (log_error, log_info, log_debug_info)   # logging functions. see [../erratum.py] for more info.
 from EnhancedAlphaBetaAI import EnhancedAlphaBetaAI         # A/B AI for searching.
+from EnhancedAlphaBetaAI import OrderedMove
 
+from priorityqueue import PriorityQueue                    # Priority queue for move reordering.
 class BetterAI():
     """
         A Chess AI that uses Alpha-Beta pruning with the Minimax algorithm to search for the best move.
@@ -32,7 +34,7 @@ class BetterAI():
     """
     
     
-    def __init__(self, max_depth=15, maximizing=True, move_count=7, timeout=30, debug=False):
+    def __init__(self, max_depth=7, maximizing=True, move_count=4, timeout=15, debug=False):
         """
             Constructor.
             :arg max_depth: the maximum depth to search to.
@@ -47,6 +49,7 @@ class BetterAI():
         self.search_engine: EnhancedAlphaBetaAI = \
             EnhancedAlphaBetaAI(0, maximizing=self.maximizing, memoized=False, move_count=move_count, debug=debug)
         self.prev_moves = set()
+        self.move_count = move_count
         self.timeout = timeout
        
      
@@ -72,9 +75,16 @@ class BetterAI():
                     if self.debug:
                         log_error(f"Move {best_move} changed in score from {best_cost} to {new_cost}.")
                     best_cost = new_cost
+                    
+            ordered_moves = self.search_engine.reorder_moves(board, board.legal_moves)
             
             # get every possible move and explore it to the current depth.
-            for move in board.legal_moves:
+            
+            move_count = self.move_count
+            while move_count > 0 and ordered_moves:
+                
+                move_count -= 1
+                move = ordered_moves.pop().move
                 
                 # try the move
                 board.push(move)

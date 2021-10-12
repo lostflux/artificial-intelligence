@@ -84,7 +84,7 @@ class EnhancedAlphaBetaAI():
         might not be able to see as far down the road as it would
         in a game with less branching than Chess. 
     """
-    def __init__(self, depth, maximizing=True, move_count=inf, debug=False, memoized=True):
+    def __init__(self, depth, maximizing=True, move_count=inf, debug=False, memoized=True, ids=False):
         """
             Constructor.
             :arg `depth`: maximum search depth.
@@ -95,9 +95,16 @@ class EnhancedAlphaBetaAI():
         
         if memoized:
             self.memory: TranspositionTable = TranspositionTable()
-            self.memory["*"] = 0
+            self.memory["*"] = 0 # dummy entry to avoid errors.
         else:
             self.memory = None
+            
+        if ids:
+            self.ids = True
+            self.ids_moves = TranspositionTable()
+        else:
+            self.ids = False
+            self.ids_moves = None
         
         self.maximizing: bool = maximizing
         self.debug: bool = debug
@@ -109,10 +116,12 @@ class EnhancedAlphaBetaAI():
         self.remembered_states: int = 0
         
     def get_score(self, board: Board):
-        # if self.memory and board in self.memory:
-        #     self.remembered_states += 1
-        #     return self.memory[board]
+        """
+            Given a board state, calculate the heuristic value of that board state.
+        """
         
+        if self.ids and (board in self.ids_moves):
+            return self.ids_moves[board]
         return self.evaluate(board)
 
     def choose_move(self, board: Board):
@@ -141,7 +150,8 @@ class EnhancedAlphaBetaAI():
             
             else:
                 cost = self.alpha_beta_search(board)
-                if self.memory: self.memory[board] = cost
+                if self.memory: self.memory[board] = cost       # memoizing search
+                if self.ids: self.ids_moves[board] = cost             # memoizing IDS reordering
                 
             # check if the move improves the utility.
             # NOTE: we check whether it *matches* the utility, OR if it *betters* the utility.
@@ -188,6 +198,7 @@ class EnhancedAlphaBetaAI():
         log_info(f"\nEnhanced A/B recommending move = {str(best_move)}, move score = {best_cost}")
         
         if self.memory: self.memory[best_move] = best_cost
+        if self.ids: self.ids_moves[board] = cost             # memoizing IDS reordering
         
         # return chosen move
         return best_move
@@ -202,7 +213,7 @@ class EnhancedAlphaBetaAI():
         """
         return (depth == 0) or (board.is_game_over())
     
-    def alpha_beta_search(self, board: Board, depth=None, memoized=True):
+    def alpha_beta_search(self, board: Board, depth=None):
         """
             Given a board state, calculate the minimax value of that board state.
             :arg `board`: Chess board state.
@@ -215,6 +226,7 @@ class EnhancedAlphaBetaAI():
         if self.cutoff_test(board, depth):
             cost = self.evaluate(board)
             if self.memory: self.memory[board] = cost
+            if self.ids: self.ids_moves[board] = cost             # memoizing IDS reordering
             return cost
         
         # otherwise, if the target is to maximize, return the max_value.
@@ -234,12 +246,15 @@ class EnhancedAlphaBetaAI():
         # if state has been seen already, get the value from transposition table.
         if self.memory and (board in self.memory):
             self.remembered_states += 1
-            return self.memory[board]
+            value = self.memory[board]
+            if self.ids: self.ids_moves[board] = value             # memoizing IDS reordering
+            return value
             
         # otherwise, if cutoff point has been reached, evaluate the state of the board.
         if self.cutoff_test(board, depth):
             value = self.evaluate(board)
             if self.memory: self.memory[board] = value
+            if self.ids: self.ids_moves[board] = value            # memoizing IDS reordering
             return value
         
         # otherwise, recursively find the max of min for each next state,
@@ -285,6 +300,7 @@ class EnhancedAlphaBetaAI():
                     best = max(best, highest_value)
                     
             if self.memory: self.memory[board] = highest_value
+            if self.ids: self.ids_moves[board] = highest_value             # memoizing IDS reordering
             return highest_value
     
     def min_value(self, board, depth, best, worst):
@@ -295,12 +311,15 @@ class EnhancedAlphaBetaAI():
         # if state has been seen already, get the value from transposition table.
         if self.memory and (board in self.memory):
             self.remembered_states += 1
-            return self.memory[board]
-            
+            value = self.memory[board]
+            if self.ids: self.ids_moves[board] = value             # memoizing IDS reordering
+            return value
+        
         # otherwise, if cutoff point has been reached, evaluate the value of the board.
         elif self.cutoff_test(board, depth):
             value = self.evaluate(board)
             if self.memory: self.memory[board] = value
+            if self.ids: self.ids_moves[board] = value             # memoizing IDS reordering
             return value
         
         # otherwise, recursively find the max of min for each next state,
@@ -322,6 +341,8 @@ class EnhancedAlphaBetaAI():
             reordered_moves: PriorityQueue = self.reorder_moves(board, legal_moves, max_heap=self.maximizing)
             
             num_moves = self.move_count
+            
+            # get the best move until the specified number of moves to be considered is reached or moves end.
             while num_moves > 0 and reordered_moves:
                 
                 num_moves -= 1
@@ -346,6 +367,7 @@ class EnhancedAlphaBetaAI():
                     worst = min(worst, lowest_value)
                     
             if self.memory: self.memory[board] = lowest_value
+            if self.ids: self.ids_moves[board] = lowest_value             # memoizing IDS reordering
             return lowest_value
        
     ###############################################################################
@@ -368,17 +390,6 @@ class EnhancedAlphaBetaAI():
             ordered_moves.push(ordered_move)
 
         return ordered_moves
-        # new_moves = []
-        # if self.debug:
-        #     values = []
-        # while ordered_moves and len(new_moves) < self.move_count:
-        #     ordered_move = ordered_moves.pop()
-        #     new_moves.append(ordered_move.move)
-        #     if self.debug:
-        #         values.append(ordered_move.value)
-            
-        # # return list of reordered moves.
-        # return new_moves
             
 ####################################################################################
 ####################################################################################
