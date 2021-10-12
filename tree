@@ -1,4 +1,5 @@
 .
+├── cloc
 ├── cs1lib.py
 ├── Makefile
 ├── PA1
@@ -71,7 +72,6 @@
 │   ├── BetterAI.py
 │   ├── ChessGame.py
 │   ├── EnhancedAlphaBetaAI.py
-│   ├── EnhancedMinimaxAI.py
 │   ├── erratum.py
 │   ├── gui_chess.py
 │   ├── HumanPlayer.py
@@ -80,9 +80,12 @@
 │   ├── MinimaxAI.py
 │   ├── priorityqueue.py
 │   ├── RandomAI.py
+│   ├── README.md
+│   ├── report.md
+│   ├── report.pdf
 │   ├── test_chess.py
 │   └── TranspositionTable.py
 ├── README.md
-└── tree.out
+└── tree
 
-6 directories, 79 files
+6 directories, 82 files
