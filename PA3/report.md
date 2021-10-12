@@ -507,6 +507,7 @@ For instance, if the current level of the search is a maximizing node, then we k
 Using basic pruning, the algorithm was able to easily search $1$ to $2$ depths deeper than `minimax`, with comparable results.
 
 The ability to search deeper consistently allowed the algorithm to find better moves than the singular  move minimax would find, or one reassignment.
+
 ```text
 White to move
 
@@ -699,13 +700,7 @@ class OrderedMove():
             ordered_move = OrderedMove(self, board, move, max_heap=max_heap)
             ordered_moves.push(ordered_move)
 
-        new_moves = []
-        while ordered_moves and len(new_moves) < self.move_count:
-            ordered_move = ordered_moves.pop()
-            new_moves.append(ordered_move.move)
-            
-        # return list of reordered moves.
-        return new_moves
+        return ordered_moves
 ```
 
 First, each move is loaded into the `OrderedMove` abstraction and added into the priority queue.
@@ -796,7 +791,6 @@ Checkmate? True
 Stalemate? False  
 Number of moves: 96  
 ```
-
 
 ### 4. Implement Iterative Deepening
 
@@ -1028,45 +1022,51 @@ class TranspositionTable(object):
     def __len__(self):
         return self.len
     
-    # @staticmethod
-    # def zobrist_hash(board: Board):
+    # def zobrist_hash(self, board: Board):
+    #     """Return the Zobrist hash of a board.
+    #     """
     #     hash_value = 0
-    #     for piece in board.pieces:
+    #     for square in range(64):
+    #         piece = board.piece_at(square)
+    #         if piece:
+    #             hash_value ^= self.zobrist_piece_table[piece.piece_type][square]
 ```
 
-Performance
+##### Performance
+
+The memoization of alpha-beta helps avoid repeated evaluation of encountered states. Combined with move reordering and a limit of 7 on the number of considered moves, I was able to get alpha-beta to only take $1.668$ seconds per move turn while searching up to a depth of $5$, and still checkmate random AI in $15$ moves, a comparable move count (if not better than!) the original Minimax AI, which took way more time per move.
 
 ```text
 Black to move
 
-Random AI recommending move f7f6
-r . b q k . n Q
-p . p p p . . .
-P . . . . p . .
-. . . . . . p p
-. P P . . . . .
-. . . . . . . .
-. . . . P P P P
-R N B . K B N R
+Random AI recommending move h8g8
+. . . . k B r .
+. P . . . p . p
+. . P . p . . .
+. . R . . . p .
+. P . P . . . .
+. . . P . . . .
+. . . . . P P P
+. N . Q K B N R
 ----------------
 a b c d e f g h
 
 White to move
 
 First move found, score = inf.  
-Transposition Table size: 14457.  
-Pruned 3127 branches.  
-Re-encountered 3558 states (cumulative)  
+Transposition Table size: 11332.  
+Pruned 2467 branches.  
+Re-encountered 1024 states (cumulative)  
 
-Enhanced A/B recommending move = h8g8, move score = inf  
-r . b q k . Q .
-p . p p p . . .
-P . . . . p . .
-. . . . . . p p
-. P P . . . . .
-. . . . . . . .
-. . . . P P P P
-R N B . K B N R
+Enhanced A/B recommending move = b7b8q, move score = inf  
+. Q . . k B r .
+. . . . . p . p
+. . P . p . . .
+. . R . . . p .
+. P . P . . . .
+. . . P . . . .
+. . . . . P P P
+. N . Q K B N R
 ----------------
 a b c d e f g h
 
@@ -1074,16 +1074,176 @@ Black to move
 
 Checkmate? True  
 Stalemate? False  
-Number of moves: 9  
-         86227600 function calls (86213373 primitive calls) in 56.330 seconds
+Number of moves: 15  
+         33290485 function calls (33279567 primitive calls) in 38.571 seconds
 
    Ordered by: cumulative time
 
    ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-       17    0.000    0.000   57.845    3.403 /workspace/personal/python/cs76/PA3/ChessGame.py:21(make_move)
-        9    0.001    0.000   49.830    5.537 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:118(choose_move)
-       35    0.000    0.000   49.641    1.418 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:205(alpha_beta_search)
-  4010/34    0.111    0.000   49.639    1.460 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:229(max_value)
-10402/151    0.079    0.000   49.333    0.327 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:290(min_value)
-     5410    0.204    0.000   38.815    0.007 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:354(reorder_moves)
+       29    0.001    0.000   39.053    1.347 /workspace/personal/python/cs76/PA3/ChessGame.py:21(make_move)
+       15    0.002    0.000   25.027    1.668 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:117(choose_move)
+       58    0.000    0.000   24.809    0.428 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:204(alpha_beta_search)
+  8429/58    0.077    0.000   24.804    0.428 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:228(max_value)
+ 2830/283    0.114    0.000   24.422    0.086 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:289(min_value)
+     3618    0.201    0.000   14.615    0.004 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:353(reorder_moves)
+   114409    0.242    0.000   14.156    0.000 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:31(__init__)
+       14    0.001    0.000   14.023    1.002 /workspace/personal/python/cs76/PA3/RandomAI.py:21(choose_move)
+```
+
+#### 2. Profiling
+
+##### a. Minimax, Search Depth 2
+
+I used Python's cProfile module (found in the standard Python installation, with reference from this online [manual](https://docs.python.org/3/library/profile.html)).
+
+For my minimax algorithm here were the results.
+
+A lot of time is spent on move evaluation (for frontier moves), despite each call to `evaluate()` barely taking $0.00$ seconds. This is understandable since most positions, most of which end up not being chosen, are on the frontier of the search algorithm at some point and have to be evaluated. In fact, a total of $459990$ board evaluations were performed over $45$ seconds, despite only $35$ moves happening in the game. Clearly, the search, while exhaustive, is inefficient. A possible improvement will be to prune the number of frontier positions evaluated.
+
+```text
+         77974843 function calls (77514856 primitive calls) in 95.685 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       67    0.001    0.000   96.415    1.439 /workspace/personal/python/cs76/PA3/ChessGame.py:21(make_move)
+       34    0.009    0.000   63.360    1.864 /workspace/personal/python/cs76/PA3/MinimaxAI.py:42(choose_move)
+     1119    0.003    0.000   63.303    0.057 /workspace/personal/python/cs76/PA3/MinimaxAI.py:105(minimax)
+     1116    0.554    0.000   63.232    0.057 /workspace/personal/python/cs76/PA3/MinimaxAI.py:126(max_value)
+    14599    1.217    0.000   62.602    0.004 /workspace/personal/python/cs76/PA3/MinimaxAI.py:149(min_value)
+   459990    0.958    0.000   45.509    0.000 /workspace/personal/python/cs76/PA3/MinimaxAI.py:178(evaluate)
+       33    0.001    0.000   33.050    1.002 /workspace/personal/python/cs76/PA3/RandomAI.py:21(choose_move)
+       33   33.040    1.001   33.040    1.001 {built-in method time.sleep}
+```
+
+##### b. Alpha-Beta, Search Depth 3
+
+I used Python's cProfile module (found in the standard Python installation, with reference from this online [manual](https://docs.python.org/3/library/profile.html)).
+
+For alpha-beta, a there is a notable improvement in the number of evaluations of frontier positons, but a total of $323949$ evaluations over $33$ seconds still points to an inefficiency.
+
+```text
+         56715414 function calls (56357396 primitive calls) in 63.880 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       25    0.000    0.000   64.513    2.581 /workspace/personal/python/cs76/PA3/ChessGame.py:21(make_move)
+       13    0.003    0.000   52.494    4.038 /workspace/personal/python/cs76/PA3/AlphaBetaAI.py:41(choose_move)
+      384    0.001    0.000   52.474    0.137 /workspace/personal/python/cs76/PA3/AlphaBetaAI.py:107(alpha_beta_search)
+      383    1.296    0.000   52.452    0.137 /workspace/personal/python/cs76/PA3/AlphaBetaAI.py:127(max_value)
+    8956    0.550    0.000   52.069    0.006 /workspace/personal/python/cs76/PA3/AlphaBetaAI.py:166(min_value)
+   323949    0.775    0.000   33.809    0.000 /workspace/personal/python/cs76/PA3/AlphaBetaAI.py:211(evaluate)
+   647850    2.960    0.000   17.790    0.000 /workspace/personal/python/cs76/PA3/AlphaBetaAI.py:246(parse_color)
+   367815    0.408    0.000   17.525    0.000 /usr/local/lib/python3.9/dist-packages/chess/__init__.py:1865(is_game_over)
+   367839    1.869    0.000   17.120    0.000 /usr/local/lib/python3.9/dist-packages/chess/__init__.py:1872(outcome)
+  1163206    2.342    0.000   12.302    0.000 /usr/local/lib/python3.9/dist-packages/chess/__init__.py:3488(generate_legal_moves)
+       12    0.000    0.000   12.017    1.001 /workspace/personal/python/cs76/PA3/RandomAI.py:21(choose_move)
+       12   12.013    1.001   12.013    1.001 {built-in method time.sleep}
+```
+
+##### c. Enhanced Alpha-Beta, Search Depth 5
+
+I used Python's cProfile module (found in the standard Python installation, with reference from this online [manual](https://docs.python.org/3/library/profile.html)).
+
+For my enhanced alpha-beta algorithm with memoization, move reordering, and forward pruning, the number of move evaluations dropped to $122065$ lasting a total of $11.994$ seconds, a notable improvement. The change would have been greater had I not used evaluations for move ordering.
+
+```text
+         33290485 function calls (33279567 primitive calls) in 38.571 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       29    0.001    0.000   39.053    1.347 /workspace/personal/python/cs76/PA3/ChessGame.py:21(make_move)
+       15    0.002    0.000   25.027    1.668 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:117(choose_move)
+       58    0.000    0.000   24.809    0.428 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:204(alpha_beta_search)
+       58    0.077    0.000   24.804    0.428 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:228(max_value)
+      283    0.114    0.000   24.422    0.086 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:289(min_value)
+     3618    0.201    0.000   14.615    0.004 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:353(reorder_moves)
+   114409    0.242    0.000   14.156    0.000 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:31(__init__)
+       14    0.001    0.000   14.023    1.002 /workspace/personal/python/cs76/PA3/RandomAI.py:21(choose_move)
+       14   14.017    1.001   14.017    1.001 {built-in method time.sleep}
+   122065    0.262    0.000   11.994    0.000 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:377(evaluate)
+   114409    0.082    0.000   11.206    0.000 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:111(get_score)
+    35913    2.518    0.000    7.841    0.000 /usr/local/lib/python3.9/dist-packages/chess/__init__.py:1187(__str__)
+```
+
+#### 3. Advanced Move Reordering
+
+I implemented a version of IDS, "Better AI", that attempts to use move costs from previous IDS iterations to reorder mvoes in the current iteration. Using it, I was able to perform IDS up to 6 or 7 levels down before it timed out. However, there are tradeoffs in comparison to the enhanced version of alpha-beta -- especially since it's impossible to memoize the search engine in IDS since it frequently revisits board states -- it'll simply return values for previous depths and skip the current depth. I tried to get around this by creating an alternate transposition table used specifically for move lookk-ups from the IDS algorithm, but the tradeoff from losing the proper memoization of alpha-beta leads to lower performance.
+
+```text
+Black to move
+
+Random AI recommending move e7e5
+. n b q k . n r
+r p . p . . b p
+. . . . . p P .
+p . p . p . P .
+P . . . P . . .
+. . . . . . . B
+. P P P . . . P
+R N B Q K . N R
+----------------
+a b c d e f g h
+
+White to move
+
+First move found at depth 1; score = 2.  
+Depth 1, best move: g5f6, cost: 2.  
+Move g5f6 changed in score from 2 to 3.  
+Depth 2; better move found, score shift from 3 to 7.  
+Depth 2, best move: g6h7, cost: 7.  
+Depth 3, best move: g6h7, cost: 7.  
+Depth 4, best move: g6h7, cost: 7.  
+Depth 5, best move: g6h7, cost: 7.  
+Move g6h7 changed in score from 7 to 10.  
+Depth 6, best move: g6h7, cost: 10.  
+Better AI recommends move g6h7 with cost 10  
+. n b q k . n r
+r p . p . . b P
+. . . . . p . .
+p . p . p . P .
+P . . . P . . .
+. . . . . . . B
+. P P P . . . P
+R N B Q K . N R
+----------------
+a b c d e f g h
+
+```
+
+Once again, the thousands of redundant move evaluations creep up, weighing down the algorithm.
+
+```text
+Better AI recommends move h5e8 with cost inf  
+. . . N Q . k .
+. . . r . . r .
+b . . . . . . .
+p . . . . B . .
+P . . b P . . .
+. . . . . . . .
+. P P P . . . P
+R N B . K . . R
+----------------
+a b c d e f g h
+
+Black to move
+
+Checkmate? True  
+Stalemate? False  
+Number of moves: 22  
+         317230759 function calls (317059205 primitive calls) in 298.610 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       43    0.001    0.000  301.728    7.017 /workspace/personal/python/cs76/PA3/ChessGame.py:21(make_move)
+       22    0.010    0.000  280.695   12.759 /workspace/personal/python/cs76/PA3/BetterAI.py:56(choose_move)
+      638    0.005    0.000  280.060    0.439 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:216(alpha_beta_search)
+108751/627    1.053    0.000  280.013    0.447 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:241(max_value)
+65915/2485    1.337    0.000  277.480    0.112 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:306(min_value)
+    62209    3.291    0.000  242.626    0.004 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:376(reorder_moves)
+  1754005    3.901    0.000  235.432    0.000 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:31(__init__)
+  1866605    4.259    0.000  198.408    0.000 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:400(evaluate)
 ```
