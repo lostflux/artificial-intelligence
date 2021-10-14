@@ -1457,8 +1457,6 @@ I created a short library, [erratum](erratum.py), which simply prints out specif
 
 It made it easier for me to distinguish between the text I'm logging as general info, versus debug info, vs error info. However, I noticed that while it works in Visual Studio Code, it doesn't work in PyCharm because, for some reason, my version of Pycharm doesn't process the specific escape wequences I used to format and color text. If working on PyCharm and the output by your editor seems a bit weird, you may wish to replace the logic in the `text_color` function to simply return the text it's given instead of formatting the text. Or better yet, check out VS Code :)
 
-\newpage
-
 ```python
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
