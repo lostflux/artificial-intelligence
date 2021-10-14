@@ -8,7 +8,7 @@
 
 ***In this programming assignment, you will write a program for playing chess. The learning objective is to implement the adversarial search methods discussed in class.***
 
-## ==Required Tasks==
+## **REQUIRED TASKS**
 
 ### 1. Implement Minimax and Cutoff Test
 
@@ -129,6 +129,8 @@ Given a board state and the current depth, this function determines if the cutof
       656    0.685    0.000   78.804    0.120 /workspace/personal/python/cs76/PA3/MinimaxAI.py:126(max_value)
     15113    1.501    0.000   78.253    0.005 /workspace/personal/python/cs76/PA3/MinimaxAI.py:149(min_value)
 ```
+
+\newpage
 
 ### 2. Implement Evaluation function
 
@@ -398,6 +400,8 @@ Stalemate? False
 Number of moves: 37  
 ```
 
+\newpage
+
 ### 3. Implement Alpha Beta
 
 My `alpha-beta` implementation is very similar to minimax, with the exception that successive calls to `max_value` and `min_value` perform book-keeping on the highest and lowest values, prune unneeded branches, and in return update these values if needed and pass them to child calls.
@@ -579,6 +583,8 @@ At depth $4$, `alpha_beta` takes comparabke time to `minimax`'s depth $2$ perfor
 
 In a game that dragged out, lasting $42$ moves with `alpha_beta` playing as white, a total of $98021$ search prunes were executed (counting each time the algorithm is absconds a search as a single "prune"). The total number of pruned branches is definitely higher, but the book-keeping required to track all those was slowing down the algorithm.
 
+\newpage
+
 ```text
 Black to move
 
@@ -620,6 +626,191 @@ Checkmate? True
 Stalemate? False  
 Number of moves: 42  
 ```
+
+\newpage
+
+#### Discussion of similarity of results between Minimax and Alpha-Beta
+
+To ensure my ALpha-Beta algorithm is correct, I tested it in different positions to ensure it generates moves with the same scores as Minimax.
+
+##### **Test 1**
+
+```text
+./test_chess.py
+First move found, score = 0.  
+Better move found, score shift from 0 to 2.  
+
+Minimax AI recommending move = c4d5, move score = 2
+  
+Game 1:
+ r . . q k b . r
+p b . p . . . p
+. p . . . . p n
+. P . P P . p .
+. . . . P . . .
+N P . . . N . .
+. . . . . P P P
+R . . Q K B . R
+----------------
+a b c d e f g h
+
+Black to move
+
+First move found, score = 0.  
+Better move found, score shift from 0 to 2.  
+Prune actions (cumulative): 2064  
+
+Alpha-Beta AI recommending move = c4d5, move score = 2
+  
+Game 2:
+ r . . q k b . r
+p b . p . . . p
+. p . . . . p n
+. P . P P . p .
+. . . . P . . .
+N P . . . N . .
+. . . . . P P P
+R . . Q K B . R
+----------------
+a b c d e f g h
+
+Black to move
+```
+
+\newpage
+
+##### **Test 2**
+
+```text
+./test_chess.py
+First move found, score = 8.  
+
+Minimax AI recommending move = g2g4, move score = 8
+  
+Game 1:
+ r . . . k b . r
+p . . p . . . p
+. p . . . . p n
+. P . . P . q .
+. . P . b . P .
+N P Q . . . . .
+. . . . . P . P
+R . . . K B . R
+----------------
+a b c d e f g h
+
+Black to move
+
+First move found, score = 8.  
+Prune actions (cumulative): 2575  
+
+Alpha-Beta AI recommending move = g2g4, move score = 8
+  
+Game 2:
+ r . . . k b . r
+p . . p . . . p
+. p . . . . p n
+. P . . P . q .
+. . P . b . P .
+N P Q . . . . .
+. . . . . P . P
+R . . . K B . R
+----------------
+a b c d e f g h
+
+Black to move
+```
+
+\newpage
+
+##### **Test 3**
+
+```text
+First move found, score = -7.  
+Better move found, score shift from -7 to -5.  
+
+Minimax AI recommending move = e2f3, move score = -5
+  
+Game 1:
+ r . . . . r . .
+p b . p k . . p
+. p . . . . p .
+. P . . . . . .
+. . P R . . . .
+. P . . . B . .
+. . . . . P . P
+. . . K . . . .
+----------------
+a b c d e f g h
+
+Black to move
+
+First move found, score = -7.  
+Better move found, score shift from -7 to -5.  
+Prune actions (cumulative): 955  
+
+Alpha-Beta AI recommending move = e2f3, move score = -5
+  
+Game 2:
+ r . . . . r . .
+p b . p k . . p
+. p . . . . p .
+. P . . . . . .
+. . P R . . . .
+. P . . . B . .
+. . . . . P . P
+. . . K . . . .
+----------------
+a b c d e f g h
+
+Black to move
+```
+
+\newpage
+
+##### **Test 4**
+
+```text
+./test_chess.py
+First move found, score = -6.  
+
+Minimax AI recommending move = a3a4, move score = -6
+  
+Game 1:
+ r . . . . r . .
+p . . . . . . p
+. p . . . . p .
+. P k . . . . .
+R . . . . P . .
+. . . . . . . .
+. . . . . . . P
+. . K . . . . .
+----------------
+a b c d e f g h
+
+Black to move
+
+First move found, score = -6.  
+Prune actions (cumulative): 652  
+
+Alpha-Beta AI recommending move = a3a4, move score = -6
+  
+Game 2:
+ r . . . . r . .
+p . . . . . . p
+. p . . . . p .
+. P k . . . . .
+R . . . . P . .
+. . . . . . . .
+. . . . . . . P
+. . K . . . . .
+----------------
+a b c d e f g h
+
+Black to move
+```
+
+\newpage
 
 #### Discussion of move reordering
 
@@ -792,6 +983,8 @@ Stalemate? False
 Number of moves: 96  
 ```
 
+\newpage
+
 ### 4. Implement Iterative Deepening
 
 I used minimax in my iterative deepening implementation, where, for each call, the iterative deepening polls minimax for the best move, tracking the scores. I also added a quirk in my implementation that, for each depth, the best move from the previous depth is evaluated first so that if its score decreases and another move gets a better score than the new best score (but not necessarily the "best score" from the previous depth), then the algorithm can detect that move $A$'s value went down and move $B$ surpassed it.
@@ -956,6 +1149,8 @@ Depth 2, best move: b3b4, cost: 6.
 Iterative Deepening AI recommends move b3b4 with cost 6 
 ```
 
+\newpage
+
 ### 5. Writeup and Discussion
 
 1. Description: How do your implemented algorithms work? What design decisions did you make?
@@ -974,9 +1169,11 @@ Iterative Deepening AI recommends move b3b4 with cost 6
 > 4) (iterative deepening) Verify that for some start states, best_move changes (and hopefully improves) as deeper levels are searched. Discuss the observations in your document.
 >
 
-### 6. Extra Implementations
+\newpage
 
-#### 1. Transposition Table
+## **EXTRA IMPLEMENTATIONS**
+
+### 1. Transposition Table
 
 I implemented a transposition table enabling computed move scores to be stored and retrieved faster when positions are re-encountered. In my tests, the alpha-beta algorithm performed faster and was able to search deeper with the transposition table activated. However, when terminal state computations were computed, the algorithm occassionally lost points in positions that were first found as terminal states and saved, without foresight of what happens afterward. As a result, I prefer not to store the terminal state values.
 
@@ -1032,7 +1229,7 @@ class TranspositionTable(object):
     #             hash_value ^= self.zobrist_piece_table[piece.piece_type][square]
 ```
 
-##### Performance
+#### Performance With Transposition Table
 
 The memoization of alpha-beta helps avoid repeated evaluation of encountered states. Combined with move reordering and a limit of 7 on the number of considered moves, I was able to get alpha-beta to only take $1.668$ seconds per move turn while searching up to a depth of $5$, and still checkmate random AI in $15$ moves, a comparable move count (if not better than!) the original Minimax AI, which took way more time per move.
 
@@ -1090,9 +1287,11 @@ Number of moves: 15
        14    0.001    0.000   14.023    1.002 /workspace/personal/python/cs76/PA3/RandomAI.py:21(choose_move)
 ```
 
-#### 2. Profiling
+\newpage
 
-##### a. Minimax, Search Depth 2
+### 2. Profiling
+
+#### A.  Minimax; Search Depth 2
 
 I used Python's cProfile module (found in the standard Python installation, with reference from this online [manual](https://docs.python.org/3/library/profile.html)).
 
@@ -1116,7 +1315,7 @@ A lot of time is spent on move evaluation (for frontier moves), despite each cal
        33   33.040    1.001   33.040    1.001 {built-in method time.sleep}
 ```
 
-##### b. Alpha-Beta, Search Depth 3
+#### B. Alpha-Beta; Search Depth 3
 
 I used Python's cProfile module (found in the standard Python installation, with reference from this online [manual](https://docs.python.org/3/library/profile.html)).
 
@@ -1142,7 +1341,7 @@ For alpha-beta, a there is a notable improvement in the number of evaluations of
        12   12.013    1.001   12.013    1.001 {built-in method time.sleep}
 ```
 
-##### c. Enhanced Alpha-Beta, Search Depth 5
+#### C. Enhanced Alpha-Beta; Search Depth 5
 
 I used Python's cProfile module (found in the standard Python installation, with reference from this online [manual](https://docs.python.org/3/library/profile.html)).
 
@@ -1168,7 +1367,9 @@ For my enhanced alpha-beta algorithm with memoization, move reordering, and forw
     35913    2.518    0.000    7.841    0.000 /usr/local/lib/python3.9/dist-packages/chess/__init__.py:1187(__str__)
 ```
 
-#### 3. Advanced Move Reordering
+\newpage
+
+### 3. Advanced Move Reordering
 
 I implemented a version of IDS, "Better AI", that attempts to use move costs from previous IDS iterations to reorder mvoes in the current iteration. Using it, I was able to perform IDS up to 6 or 7 levels down before it timed out. However, there are tradeoffs in comparison to the enhanced version of alpha-beta -- especially since it's impossible to memoize the search engine in IDS since it frequently revisits board states -- it'll simply return values for previous depths and skip the current depth. I tried to get around this by creating an alternate transposition table used specifically for move lookk-ups from the IDS algorithm, but the tradeoff from losing the proper memoization of alpha-beta leads to lower performance.
 
@@ -1246,4 +1447,78 @@ Number of moves: 22
     62209    3.291    0.000  242.626    0.004 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:376(reorder_moves)
   1754005    3.901    0.000  235.432    0.000 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:31(__init__)
   1866605    4.259    0.000  198.408    0.000 /workspace/personal/python/cs76/PA3/EnhancedAlphaBetaAI.py:400(evaluate)
+```
+
+\newpage
+
+## **NOTES**
+
+I created a short library, [erratum](erratum.py), which simply prints out specific text in different colors.
+
+It made it easier for me to distinguish between the text I'm logging as general info, versus debug info, vs error info. However, I noticed that while it works in Visual Studio Code, it doesn't work in PyCharm because, for some reason, my version of Pycharm doesn't process the specific escape wequences I used to format and color text. If working on PyCharm and the output by your editor seems a bit weird, you may wish to replace the logic in the `text_color` function to simply return the text it's given instead of formatting the text. Or better yet, check out VS Code :)
+
+\newpage
+
+```python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+    This file implements functionality to print errors, debug messages,
+    and specific info in a distinct way to separate it from normal output.
+    
+"""
+__author__ = "Amittai"
+__copyright__ = "Copyright 2021"
+__credits__ = ["Amittai"]
+__email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
+__github__ = "@siavava"
+
+
+def __text_color(r: int, g: int, b: int, text: str):
+    """
+        This function is used to generate colored text in the terminal.
+        Used internally and not intended to be called directly.
+    """
+    return f"\033[1m\033[38;2;{r};{g};{b}m{text} \033[38;2;255;255;255m\033[0m"
+
+
+def log_error(*args):
+    """
+        Given a list of arguments presumably representing an error message,
+        this function prints them in a distinct way to separate them from normal output.
+    """
+    err_message = ""
+    for arg in args:
+        err_message += str(arg) + " "
+        
+    print(__text_color(220, 20, 60, err_message))
+    
+def log_info(*args):
+    """
+        Given a list of arguments presumably representing useful information,
+        this function prints them in a distinct way to separate them from normal output.
+    """
+    err_message = ""
+    for arg in args:
+        err_message += str(arg) + " "
+        
+    print(__text_color(30, 144, 255, err_message))
+    
+def log_debug_info(*args):
+    """
+        Given a list of arguments presumably representing debug information,
+        this function prints them in a distinct way to separate them from normal output.
+    """
+    debug_message = ""
+    for arg in args:
+        debug_message += str(arg) + " "
+        
+    print(__text_color(55, 155, 55, debug_message))
+    
+    
+if __name__ == "__main__":
+    log_error("Hello", "World")
+    log_info("Hello", "World")
+    log_debug_info("Hello", "World")
 ```
