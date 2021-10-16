@@ -31,7 +31,7 @@ def test1():
     domains: dict = {"Alphonso": {1, 2, 3}, "Amittai": {1},  "Fabricio": {1, 2}}
     constraints: set = { ("Amittai", "Alphonso"), ("Amittai", "Fabricio"), ("Alphonso", "Fabricio")}
     
-    csp = CSP(variables=variables, domains=domains, constraints=constraints, mrv=True, debug=True)
+    csp = CSP(variables=variables, domains=domains, constraints=constraints, mrv=True, lcv=True, debug=True)
     
     results = backtracking_search(csp)
     
