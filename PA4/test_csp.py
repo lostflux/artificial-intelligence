@@ -69,8 +69,8 @@ if __name__ == "__main__":
     pr.enable()
     
     
-    # test1()
-    test2()
+    test1()
+    # test2()
     
     pr.disable()
     s = io.StringIO()
