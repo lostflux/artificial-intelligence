@@ -10,32 +10,71 @@ __credits__ = ["Amittai"]
 __email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
 __github__ = "@siavava"
 
+from numpy import inf
+
 from CSP import CSP
+
 from backtracking import backtracking_search
 
 from erratum import (log_error, log_info, log_debug_info)
 
+import cProfile, pstats, io
+from pstats import SortKey
+
 def test1():
     """
-        This function tests the backtracking algorithm.
+        This function tests the backtracking algorithm with a simple CSP based on my roommates and I.
     """
     # Create a CSP
     
     variables: set = {"Amittai", "Alphonso", "Fabricio"}
-    domains: dict = {"Amittai": {1, 3}, "Alphonso": {2, 3}, "Fabricio": {4, 3}}
+    domains: dict = {"Alphonso": {1, 2, 3}, "Amittai": {1},  "Fabricio": {1, 2}}
     constraints: set = { ("Amittai", "Alphonso"), ("Amittai", "Fabricio"), ("Alphonso", "Fabricio")}
     
-    csp = CSP(variables=variables, domains=domains, constraints=constraints, debug=True)
+    csp = CSP(variables=variables, domains=domains, constraints=constraints, mrv=True, debug=True)
     
     results = backtracking_search(csp)
     
-    log_info(results)
+    log_info(f"\n\nfinal assignments: {results}")
     
-    log_error(csp)
+    log_info(csp)
+
+def test2():
+    """
+        This function tests the backtracking algorithm with a simple CSP based on my roommates and I.
+    """
+    # Create a CSP
     
+    variables: set = {"WA", "NT", "Q", "NSW", "V", "SA", "T"}
+    domains: dict = {"WA": {"R"}, "NT" : {"R", "G", "B"}, "Q" : {"R", "G", "B"},\
+        "NSW" : {"R", "G", "B"}, "V" : {"R", "G", "B"}, "SA" : {"R", "G", "B"}, "T" : {"R", "G", "B"}}
+    constraints: set = { 
+                            ("WA", "NT"), ("WA", "SA"), ("SA", "NT"),\
+                            ("Q", "NSW"), ("SA", "Q"), ("NT", "Q"),\
+                            ("SA", "NSW"), ("SA", "V"), ("NSW", "V")
+                        }
     
+    csp = CSP(variables=variables, domains=domains, constraints=constraints, mrv=True, lcv=True, debug=True)
     
-    # csp.add_variable('A', [1, 2, 3])
+    results = backtracking_search(csp)
+    
+    log_info(f"\n\nfinal assignments: {results}")
+    
+    log_info(csp)
+    
     
 if __name__ == "__main__":
-    test1()
+    
+    pr = cProfile.Profile()
+    pr.enable()
+    
+    
+    # test1()
+    test2()
+    
+    pr.disable()
+    s = io.StringIO()
+    sortby = SortKey.CUMULATIVE
+    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+    ps.print_stats()
+    print(s.getvalue())

@@ -12,17 +12,20 @@ __github__ = "@siavava"
 
 from erratum import ( log_error, log_info, log_debug_info )
 
-from CSP import CSP
-
-from numpy import inf
+from numpy import inf                                       # infinity
 
 from PriorityQueue import PriorityQueue
+
+# from CSP import CSP
+
+heuristics_list = ["degree_heuristic", "lcv_heuristic", "mrv_heuristic"]
+
 
 ###############################################################################
 #################### Functionality for the MRV heuristic ######################
 ###############################################################################
 
-def mrv_heuristic(csp: CSP):
+def mrv_heuristic(csp, unassigned: list):
     """
         This function implements the MRV heuristic.
         It returns the variable with the fewest legal values.
@@ -30,7 +33,7 @@ def mrv_heuristic(csp: CSP):
     
     least_var, least_count = None, inf
     
-    for var in csp.get_unassigned_variables():
+    for var in unassigned:
         
         count = len(csp.get_domain(var))
         
@@ -44,7 +47,7 @@ def mrv_heuristic(csp: CSP):
 ################## Functionality for the Degree heuristic #####################
 ###############################################################################
     
-def degree_heuristic(csp: CSP):
+def degree_heuristic(csp):
     """
         This function implements the Degree heuristic.
         It returns the variable with the most contraints on other variables.
@@ -71,33 +74,29 @@ def degree_heuristic(csp: CSP):
 #################### Functionality for the LCV heuristic ######################
 ###############################################################################
 
-def lcv_heuristic(var, csp: CSP):
+def lcv_heuristic(csp, var, unassigned_vars, debug=False):
     
     domain = csp.get_domain(var)
     
-    min_value, min_cost = None, inf
+    if len(domain) == 1: return list(domain)
     
     restrictions: dict = {}
     
-    for constraint in csp.get_constraints:
+    for constraint in csp.constraints:
         
         if var in constraint:
         
             other_var = constraint[0] if var != constraint[0] else constraint[1]
             
-            vars1: set = csp.get_domain(var)
-            vars2: set = csp.get_domain(other_var)
+            if other_var in unassigned_vars:
             
-            intersection: set = vars1 ^ vars2
-            
-            for val in intersection:
-                restrictions[val] = restrictions.get(val, 0) + 1
+                vars1: set = csp.get_domain(var)
+                vars2: set = csp.get_domain(other_var)
+                
+                intersection: set = vars1 & vars2
+                
+                for val in intersection:
+                    restrictions[val] = restrictions.get(val, 0) + 1
+    sorted_values = sorted(list(domain), key=lambda x: restrictions.get(x, 0))
     
-    for val in domain:
-        cost = restrictions.get(val, 0)
-        
-        if cost < min_cost:
-            min_cost = cost
-            min_value = val
-            
-    return min_value
+    return sorted_values

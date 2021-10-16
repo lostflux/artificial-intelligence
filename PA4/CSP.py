@@ -12,9 +12,14 @@ __github__ = "@siavava"
 
 from erratum import ( log_error, log_info, log_debug_info )
 
+import heuristics
+
+# from heuristicsmrv_heuristic, degree_heuristic, lcv_heuristic )
+
 class CSP():
     
-    def __init__(self, variables=None, domains=None, constraints=None, debug=False):
+    def __init__(self, variables=None, domains=None, constraints=None, mrv=False, \
+        degree_heuristic=False, lcv=False, inference=False, debug=False):
         """
             Constructor for the Constrained Search Problem.
             :arg variables: A `set` of variables in the CSP.
@@ -29,7 +34,14 @@ class CSP():
         self.needed_assignments: int = len(variables) if variables else 0
         self.solution = None
         
+        # enable or disable heuristics
+        self.mrv = mrv
+        self.degree_heuristic = degree_heuristic
+        self.lcv = lcv
+        
+        # enable or disable debug mode
         self.debug = debug
+        
         
     def __str__(self):
         return f"\n...\nCSP\n\tvariables: \t{self.variables} \
@@ -54,17 +66,29 @@ class CSP():
         return self.domains[var]
     
     def order_values(self, var, assignment):
-        return self.domains[var]
+        if not self.lcv:
+            return self.domains[var]
+        
+        unassigned_vars = [var for var in self.variables if var not in assignment]
+        
+        return heuristics.lcv_heuristic(self, var, unassigned_vars)
 
     def get_values_for_constraint(self, var1, var2):
         domain1: set = self.domains[var1]
         domain2: set = self.domains[var2]
         return domain1 ^ domain2
     
-    def get_unassigned_variables(self, assignment):
-        unassigned = [var for var in self.variables if var not in assignment]
-        if self.debug: log_debug_info(f"Selecting unassigned variables: {unassigned}")
-        return unassigned
+    def get_unassigned_variable(self, assignment):
+        
+        if not self.mrv:
+            for var in self.variables:
+                if var not in assignment:
+                    return var
+            return None
+        
+        else:
+            unassigned = [var for var in self.variables if var not in assignment]
+            return heuristics.mrv_heuristic(self, unassigned)
     
 
     def satisfies_constraint(self, constraint: tuple, assignments: dict, variable, value):
