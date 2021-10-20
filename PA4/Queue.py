@@ -13,7 +13,7 @@ __github__ = "@siavava"
 class Node:
     def __init__(self, data, next=None, previous=None):
         self.data = data
-        self.next = self.previous = None
+        self.next = None
         
 
 class Queue:
@@ -28,7 +28,7 @@ class Queue:
         
     def add(self, item):
         """
-            Adds an item to the top of the stack
+            Adds an item to the back of the queue.
         """
         if not self.size:
             self.head = Node(item)
@@ -37,14 +37,13 @@ class Queue:
         else:
             new_node = Node(item)
             self.tail.next = new_node
-            new_node.previous = self.tail
             self.tail = new_node
             
         self.size += 1
         
     def remove(self):
         """
-            Removes an item from the top of the stack, returns it
+            Removes item from the front of the queue.
         """
         if self.head:
             item = self.head.data
@@ -52,7 +51,7 @@ class Queue:
             self.size -= 1
             return item
         
-        raise IndexError("Empty queue!")
+        return None
         
     def peek(self):
         """
@@ -68,4 +67,10 @@ class Queue:
             Returns True if the stack is empty, False otherwise
         """
         return self.size != 0
+    
+    def __len__(self):
+        """
+            Returns the size of the stack
+        """
+        return self.size
     
