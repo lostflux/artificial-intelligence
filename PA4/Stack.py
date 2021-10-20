@@ -10,45 +10,54 @@ __credits__ = ["Amittai"]
 __email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
 __github__ = "@siavava"
 
-class Stack:
+class Node:
+    def __init__(self, data, next):
+        self.data = data
+        self.next = next
+        
+
+class Queue:
   
     def __init__(self):
         """
         Initializes a new Stack.
         """
-        self.items = []
-        self.last = 0
+        self.head = None
+        self.size = 0
         
     def push(self, item):
         """
-        Adds an item to the top of the stack.
+            Adds an item to the top of the stack
         """
-        self.items.append(item)
-        self.last += 1
+        new_node = Node(item, self.head)
+        self.head = new_node
+            
+        self.size += 1
         
     def pop(self):
         """
             Removes an item from the top of the stack, returns it
         """
-        if self.last:
-            self.last -= 1
-            return self.items.pop()
+        if self.head:
+            item = self.head.data
+            self.head = self.head.next
+            self.size -= 1
+            return item
+        
+        raise IndexError("Empty stack!")
         
     def peek(self):
         """
             Returns the item on the top of the stack
         """
-        if self.last:
-            return self.items[self.last - 1]
+        if self.head:
+            return self.head.data
+        
+        return None
         
     def __bool__(self):
         """
             Returns True if the stack is empty, False otherwise
         """
-        return self.last != 0
+        return self.size != 0
     
-    def size(self):
-        """
-            Returns the number of items in the stack
-        """
-        return self.last
