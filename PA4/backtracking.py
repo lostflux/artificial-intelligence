@@ -32,16 +32,11 @@ def backtrack(assignments: dict, csp: CSP):
     
     variable = csp.get_unassigned_variable(assignments)
     
-    log_info(f"Unassigned variable = {variable}")
-    log_info(f"Possible domain: {csp.order_values(variable, assignments)}")
-    
     for value in csp.order_values(variable, assignments):
         
         if csp.is_consistent(assignments, variable, value):
             
             assignments[variable] = value
-            
-            if csp.debug: log_debug_info(assignments)
             
             result = backtrack(assignments, csp)
             
@@ -52,8 +47,6 @@ def backtrack(assignments: dict, csp: CSP):
     return None
 
 def backtrack_inference(assignments: dict, csp: CSP):
-    
-    log_debug_info(f"current assignments = {assignments}")
     
     if csp.is_completed(assignments):
         return assignments
@@ -66,21 +59,18 @@ def backtrack_inference(assignments: dict, csp: CSP):
             
             assignments[variable] = value
             
-            if csp.debug: log_debug_info(f"domains before AC3: {csp.domains}")
+            if csp.is_completed(assignments):
+                return assignments
             
             revisions: set = inference(csp)
-            
-            if csp.debug: log_debug_info(f"assignments: {assignments}")
-            if csp.debug: log_debug_info(f"domains after AC3: {csp.domains}")
-            
-            if revisions:
                 
-                result = backtrack(assignments, csp)
+            result = backtrack_inference(assignments, csp)
                 
-                if result: return result
+            if result: return result
+                
+            undo_revisions(csp, revisions)
                 
             del assignments[variable]
-            undo_revisions(csp, revisions)
         
     return None
 

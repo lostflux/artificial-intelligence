@@ -35,7 +35,7 @@ def test1():
     
     csp = CSP(variables=variables, domains=domains, constraints=constraints, mrv=True, lcv=True, debug=True)
     
-    results = backtracking_search(csp)
+    results = backtracking_search(csp, inference=True)
     
     log_info(f"\n\nfinal assignments: {results}")
     
@@ -92,11 +92,14 @@ def test4():
     
     variables: set = {("a", 3, 2), ("b", 5, 2), ("c", 2, 3), ("e", 7, 1)}
     # variables: set = {("a", 3, 1)}
-    csp: CircuitProblem = CircuitProblem(10, 3, variables=variables, debug=True)
     
+    csp = CircuitProblem(10, 3, variables=variables, mrv=True, lcv=True, debug=True)
+    # csp: CircuitProblem = CircuitProblem(10, 3, variables=variables, mrv=False, lcv=False, debug=True)
+    
+    # results = backtracking_search(csp, inference=False)
     results = backtracking_search(csp, inference=True)
     
-    log_info(f"\n\nfinal assignments: {results}")
+    # log_info(f"\n\nfinal assignments: {results}")
     
     log_info(csp.display(results))
     

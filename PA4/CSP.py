@@ -130,3 +130,8 @@ class CSP():
             self.solution = assignments
             
         return complete
+    
+    def renders_unsolvable(self, var, value, other_var):
+        next_domain = self.domains[other_var]
+        
+        return (len(next_domain) == 1) and (value in next_domain)

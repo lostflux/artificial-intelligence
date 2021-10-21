@@ -70,6 +70,17 @@ class CircuitComponent():
         intersection = current_cover & other_cover
         
         return len(intersection) == 0
+    
+    def overlaps(self, self_pos, other, other_pos, board_x, board_y):
+        current_cover = self.get_cover(self_pos[0], self_pos[1], board_x, board_y)
+        other_cover = other.get_cover(other_pos[0], other_pos[1], board_x, board_y)
+           
+        if not current_cover or not other_cover:
+            return False
+        
+        intersection = current_cover & other_cover
+        
+        return len(intersection) != 0
         
 
 class CircuitProblem(CSP):
@@ -87,8 +98,6 @@ class CircuitProblem(CSP):
         for variable in variables:
             self.add_variable(variable)
             
-            
-        
         self.mrv = mrv
         self.degree_heuristic = degree_heuristic
         self.lcv = lcv
@@ -97,12 +106,16 @@ class CircuitProblem(CSP):
         
     def display(self, assignments: dict):
         
+        string = "Circuit Board:\n\n"
+        
+        string += "\n".join(self.grid)
+        
+        string += "\n\nPlacements:\n\n"
+        
         if not assignments:
-            return "\n".join(self.grid)
+            string += "\n".join(self.grid)
+            return string
         
-        string = ""
-        
-        log_debug_info(f"assignments: {assignments}")
         
         all_marked = {}
         for var in assignments.keys():
@@ -112,7 +125,6 @@ class CircuitProblem(CSP):
             for ix in range(x, x+var.dx):
                 for iy in range(y, y+var.dy):
                     all_marked[(ix, iy)] = char
-                    log_debug_info(f"({ix}, {iy}): {char}")
         
         for iy in range(self.y):
             for ix in range(self.x):
@@ -181,10 +193,7 @@ class CircuitProblem(CSP):
 
     def is_consistent(self, assignments: dict, variable: CircuitComponent, value):
         
-        log_info("consistency check")
-        
         for constraint in self.constraints:
-            if self.debug: log_error(f"Constraint: {constraint}")
             if variable not in constraint:
                 continue
             elif not self.satisfies_constraint(constraint, assignments, variable, value):
@@ -213,11 +222,20 @@ class CircuitProblem(CSP):
             return heuristics.mrv_heuristic(self, unassigned)
         
     def is_completed(self, assignments: dict):
-        complete = len(assignments) == self.needed_assignments
-        if complete:
+        if len(assignments) == self.needed_assignments:
             self.solution = assignments
+            return True
             
-        return complete
+        return False
+    
+    def renders_unsolvable(self, var: CircuitComponent, value, other_var):
+        next_domain = self.domains[other_var]
+        conflicts = 0
+        for other_value in next_domain:
+            if var.overlaps(value, other_var, other_value, self.x, self.y):
+                conflicts += 1
+        
+        return conflicts >= len(next_domain)
 
 if __name__ == '__main__':
     cp = CircuitProblem(3, 3)

@@ -14,8 +14,6 @@ from erratum import ( log_error, log_info, log_debug_info )
 
 from Queue import Queue
 
-# from CSP import CSP
-
 def arc_consistency(csp):
     """
         This function implements the Arc Consistency algorithm, AC-3.
@@ -28,6 +26,7 @@ def arc_consistency(csp):
         for var2 in csp.variables:
             if var1 != var2:
                 queue.add((var1, var2))
+                queue.add((var2, var1))
     
     # track revisions (we'll potentially need to undo this)
     revisions: set = set()
@@ -57,7 +56,7 @@ def arc_consistency(csp):
                 else:
                     queue.add((var1, var))
     
-    # if all constraints are satisfied, CSP is solvable. Return True.     
+    # return set of revision values (to potentially undo in case the current branch fails).
     return revisions
 
 def revise(csp, var, next_var, revisions: set):
@@ -82,15 +81,13 @@ def revise(csp, var, next_var, revisions: set):
         
         # check domains.
         current_domain: set = csp.get_domain(var)
-        next_domain:set = csp.get_domain(next_var)
         
         # if a value in the current domain would result in the next domain being empty,
         # remove it from the current domain.
         
         to_remove = set()
         for value in current_domain:
-            if len(next_domain) == 1 and value in next_domain:
-                # current_domain.remove(value)
+            if csp.renders_unsolvable(var, value, next_var):
                 to_remove.add(value)
                 revisions.add((var, value))
                 revised = True
