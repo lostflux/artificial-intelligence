@@ -16,12 +16,10 @@ import heuristics
 
 # from heuristics import ( mrv_heuristic, degree_heuristic, lcv_heuristic )
 
-from inferences import ( arc_consistency )
-
 class CSP():
     
     def __init__(self, variables=None, domains=None, constraints=None, mrv=False, \
-        degree_heuristic=False, lcv=False, inferences=False, debug=False):
+                    lcv=False, degree=False, debug=False):
         """
             Constructor for the Constrained Search Problem.
             :arg variables: A `set` of variables in the CSP.
@@ -38,14 +36,17 @@ class CSP():
         
         # enable or disable heuristics
         self.mrv = mrv
-        self.degree_heuristic = degree_heuristic
+        self.degree = degree
         self.lcv = lcv
-        self.inferences = inferences
+        
         
         # enable or disable debug mode
         self.debug = debug
         
     def display(self, assignments: dict):
+        """
+            Displays the current state of the CSP.
+        """
         self.solution = assignments
         return str(self)
         
@@ -66,6 +67,9 @@ class CSP():
         self.needed_assignments += 1
         
     def add_constraint(self, var1, var2):
+        """
+            Add a new constraint between two variables.
+        """
         self.constraints.add((var1, var2))
 
     def get_domain(self, var) -> set:
@@ -79,6 +83,9 @@ class CSP():
         self.domains[var].remove(value)
     
     def order_values(self, var, assignments):
+        """
+            Orders the values in the domain of the specified variable.
+        """
         if not self.lcv:
             return self.domains[var]
         
@@ -87,23 +94,36 @@ class CSP():
         return heuristics.lcv_heuristic(self, var, unassigned_vars)
 
     def get_values_for_constraint(self, var1, var2):
+        """
+            Returns the values common to two variables in a constraint.
+        """
         domain1: set = self.domains[var1]
         domain2: set = self.domains[var2]
         return domain1 ^ domain2
     
     def get_unassigned_variable(self, assignments):
+        """
+            Returns an unassigned variable in the CSP.
+        """
         
         if not self.mrv:
-            for var in self.variables:
-                if var not in assignments:
-                    return var
-            return None
+            if self.degree:
+                unassigned = [var for var in self.variables if var not in assignments]
+                return heuristics.degree_heuristic(self, unassigned)
+            else:
+                for var in self.variables:
+                    if var not in assignments:
+                        return var
+                return None
         
         else:
             unassigned = [var for var in self.variables if var not in assignments]
-            return heuristics.mrv_heuristic(self, unassigned)
+            return heuristics.mrv_heuristic(self, unassigned, self.degree)
 
     def satisfies_constraint(self, constraint: tuple, assignments: dict, variable, value):
+        """
+            Checks if the given value satisfies the constraint, given prior assignments.
+        """
         if len(constraint) != 2:
             log_error(f"Invalid constraint dimension: {constraint}")
             return False
@@ -116,6 +136,11 @@ class CSP():
         return assignments[other_variable] != value
 
     def is_consistent(self, assignments: dict, variable, value):
+        """
+            Checks if the given value is consistent with the CSP,
+            i.e. it satisfies ALL constraints in the CSP,
+            given prior assignments.
+        """
         
         for constraint in self.constraints:
             if variable not in constraint:
@@ -125,6 +150,10 @@ class CSP():
         return True
     
     def is_completed(self, assignments: dict):
+        """
+            Returns true if and only if all variables in the CSP have a consistent assignment.
+        """
+        
         complete = len(assignments) == self.needed_assignments
         if complete:
             self.solution = assignments
@@ -132,6 +161,12 @@ class CSP():
         return complete
     
     def renders_unsolvable(self, var, value, other_var):
+        """
+            Returns true if and only if the given value, 
+            despite being consistent with the prior assignments,
+            renders the CSP unsolvable because it takes away a single
+            remaining option for assignment to another unassigned variable.
+        """
         next_domain = self.domains[other_var]
         
         return (len(next_domain) == 1) and (value in next_domain)

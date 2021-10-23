@@ -12,68 +12,64 @@ __github__ = "@siavava"
 
 from numpy import log
 from CSP import CSP
-from inferences import arc_consistency as inference
-from erratum import ( log_error, log_info, log_debug_info )
+from inferences import arc_consistency as inference     # import the inference function
 
 
-def backtracking_search(csp: CSP, inference=False):
+def backtracking_search(csp: CSP, inferencing=False):
     """
         Backtracking search algorithm.
         Returns the first solution found.
     """
-    if inference: 
-        return backtrack_inference({}, csp)
-    return backtrack({}, csp)
+    return backtrack({}, csp, inferencing)
 
-def backtrack(assignments: dict, csp: CSP):
+def backtrack(assignments: dict, csp: CSP, inferencing: bool):
+    """
+        Recursively search and backtrack until a solution is found
+        or we determine that the CSP is unsolvable.
+    """
     
+    # if assignments complete, return the assignments.
     if csp.is_completed(assignments):
         return assignments
     
+    # get an unassigned variable.
     variable = csp.get_unassigned_variable(assignments)
     
+    # just to avoid likely errors, declare a revisions set
+    revisions = set()
+    
+    # try out every possible value for the variable.
     for value in csp.order_values(variable, assignments):
         
+        # if assignment is consistent
         if csp.is_consistent(assignments, variable, value):
             
+            # save the assignment
             assignments[variable] = value
             
-            result = backtrack(assignments, csp)
-            
-            if result: return result
-            
-            del assignments[variable]
-        
-    return None
-
-def backtrack_inference(assignments: dict, csp: CSP):
-    
-    if csp.is_completed(assignments):
-        return assignments
-    
-    variable = csp.get_unassigned_variable(assignments)
-    
-    for value in csp.order_values(variable, assignments):
-        
-        if csp.is_consistent(assignments, variable, value):
-            
-            assignments[variable] = value
-            
-            if csp.is_completed(assignments):
-                return assignments
-            
-            revisions: set = inference(csp)
+            # extra step: revise the domains of the CSP.
+            if inferencing: revisions: set = inference(csp)
                 
-            result = backtrack_inference(assignments, csp)
+            # recursively search for a solution.
+            result = backtrack(assignments, csp, inferencing)
                 
+            # return the result if one was found.
             if result: return result
                 
-            undo_revisions(csp, revisions)
-                
+            # if no result found, undo the revisions
+            # and delete the assignment.
+            if inferencing: undo_revisions(csp, revisions)
             del assignments[variable]
         
+    # return no solution
     return None
 
 def undo_revisions(csp: CSP, revisions: set):
+    """
+        Function to undo domain revisions
+    """
+    
+    # iterate over all revisions;
+    #   reinstate the values in the domains of the respective variables.
     for (variable, value) in revisions:
         csp.get_domain(variable).add(value)

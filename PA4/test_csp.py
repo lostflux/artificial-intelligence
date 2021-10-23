@@ -35,7 +35,7 @@ def test1():
     
     csp = CSP(variables=variables, domains=domains, constraints=constraints, mrv=True, lcv=True, debug=True)
     
-    results = backtracking_search(csp, inference=True)
+    results = backtracking_search(csp, inferencing=True)
     
     log_info(f"\n\nfinal assignments: {results}")
     
@@ -53,7 +53,7 @@ def test2():
     
     csp = CSP(variables=variables, domains=domains, constraints=constraints, mrv=True, lcv=True, debug=True)
     
-    results = backtracking_search(csp, inference=True)
+    results = backtracking_search(csp, inferencing=True)
     
     log_info(f"\n\nfinal assignments: {results}")
     
@@ -74,13 +74,13 @@ def test3():
                             ("SA", "NSW"), ("SA", "V"), ("NSW", "V")
                         }
     
-    csp = CSP(variables=variables, domains=domains, constraints=constraints, mrv=True, lcv=True, debug=True)
+    csp = CSP(variables=variables, domains=domains, constraints=constraints, mrv=True, lcv=True, degree=True, debug=True)
     
     results = backtracking_search(csp)
     
-    log_info(csp.display(results))
+    # log_info(csp.display(results))
     
-    log_info(f"\n\nfinal assignments: {results}")
+    # log_info(f"\n\nfinal assignments: {results}")
     
     log_info(csp)
     
@@ -96,8 +96,8 @@ def test4():
     csp = CircuitProblem(10, 3, variables=variables, mrv=True, lcv=True, debug=True)
     # csp: CircuitProblem = CircuitProblem(10, 3, variables=variables, mrv=False, lcv=False, debug=True)
     
-    # results = backtracking_search(csp, inference=False)
-    results = backtracking_search(csp, inference=True)
+    # results = backtracking_search(csp)
+    results = backtracking_search(csp, inferencing=True)
     
     # log_info(f"\n\nfinal assignments: {results}")
     
@@ -112,8 +112,8 @@ if __name__ == "__main__":
     
     # test1()
     # test2()
-    # test3()
-    test4()
+    test3()
+    # test4()
     
     pr.disable()
     s = io.StringIO()
