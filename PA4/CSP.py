@@ -104,6 +104,12 @@ class CSP():
                     \n\tsolution:\t{self.solution} \
                     \n...\n"
                     
+        if self.debug:
+            string += f"\n\n\tHeuristics enabled:\n"
+            string += f"\t\tMRV: {self.mrv}\n"
+            string += f"\t\tDegree: {self.degree}\n"
+            string += f"\t\tLCV: {self.lcv}\n"
+                    
         return string
         
     def add_variable(self, var, domain):

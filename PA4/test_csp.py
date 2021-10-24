@@ -72,9 +72,10 @@ def test3():
                             ("SA", "NSW"), ("SA", "V"), ("NSW", "V")
                         }
     
-    csp = CSP(variables=variables, domains=domains, constraints=constraints, mrv=True, lcv=True, degree=True, debug=True)
+    csp = CSP(variables=variables, domains=domains, constraints=constraints, lcv=True, mrv=True, degree=True, debug=True)
+    # csp = CSP(variables=variables, domains=domains, constraints=constraints, mrv=True, lcv=True, degree=True, debug=True)
     
-    results = backtracking_search(csp)
+    results = backtracking_search(csp, inferencing=True)
     
     csp.display(results)
     
@@ -87,11 +88,12 @@ def test4():
     variables: set = {("a", 3, 2), ("b", 5, 2), ("c", 2, 3), ("e", 7, 1)}
     # variables: set = {("a", 3, 1)}
     
+    # csp = CircuitProblem(10, 3, variables=variables, mrv=True, lcv=True, degree=True, debug=True)
+    # csp = CircuitProblem(10, 3, variables=variables, mrv=False, lcv=False, degree=False, debug=True)
     csp = CircuitProblem(10, 3, variables=variables, mrv=True, lcv=True, degree=True, debug=True)
-    # csp: CircuitProblem = CircuitProblem(10, 3, variables=variables, mrv=False, lcv=False, debug=True)
     
     # results = backtracking_search(csp)
-    results = backtracking_search(csp, inferencing=True)
+    results = backtracking_search(csp, inferencing=False)
     
     csp.display(results)
     

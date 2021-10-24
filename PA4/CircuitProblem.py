@@ -139,7 +139,7 @@ class CircuitProblem(CSP):
         self.needed_assignments = 0
         self.solution = None
         
-        
+        # initialize attributes
         self.variable_mappings = dict()
         self.value_mappings = []
         self.variables = set()
@@ -207,6 +207,12 @@ class CircuitProblem(CSP):
             for ix in range(self.x):
                 string += all_marked.get((ix, iy), ".")
             string += "\n"
+            
+        if self.debug:
+            string += f"\n\n\tHeuristics enabled:\n"
+            string += f"\t\tMRV: {self.mrv}\n"
+            string += f"\t\tDegree: {self.degree}\n"
+            string += f"\t\tLCV: {self.lcv}\n"
         
         # return string version of board.
         return string
@@ -292,7 +298,7 @@ class CircuitProblem(CSP):
         var_1: CircuitComponent = self.variable_mappings[var_1_index]
         var_2: CircuitComponent = self.variable_mappings[var_2_index]
         
-        # return whether the two variables overlap or not.
+        # return whether the two components overlap or not.
         return not var_1.overlaps(pos_1, var_2, pos_2, self.x, self.y)
         
 

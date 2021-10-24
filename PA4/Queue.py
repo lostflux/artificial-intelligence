@@ -20,7 +20,7 @@ class Queue:
   
     def __init__(self):
         """
-        Initializes a new Stack.
+        Initializes a new Queue.
         """
         self.head = None
         self.tail = None
