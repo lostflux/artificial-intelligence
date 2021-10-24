@@ -29,7 +29,7 @@ def mrv_heuristic(csp, unassigned: list, deg_heuristic: bool):
     
     # track variables with the same least remaining values
     # this is helpful when using degree heuristic as a tie-breaker.
-    if deg_heuristic: tied_vars: list = []
+    tied_vars: list = []
     
     # loop over unassigned variables
     for var in unassigned:
@@ -80,13 +80,14 @@ def degree_heuristic(csp, unassigned):
     max_var, max_degree = None, -inf
     
     # iterate over every unassigned variable
+    # if variable has higher degree, remember it.
     for var in unassigned:
         degree = degrees.get(var, 0)
-        
         if degree > max_degree:
             max_degree = degree
             max_var = var
-        
+    
+    # remember variable with highest degree
     return max_var
     
 ###############################################################################

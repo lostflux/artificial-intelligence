@@ -10,8 +10,6 @@ __credits__ = ["Amittai"]
 __email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
 __github__ = "@siavava"
 
-from erratum import ( log_error, log_info, log_debug_info )
-
 from Queue import Queue
 
 def arc_consistency(csp):

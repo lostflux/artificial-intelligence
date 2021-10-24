@@ -10,10 +10,8 @@ __credits__ = ["Amittai"]
 __email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
 __github__ = "@siavava"
 
-from numpy import log
 from CSP import CSP
 from inferences import arc_consistency as inference     # import the inference function
-
 
 def backtracking_search(csp: CSP, inferencing=False):
     """
@@ -73,3 +71,4 @@ def undo_revisions(csp: CSP, revisions: set):
     #   reinstate the values in the domains of the respective variables.
     for (variable, value) in revisions:
         csp.get_domain(variable).add(value)
+        
