@@ -20,7 +20,7 @@ from TwoWayDict import TwoWayDict
 from erratum import (log_error, log_info, log_debug_info)
 
 class SAT:
-    def __init__(self, filename, max_iterations=2000, threshold=0.1):
+    def __init__(self, filename, max_iterations=100000, threshold=0.3):
         
         self.clauses = set()
         self.assignments = []
@@ -29,8 +29,6 @@ class SAT:
         self.max_iterations = max_iterations
         
         try:
-            self.sudoku = Sudoku()
-            # self.sudoku.load(filename)
             self.initialize(filename)
         except IOError as err:
             log_error(err)
@@ -52,8 +50,7 @@ class SAT:
                         variable = str(item)
                         
                         if variable not in self.mappings:
-                            self.mappings.add(variable, pos)
-                            # self.assignments.append(0)   
+                            self.mappings[variable] = pos
                             pos += 1
                 f.close()
         except IOError as err:
@@ -61,19 +58,22 @@ class SAT:
         
         self.assignments = [0] * len(self.mappings)
         
-        # log_info(str(self.mappings))
-        
     def random_assign(self):
         for index in range(len(self.assignments)):
             self.assignments[index] = random.randint(0, 1)
             
             
-    def satisfied_clauses(self):
+    def satisfied_clauses(self, walksat=False):
+        
+        if walksat:
+            self.walksat_candidates = set()
         
         count = 0
         for clause in self.clauses:
             
             clause_elements = clause.split()
+            
+            if walksat: clause_satisfied = False
             
             for clause_element in clause_elements:
                 
@@ -86,15 +86,20 @@ class SAT:
                     index = self.mappings[var]
                     if not self.assignments[index]:
                         count += 1 
+                        clause_satisfied = True
                         break
                     
                 # if constraint is positive and assignment is 1, then satisfied
                 elif self.assignments[self.mappings[var]]:
                     # else, if assigned, return True
                     count += 1
+                    clause_satisfied = True
                     break
+            
+            if walksat and not clause_satisfied:
+                self.walksat_candidates.add(clause)
                 
-            # return all satisfied clauses
+        # return all satisfied clauses
         return count
         
     
@@ -107,7 +112,7 @@ class SAT:
                 max_value = self.assignments[index]
         return max_index
     
-    def highest_vars(self):
+    def gsat_highest_vars(self):
         highest = -inf
         
         _vars = set()
@@ -122,7 +127,34 @@ class SAT:
                 _vars.add(index)
             self.assignments[index] = 1 - self.assignments[index]
                 
-        return list(_vars)
+        return random.choice(list(_vars))
+    
+    def walksat_highest_variable(self, clause):
+        highest = -inf
+        
+        highest_variables = set()
+        
+        variables = clause.split()
+        
+        for variable in variables:
+            variable = variable.replace('-', '')
+            
+            index = self.mappings[variable]
+            
+            self.assignments[index] = not self.assignments[index]
+            score = self.satisfied_clauses()
+            if score >= highest:
+                
+                if score > highest:
+                    highest_variables = set()
+                highest = score
+                highest_variables.add(variable)
+                
+            self.assignments[index] = not self.assignments[index]
+    
+        variable = random.choice(list(highest_variables))
+                
+        return self.mappings[variable]
 
     def gsat(self):
         
@@ -132,27 +164,29 @@ class SAT:
         while iteration < self.max_iterations:
             
             
-            log_debug_info(f"Iterations: {iteration}, satisfied = {self.satisfied_clauses()} out of {len(self.clauses)}")
                 
             # if all clauses are satisfied, return True
-            if self.satisfied_clauses() == len(self.clauses):
+            satisfied_clauses = self.satisfied_clauses()
+            log_debug_info(f"Iterations: {iteration}, satisfied = {satisfied_clauses} out of {len(self.clauses)}")
+            
+            if satisfied_clauses == len(self.clauses):
                 return self.assignments
+            
             
             # generate a random probability
             probability = random.random()
             
             # if above threshold, flip random variable
             if probability < self.threshold:
-                index = random.randint(1, len(self.assignments))
+                
+                index = random.randint(0, len(self.assignments)-1)
                 self.assignments[index-1] = not self.assignments[index-1]
                 
             # if below variable, pick variable with max value 
             else:
-                highest_indices = self.highest_vars()
+                index = self.gsat_highest_vars()
                 
-                index = random.choice(highest_indices)
-                
-                self.assignments[index] = not self.assignments[index]
+            self.assignments[index] = not self.assignments[index]
             
             # increment trials
             iteration += 1
@@ -162,13 +196,45 @@ class SAT:
     
     def walksat(self):
         
-        iteration = 0
-        self.random_assign()
+        # self.random_assign()
         
+        iteration = 0 
         while iteration < self.max_iterations:
-            pass
+                
+            # if all clauses are satisfied, return True
+            satisfied_clauses = self.satisfied_clauses(walksat=True)
+            log_debug_info(f"Iterations: {iteration}, satisfied = {satisfied_clauses}, out of {len(self.clauses)}")
+           
+            if satisfied_clauses == len(self.clauses):
+                return self.assignments
             
-        
+            
+            # get random clause from candidates
+            clause = random.choice(list(self.walksat_candidates))
+            
+            # generate a random probability
+            probability = random.random()
+            
+            # if above threshold, flip random variable in clause
+            if probability < self.threshold:
+                
+                variable = random.choice(clause.split()).replace('-', '')
+                
+                index = self.mappings[variable]
+                
+            # if below threshold, pick variable with max value 
+            else:
+                
+                index  = self.walksat_highest_variable(clause)\
+                
+            
+            # increment trials
+            iteration += 1
+            self.assignments[index] = not self.assignments[index]
+            
+            
+        # if no result found, return False
+        return False
         
     
     def write_solution(self, filename):

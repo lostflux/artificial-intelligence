@@ -57,8 +57,6 @@ class Sudoku:
             NOTE: Sudoku positions are 1-indexed.
         """
         
-        print(f"r = {r}, c = {c}, v = {value}")
-        
         try:
             self.numbers[r - 1][c - 1] = value
         except IndexError:

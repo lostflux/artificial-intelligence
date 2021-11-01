@@ -33,8 +33,27 @@ class TwoWayDict(dict):
         self.__values[value] = key
         
     def __setitem__(self, key, value):
-        self.add(key, value)
+        self.__keys[key] = value
+        self.__values[value] = key
         
+    def __getitem__(self, key):
+        """
+            Get the value associated with the given key.
+        """
+        return self.__keys[key]
+    
+    def get_key(self, value):
+        """
+            Get the key associated with the given value.
+        """
+        return self.__values[value]
+    
+    def get_value(self, key):
+        """
+            Get the value associated with the given key.
+        """
+        return self.__keys[key]
+    
     def delete_key(self, key):
         value = self.__keys.get(key, None)
         
@@ -48,19 +67,9 @@ class TwoWayDict(dict):
         if key:
             del self.__values[value]
             del self.__keys[key]
-            
-    def get_key(self, value):
-        return self.__values[value]
-    
-    def get_value(self, key):
-        return self.__keys[key]
     
     def __str__(self):
-        return str(self.__keys) + "\n" + str(self.__values)
-    
-    
-    def __getitem__(self, key):
-        return self.__keys[key]
+        return "key -> val " + str(self.__keys) + "\n" + "val -> key " + str(self.__values)
     
     def __len__(self):
         return len(self.__keys)

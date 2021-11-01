@@ -30,7 +30,8 @@ def test1():
 
     sat = SAT(sys.argv[1])
 
-    result = sat.gsat()
+    # result = sat.gsat()
+    result = sat.walksat()
 
     if result:
         sat.write_solution(sol_filename)
