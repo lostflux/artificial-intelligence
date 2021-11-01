@@ -36,27 +36,24 @@ class SAT:
     
     
     def initialize(self, filename):
-        try:
-            with open(filename, 'r') as f:
-                pos = 0
-                self.assignments.append(0)  
-                for line in f:
-                    line = str(line)
-                    self.clauses.add(line)
+        with open(filename, 'r') as f:
+            index = 0
+            self.assignments.append(0)  
+            for line in f:
+                line = str(line)
+                self.clauses.add(line)
+                
+                items = line.replace('-', '').split()
+                
+                for item in items:
+                    variable = str(item)
                     
-                    items = line.replace('-', '').split()
-                    
-                    for item in items:
-                        variable = str(item)
-                        
-                        if variable not in self.mappings:
-                            self.mappings[variable] = pos
-                            pos += 1
-                f.close()
-        except IOError as err:
-            raise IOError(err)
-        
-        self.assignments = [0] * len(self.mappings)
+                    if variable not in self.mappings:
+                        self.mappings[variable] = index
+                        index += 1
+            f.close()
+    
+        self.assignments = [0] * index
         
     def random_assign(self):
         for index in range(len(self.assignments)):
