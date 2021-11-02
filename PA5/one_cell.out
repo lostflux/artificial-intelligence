@@ -1,0 +1,77 @@
+['./solve_sudoku.py', 'one_cell.cnf']
+Iterations: 0, satisfied = 27, out of 37 
+Iterations: 1, satisfied = 31, out of 37 
+Iterations: 2, satisfied = 34, out of 37 
+Iterations: 3, satisfied = 36, out of 37 
+Iterations: 4, satisfied = 37, out of 37 
+Loaded Sudoku solution from file: one_cell.sol 
+7 0 0 | 0 0 0 | 0 0 0 
+0 0 0 | 0 0 0 | 0 0 0 
+0 0 0 | 0 0 0 | 0 0 0 
+---------------------
+0 0 0 | 0 0 0 | 0 0 0 
+0 0 0 | 0 0 0 | 0 0 0 
+0 0 0 | 0 0 0 | 0 0 0 
+---------------------
+0 0 0 | 0 0 0 | 0 0 0 
+0 0 0 | 0 0 0 | 0 0 0 
+0 0 0 | 0 0 0 | 0 0 0 
+
+         1669 function calls in 0.002 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.002    0.002 ./solve_sudoku.py:39(test_walksat)
+        1    0.000    0.000    0.001    0.001 /workspace/personal/python/cs76/PA5/SAT.py:194(walksat)
+       13    0.001    0.000    0.001    0.000 /workspace/personal/python/cs76/PA5/SAT.py:63(satisfied_clauses)
+        4    0.000    0.000    0.001    0.000 /workspace/personal/python/cs76/PA5/SAT.py:129(walksat_highest_variable)
+        3    0.000    0.000    0.000    0.000 {built-in method io.open}
+        1    0.000    0.000    0.000    0.000 /workspace/personal/python/cs76/PA5/SAT.py:237(write_solution)
+        1    0.000    0.000    0.000    0.000 /workspace/personal/python/cs76/PA5/SAT.py:23(__init__)
+        1    0.000    0.000    0.000    0.000 /workspace/personal/python/cs76/PA5/SAT.py:38(initialize)
+      653    0.000    0.000    0.000    0.000 /workspace/personal/python/cs76/PA5/TwoWayDict.py:39(__getitem__)
+        1    0.000    0.000    0.000    0.000 /workspace/personal/python/cs76/PA5/display.py:4(display_sudoku_solution)
+      522    0.000    0.000    0.000    0.000 {method 'split' of 'str' objects}
+        8    0.000    0.000    0.000    0.000 {built-in method builtins.print}
+        1    0.000    0.000    0.000    0.000 /workspace/personal/python/cs76/PA5/Sudoku.py:101(__str__)
+        3    0.000    0.000    0.000    0.000 {method 'close' of '_io.TextIOWrapper' objects}
+        1    0.000    0.000    0.000    0.000 /workspace/personal/python/cs76/PA5/Sudoku.py:65(read_solution)
+        1    0.000    0.000    0.000    0.000 /workspace/personal/python/cs76/PA5/SAT.py:58(random_assign)
+       17    0.000    0.000    0.000    0.000 /usr/local/lib/python3.7/random.py:224(_randbelow)
+        9    0.000    0.000    0.000    0.000 /usr/local/lib/python3.7/random.py:218(randint)
+        9    0.000    0.000    0.000    0.000 /usr/local/lib/python3.7/random.py:174(randrange)
+        8    0.000    0.000    0.000    0.000 /usr/local/lib/python3.7/random.py:256(choice)
+       81    0.000    0.000    0.000    0.000 /workspace/personal/python/cs76/PA5/TwoWayDict.py:77(__contains__)
+       81    0.000    0.000    0.000    0.000 /workspace/personal/python/cs76/PA5/Sudoku.py:47(get)
+        1    0.000    0.000    0.000    0.000 /workspace/personal/python/cs76/PA5/Sudoku.py:17(__init__)
+        5    0.000    0.000    0.000    0.000 /workspace/personal/python/cs76/PA5/erratum.py:50(log_debug_info)
+        3    0.000    0.000    0.000    0.000 /usr/local/lib/python3.7/_bootlocale.py:33(getpreferredencoding)
+       65    0.000    0.000    0.000    0.000 {method 'add' of 'set' objects}
+       45    0.000    0.000    0.000    0.000 {method 'replace' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 /usr/local/lib/python3.7/random.py:97(seed)
+        1    0.000    0.000    0.000    0.000 /workspace/personal/python/cs76/PA5/Sudoku.py:23(<listcomp>)
+        4    0.000    0.000    0.000    0.000 /usr/local/lib/python3.7/codecs.py:319(decode)
+       31    0.000    0.000    0.000    0.000 {method 'getrandbits' of '_random.Random' objects}
+        3    0.000    0.000    0.000    0.000 {built-in method _locale.nl_langinfo}
+        1    0.000    0.000    0.000    0.000 {function Random.seed at 0x7f593decdd90}
+        4    0.000    0.000    0.000    0.000 {built-in method _codecs.utf_8_decode}
+        9    0.000    0.000    0.000    0.000 /workspace/personal/python/cs76/PA5/TwoWayDict.py:35(__setitem__)
+        2    0.000    0.000    0.000    0.000 /usr/local/lib/python3.7/codecs.py:309(__init__)
+        1    0.000    0.000    0.000    0.000 /workspace/personal/python/cs76/PA5/erratum.py:39(log_info)
+       17    0.000    0.000    0.000    0.000 {method 'bit_length' of 'int' objects}
+       20    0.000    0.000    0.000    0.000 {built-in method builtins.len}
+        9    0.000    0.000    0.000    0.000 {method 'write' of '_io.TextIOWrapper' objects}
+        1    0.000    0.000    0.000    0.000 /usr/local/lib/python3.7/codecs.py:186(__init__)
+        1    0.000    0.000    0.000    0.000 {method 'append' of 'list' objects}
+        4    0.000    0.000    0.000    0.000 {method 'random' of '_random.Random' objects}
+        1    0.000    0.000    0.000    0.000 /workspace/personal/python/cs76/PA5/TwoWayDict.py:21(__init__)
+        1    0.000    0.000    0.000    0.000 /workspace/personal/python/cs76/PA5/Sudoku.py:54(set)
+        6    0.000    0.000    0.000    0.000 /workspace/personal/python/cs76/PA5/erratum.py:18(__text_color)
+        2    0.000    0.000    0.000    0.000 /usr/local/lib/python3.7/codecs.py:260(__init__)
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.isinstance}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        9    0.000    0.000    0.000    0.000 /workspace/personal/python/cs76/PA5/TwoWayDict.py:45(get_key)
+
+
+

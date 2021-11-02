@@ -55,16 +55,18 @@ class TwoWayDict(dict):
         return self.__keys[key]
     
     def delete_key(self, key):
-        value = self.__keys.get(key, None)
-        
-        if value:
+        """
+            Delete a binding by key.
+        """
+        if key in self.__keys:
+            value = self.__keys[key]
             del self.__keys[key]
             del self.__values[value]
             
     def delete_value(self, value):
-        key = self.__values.get(value, None)
         
-        if key:
+        if value in self.__values:
+            key = self.__values[value]
             del self.__values[value]
             del self.__keys[key]
     

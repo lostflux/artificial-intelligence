@@ -18,7 +18,7 @@ from SAT import SAT
 import cProfile, pstats, io
 from pstats import SortKey
 
-def test1():
+def test_gsat():
     # for testing, always initialize the pseudorandom number generator to output the same sequence
     #  of values:
     random.seed(1)
@@ -30,7 +30,24 @@ def test1():
 
     sat = SAT(sys.argv[1])
 
-    # result = sat.gsat()
+    result = sat.gsat()
+
+    if result:
+        sat.write_solution(sol_filename)
+        display_sudoku_solution(sol_filename)
+        
+def test_walksat():
+    # for testing, always initialize the pseudorandom number generator to output the same sequence
+    #  of values:
+    random.seed(1)
+    
+    print(sys.argv)
+
+    puzzle_name = str(sys.argv[1][:-4])
+    sol_filename = puzzle_name + ".sol"
+
+    sat = SAT(sys.argv[1])
+
     result = sat.walksat()
 
     if result:
@@ -39,16 +56,17 @@ def test1():
 
 if __name__ == "__main__":
     
-        
+# Start profiling.
     pr = cProfile.Profile()
     pr.enable()
     
+    # search using gsat
+    test_gsat()
     
-    test1()
-    # test2()
-    # test3()
-    # test4()
+    # search using walksat
+    # test_walksat()
     
+# Stop profiling and print stats.
     pr.disable()
     s = io.StringIO()
     sortby = SortKey.CUMULATIVE

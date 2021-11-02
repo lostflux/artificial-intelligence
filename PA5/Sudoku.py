@@ -5,7 +5,7 @@
     This file implements functionality for representing a Sudoku game.
     
 """
-__author__ = "Amittai"
+__author__ = "Amittai",
 __copyright__ = "Copyright 2021"
 __credits__ = ["Amittai", "Alberto Quattrini Li"]
 __email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
