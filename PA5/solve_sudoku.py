@@ -42,6 +42,7 @@ def test_walksat():
     random.seed(1)
     
     print(sys.argv)
+    print("Using WalkSAT algorithm.")
 
     puzzle_name = str(sys.argv[1][:-4])
     sol_filename = puzzle_name + ".sol"

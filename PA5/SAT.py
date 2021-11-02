@@ -21,6 +21,9 @@ from TwoWayDict import TwoWayDict
 from erratum import (log_error, log_info, log_debug_info)
 
 class SAT:
+    """
+        A generic solver for Binary Logic Satisfiability problems.
+    """
     def __init__(self, filename, max_iterations=100000, threshold=0.3):
         
         # initialize parameters
@@ -178,7 +181,7 @@ class SAT:
 
     def gsat(self):
         """
-            GSAT Algorithm for Boolean Satisfiability problems.
+            GSAT Algorithm for Binary Logic Satisfiability.
         """
         
         # Start with a random assignment.
@@ -187,8 +190,6 @@ class SAT:
         iteration = 0 
         while iteration < self.max_iterations:
             
-            
-                
             # if all clauses are satisfied, return True
             satisfied_clauses = self.satisfied_clauses()
             log_debug_info(f"Iterations: {iteration}, satisfied = {satisfied_clauses} out of {len(self.clauses)}")
@@ -206,10 +207,11 @@ class SAT:
                 index = random.randint(0, len(self.assignments)-1)
                 self.assignments[index] = not self.assignments[index]
                 
-            # if below variable, pick variable with max value 
+            # if below threshold, pick variable with max value 
             else:
                 index = self.gsat_highest_vars()
                 
+            # flip the assignment.
             self.assignments[index] = not self.assignments[index]
             
             # increment trials
@@ -219,7 +221,9 @@ class SAT:
         return False
     
     def walksat(self):
-        
+        """
+            WalkSAT algorithm for Binary Logic Satisfiability.
+        """
         
         # Start with a random assignment.
         #   Why? I sort of got better performance out of WalkSAT
