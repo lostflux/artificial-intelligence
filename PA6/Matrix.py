@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
     This module contains the Matrix class.\n
     I abstracted this away from the HMM to clean up my code.\n
