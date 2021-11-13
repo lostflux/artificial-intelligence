@@ -144,13 +144,13 @@ class Matrix(object):
         if isinstance(other, (int, float, list, tuple)):
             return Matrix(0, 0, np.subtract(self.data, other))
         
-        if not isinstance(other, Matrix):
-            return NotImplemented
+        if isinstance(other, Matrix):
+            if self.shape() != other.shape():
+                raise ValueError("Matrices are not compatible for subtraction.")
             
-        if self.shape() != other.shape():
-            raise ValueError("Matrices are not compatible for subtraction.")
-        
-        return Matrix(0, 0, np.subtract(self.data, other.data))
+            return Matrix(0, 0, np.subtract(self.data, other.data))
+            
+        return NotImplemented
     
     def __rsub__(self, other):
         """
@@ -160,17 +160,17 @@ class Matrix(object):
             NOTE: lists and tuples are not supported.
         """
         
-        if isinstance(other, int) or isinstance(other, float):
+        if isinstance(other, (int, float)):
             other_broadcast_to_array = np.full(np.shape(self.data), other)
             return Matrix(0, 0, np.subtract(other_broadcast_to_array, self.data))
         
-        if not isinstance(other, Matrix):
-            return NotImplemented              # Checks if other object supports operation.
+        if isinstance(other, Matrix):
+            if self.shape() != other.shape():
+                raise ValueError("Matrices are not compatible for subtraction.")
             
-        if self.shape() != other.shape():
-            raise ValueError("Matrices are not compatible for subtraction.")
+            return Matrix(0, 0, np.subtract(other.data, self.data)) 
         
-        return Matrix(0, 0, np.subtract(other.data, self.data)) 
+        return NotImplemented              # Checks if other object supports operation.
     
     def __mul__(self, other):
         
@@ -183,10 +183,13 @@ class Matrix(object):
         """
         if isinstance(other, (int, float)):
             return Matrix(0, 0, np.multiply(self.data, other))
-        if self.cols != other.rows:
-            raise ValueError("Matrices are not compatible for multiplication.")
         
-        return Matrix(0, 0, np.dot(self.data, other.data))
+        if isinstance(other, Matrix):
+            if self.cols != other.rows:
+                raise ValueError("Matrices are not compatible for multiplication.")
+        
+            return Matrix(0, 0, np.dot(self.data, other.data))
+        return NotImplemented
     
     def __rmul__(self, other):
         
@@ -199,10 +202,14 @@ class Matrix(object):
         """
         if isinstance(other, (int, float)):
             return Matrix(0, 0, np.multiply(self.data, other))
-        if other.cols != self.rows:
-            raise ValueError("Matrices are not compatible for multiplication.")
         
-        return Matrix(0, 0, np.dot(other.data, self.data))
+        if isinstance(other, Matrix):
+            if other.cols != self.rows:
+                raise ValueError("Matrices are not compatible for multiplication.")
+        
+            return Matrix(0, 0, np.dot(other.data, self.data))
+        
+        return NotImplemented
     
     def __truediv__(self, other: int):
         
@@ -214,10 +221,19 @@ class Matrix(object):
             ```
         """
         if not other: raise ValueError("Cannot divide by zero.")
-        self.data = np.divide(self.data, other)
-        return self
+        
+        if isinstance(other, (int, float)):
+            return Matrix(0, 0, np.true_divide(self.data, other))
+        
+        if isinstance(other, Matrix):
+            return self * (-other)
+        
+        if isinstance(other, (list, tuple)):
+            return self / Matrix(0, 0, other)
+        
+        return NotImplemented
     
-    def __div__(self, other: int):
+    def __div__(self, other):
         
         """
             Returns the quotient of a Matrix by a number.\n
@@ -227,7 +243,17 @@ class Matrix(object):
             ```
         """
         if not other: raise ValueError("Cannot divide by zero.")
-        return Matrix(0, 0, np.floor_divide(self.data, other))
+        
+        if isinstance(other, (int, float)):
+            return Matrix(0, 0, np.floor_divide(self.data, other))
+        
+        if isinstance(other, Matrix):
+            return self * (-other)
+        
+        if isinstance(other, (list, tuple)):
+            return self / Matrix(0, 0, other)
+        
+        return NotImplemented
     
     def __neg__(self):
         """
@@ -239,6 +265,34 @@ class Matrix(object):
             ```
         """
         return Matrix(0, 0, np.linalg.inv(self.data))
+    
+    def __pow__(self, other):
+        """
+            Compute the Matrix exponent.
+        """
+        if isinstance(other, (int, float)):
+            return Matrix(0, 0, np.power(self.data, other))
+        
+        return NotImplemented
+    
+    @staticmethod
+    def identity(dims):
+        """
+            Get the identity matrix of given dimensions.\n
+            NOTE: matrix must be square.
+        """
+        return Matrix(0, 0, np.identity(dims))
+    
+    def transpose(self):
+        """
+            Returns the transpose of a Matrix.\n
+            Example usage:\n
+            ```python
+            matrix1 = ....
+            transpose_matrix1 = matrix1.transpose()
+            ```
+        """
+        return Matrix(0, 0, np.transpose(self.data))
     
     
 def test_representation():
@@ -303,13 +357,25 @@ def test_div():
     print(m / 2)
     # print(m / 0) #! breakpoint -- raises an exception.
     
+    m2 = Matrix(0, 0, [[1, 2], [2, 1]])
+    print(f"m2 = {m2}")
+    m2_inv = -m2
+    print(f"m2_inv = {m2_inv}")
+    m3 = m2 ** 2
+    print(f"m3 = {m3}")
+    m4 = m3 / m2
+    print(f"m4 = {m4}")
+    
         
         
 if __name__ == "__main__":
-    test_add()
-    test_sub()
-    test_mult()
+    # test_add()
+    # test_sub()
+    # test_mult()
     test_div()
+    
+    id3 = Matrix.identity(3)
+    print(id3)
     
         
         
