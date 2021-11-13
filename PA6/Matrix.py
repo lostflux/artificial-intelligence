@@ -116,7 +116,7 @@ class Matrix(object):
             If two matrices, they must have the same shape.
         """
         
-        if type(other) in [int, float, list, tuple]:
+        if isinstance(other, (int, float, list, tuple)):
             return Matrix(0, 0, np.add(self.data, other))
         
         if not isinstance(other, Matrix):
@@ -141,7 +141,7 @@ class Matrix(object):
             If two matrices, they must have the same shape.
         """
         
-        if type(other) in [int, float, list, tuple]:
+        if isinstance(other, (int, float, list, tuple)):
             return Matrix(0, 0, np.subtract(self.data, other))
         
         if not isinstance(other, Matrix):
@@ -181,7 +181,7 @@ class Matrix(object):
             matrix1 * matrix2
             ```
         """
-        if type(other) in [int, float]:
+        if isinstance(other, (int, float)):
             return Matrix(0, 0, np.multiply(self.data, other))
         if self.cols != other.rows:
             raise ValueError("Matrices are not compatible for multiplication.")
@@ -197,7 +197,7 @@ class Matrix(object):
             matrix1 * matrix2
             ```
         """
-        if type(other) == int or type(other) == float:
+        if isinstance(other, (int, float)):
             return Matrix(0, 0, np.multiply(self.data, other))
         if other.cols != self.rows:
             raise ValueError("Matrices are not compatible for multiplication.")
