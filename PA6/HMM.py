@@ -8,12 +8,20 @@ CORRECT_COLOR = .88                     # Robot reading accuracy probability = .
 WRONG_COLOR = 1 - CORRECT_COLOR         # Robot reading accuracy probability = .
 MOVE_PROBABILITY = 1/4                  # 1/4 chance of moving in any direction
 
+# I specified these in case a case might arise where
+# a robot is more biased to move North than South, for instance.
+# Then, I would just have to change the probabilities here.
+NORTH_PROBABILITY = SOUTH_PROBABILITY = EAST_PROBABILITY = WEST_PROBABILITY = MOVE_PROBABILITY
+
 class HMM:
-    def __init__(self, mazefilename):
-        
-        self.maze = Maze(mazefilename)
-        
+    def __init__(self, filename):
+        """
+            Create a new HMM based on the given map file.
+        """
+        self.maze = Maze(filename)
         self.sensor_probabilities = dict()
+        self.transitions = dict()
+        self.color_count
         self.initialize_probabilities()
         
     def initialize_probabilities(self):
@@ -21,50 +29,64 @@ class HMM:
         Initializes the probabilities dictionary.
         """
         
-        # Initialize the probabilities dictionary.
-        # The keys are colors in the Maze
-        # The values Matrices representing probabilities.
-        
-        all_colors = self.maze.colors
-        self.COLOR_COUNT = len(all_colors)
-        for color in all_colors.maze.colors:
+        for color in self.maze.colors:
             self.sensor_probabilities[color] = Matrix(self.maze.width, self.maze.height)
-            
-        self.transitions = [Matrix(self.maze.possible_states()) for i in ]
         
                 
         for x in range(self.maze.width):
             for y in range(self.maze.height):
                 
-                # Save the state probabilities
-                c = self.maze.get(x, y)
-                if c != '#':
-                    for color in all_colors:
-                        if color == c:
-                            self.sensor_probabilities[color][x, y] = CORRECT_COLOR
-                        else:
-                            self.sensor_probabilities[color][x, y] = WRONG_COLOR / (self.COLOR_COUNT - 1)
+                # save the sensor detection probabilities
+                self.compute_sensor_values(x, y)
                         
                 # Save the transition probabilities
-                pos_moves = self.maze.check_neighbors(x, y)
-                for direction in range(len(pos_moves)):
-                    possible = pos_moves[direction]
-                    
-                    if direction == 0: 
+                self.transitions[(x, y)] = self.compute_transition_matrix(x, y)
                 
-                        
-        
-                
-        
-        
-                        
-            
-                
-    
-    
-
-    def train(self, observations, states):
+    def compute_sensor_values(self, x, y):
         """
-        Train the HMM with the given observations and states.
-        :param observations: A list of observations.
-        :param states: A list of states.
+            Compute the transition matrix for the given x, y position.
+        """
+        # Save the state probabilities
+        c = self.maze.get_char(x, y)
+        if c and c != '#':
+            for color in self.maze.colors:
+                if color == c:
+                    self.sensor_probabilities[color][x, y] = CORRECT_COLOR
+                else:
+                    self.sensor_probabilities[color][x, y] = WRONG_COLOR / (self.maze.color_count - 1)
+
+                    
+    def compute_transition_matrix(self, x, y):
+        """
+            Return the transition matrix for the given x, y position.
+        """
+        
+        stay_put = 0
+        matrix = Matrix(x, y)
+        north = self.maze.get_char(x, y - 1)
+        south = self.maze.get_char(x, y + 1)
+        east = self.maze.get_char(x + 1, y)
+        west = self.maze.get_char(x - 1, y)
+        
+        if north and north != '#':
+            matrix[x, y - 1] = NORTH_PROBABILITY
+        else:
+            stay_put += NORTH_PROBABILITY
+            
+        if south and south != '#':
+            matrix[x, y + 1] = SOUTH_PROBABILITY
+        else:
+            stay_put += SOUTH_PROBABILITY
+        if east and east != '#':
+            matrix[x + 1, y]= EAST_PROBABILITY
+        else:
+            stay_put += EAST_PROBABILITY
+        if west and west != '#':
+            matrix[x - 1, y]= WEST_PROBABILITY
+        else:
+            stay_put += WEST_PROBABILITY
+            
+        matrix[x, y] = stay_put
+        
+        self.transitions[(x, y)] = matrix
+    

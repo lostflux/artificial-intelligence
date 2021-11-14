@@ -371,9 +371,9 @@ def test_div():
         
         
 if __name__ == "__main__":
-    # test_add()
-    # test_sub()
-    # test_mult()
+    test_add()
+    test_sub()
+    test_mult()
     test_div()
     
     id3 = Matrix.identity(3)

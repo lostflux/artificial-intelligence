@@ -51,6 +51,7 @@ class Maze:
         # initialzie array of map values.
         self.map = []
         self.colors = set()
+        self.color_count = 0
         
         # open maze file. exits if failed.
         with open(mazefilename) as f:
@@ -67,7 +68,9 @@ class Maze:
                 if len(line) != 0:
                     self.map.append(line)
                     self.colors |= set(line)
-                
+                    
+            self.colors.discard("#")
+            self.color_count = len(self.colors) 
             f.close()
 
         # get the width and height of the maze
@@ -98,12 +101,11 @@ class Maze:
         return iter(self.map)
 
     def index(self, x, y):
-        # return (self.height - y - 1) * self.width + x
-        return (y * self.width) + x
+        return x + (y * self.width)
 
 
     # returns True if the location is a floor
-    def get(self, x, y):
+    def get_char(self, x, y):
         """
             Get the character at given position in the Maze.
         """
@@ -112,27 +114,6 @@ class Maze:
             return self.map[x, y]
         
         return None
-    
-    def check_neighbors(self, x, y):
-        """
-            Check neighbors of given location -- if can be moved into, 1, else 0.
-        """
-        
-        nswe = []   # list of neighbors [N, S, W, E]
-        if 0 <= x < self.width \
-            and 0 <= y < self.height:
-            
-            for i in [1, -1]:
-                if 0 <= y + i < self.height:
-                    state = 0 if self.map[x, y + i] == "#" else 1
-                    nswe.append(state)
-        
-            for j in [1, -1]:
-                if 0 <= x + j < self.width:
-                    state = 0 if self.map[x + j, y ] == "#" else 1
-                    nswe.append(state)
-                    
-        return nswe
     
     def possible_states(self):
         return self.width * self.height
