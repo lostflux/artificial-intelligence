@@ -19,8 +19,14 @@ class HMM:
             Create a new HMM based on the given map file.
         """
         self.maze = Maze(filename)
+        
+        # initialize matrices for sensor probabilities of detecting each color.
         self.sensor_probabilities = dict()
+        for color in self.maze.colors:
+            self.sensor_probabilities[color] = Matrix(self.maze.width, self.maze.height)
+            
         self.transitions = dict()
+        self.position_distribution = Matrix(self.maze.width, self.maze.height)
         self.color_count
         self.initialize_probabilities()
         
@@ -28,10 +34,7 @@ class HMM:
         """
         Initializes the probabilities dictionary.
         """
-        
-        for color in self.maze.colors:
-            self.sensor_probabilities[color] = Matrix(self.maze.width, self.maze.height)
-        
+        possible_positions = self.maze.count_positions()
                 
         for x in range(self.maze.width):
             for y in range(self.maze.height):
@@ -41,6 +44,9 @@ class HMM:
                         
                 # Save the transition probabilities
                 self.compute_transition_matrix(x, y)
+                
+                # Find the probability for robot's starting position being at current position
+                self.compute_distribution(x, y, possible_positions)
                 
     def compute_sensor_values(self, x, y):
         """
@@ -54,8 +60,7 @@ class HMM:
                     self.sensor_probabilities[color][x, y] = CORRECT_COLOR
                 else:
                     self.sensor_probabilities[color][x, y] = WRONG_COLOR / (self.maze.color_count - 1)
-
-                    
+   
     def compute_transition_matrix(self, x, y):
         """
             Return the transition matrix for the given x, y position.
@@ -89,4 +94,11 @@ class HMM:
         matrix[x, y] = stay_put
         
         self.transitions[(x, y)] = matrix
+        
+    def compute_distribution(self, x, y, total):
+        """
+            Compute the distribution for the given x, y position.
+        """
+        if self.maze.get_char(x, y) != '#':
+            self.position_distribution[x, y] = 1 / total
     

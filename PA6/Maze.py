@@ -115,11 +115,18 @@ class Maze:
         
         return None
     
-    def possible_states(self):
-        return self.width * self.height
-    
-    # def 
-    
+    def count_positions(self):
+        """
+            Get the total number of possible robot positions in the Maze.
+        """
+        
+        positions = 0
+        for x in range(self.width):
+            for y in range(self.height):
+                if self.get_char(x, y) != "#":
+                    positions += 1
+                
+        return positions
 
     def __str__(self):
         # return a string representation of the maze
