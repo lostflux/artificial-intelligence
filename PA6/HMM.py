@@ -135,10 +135,32 @@ class HMM:
             reading = readings[step]
             
             # update the distribution
-            distribution = self.transitions * distribution
             
-            distribution = self.sensor_probabilities[reading] * distribution
+            distribution = self.sensor_probabilities[reading] * (self.transitions * distribution)
+            
+            Matrix.normalize(distribution)
             
             self.sequences.append(distribution)
+            
+    def backward(self, readings: list):
+        """
+            Compute the probability of the robot ending up in each position
+            after the given readings.
+        """
+        # reset the distribution
+        self.position_distribution = Matrix(self.maze.width, self.maze.height)
+        
+        # compute the probability of the robot ending up in each position
+        for step in range(len(readings) - 1, -1, -1):
+            
+            # get current reading
+            reading = readings[step]
+            
+            # update the distribution
+            self.position_distribution = self.transitions * self.position_distribution
+            
+            self.position_distribution = self.sensor_probabilities[reading] * self.position_distribution
+            
+            Matrix.normalize(self.position_distribution)
         
     

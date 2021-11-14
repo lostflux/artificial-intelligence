@@ -22,18 +22,20 @@ class Matrix(object):
         integer division, and transposition.\n
         
         The module uses numpy arrays for efficiency.\n
+        NOTE: Matrices are zero-indexed.\n
     """
  
  
 ################# MATRIX REPRESENTATION #################   
-    def __init__(self, cols, rows, source=None):
+    def __init__(self, rows, cols, source=None):
         
         """
             Creates a new Matrix of dimensions rows(downwards) x cols(sideways).\n\n
             
-            `cols`: the number of columns in the Matrix. `cols` correspond to `x`.\n
             `rows`: the number of rows in the Matrix. `rows` correspond to `y`.\n
+            `cols`: the number of columns in the Matrix. `cols` correspond to `x`.\n
             `source`: a list of lists that will be used to populate the Matrix.\n
+            NOTE: Matrices are zero-indexed.\n
             
             Format:\n
             \tFirst sub-array is first row, second sub-array is second row, etc.\n
@@ -54,26 +56,26 @@ class Matrix(object):
         """
         if source is not None:
             self.data = np.array(source)
-            self.rows = self.data.shape[0]
-            self.cols = self.data.shape[1]
             
         elif rows and cols:
-            self.rows = rows
-            self.cols = cols
-            self.data = np.array(rows * [cols * [0]])
-            print(f"rows = {rows}, cols = {cols}, data = {self.data}")
+            self.data = np.zeros((rows, cols))
+
         
         else:
             raise ValueError("Invalid Matrix dimensions.\n\
                              Please provide either a Python list to initialize with,\
                                  or specify columns and rows.")
             
+        self.rows = self.data.shape[0]
+        self.cols = self.data.shape[1]
+        # print(f"rows = {rows}, cols = {cols}, data = {self.data}")
+            
     def shape(self):
         
         """
             Returns a tuple of the dimensions of the Matrix.
         """
-        return (self.cols, self.rows)
+        return (self.rows, self.cols)
     
     def __getitem__(self, pos):
         
@@ -86,7 +88,13 @@ class Matrix(object):
             ```
         """
         
-        (col, row) = pos
+        if isinstance(pos, (tuple, list)):
+            (row, col) = pos
+            
+        elif isinstance(pos, int):
+            row = pos
+            col = 0
+        
         return self.data[row, col]
     
     def __setitem__(self, pos, value):
@@ -98,7 +106,7 @@ class Matrix(object):
             matrix[col, row] = value
             ```
         """
-        (col, row) = pos
+        (row, col) = pos
         self.data[row, col] = value
     
     def __str__(self):
@@ -119,7 +127,7 @@ class Matrix(object):
             If two matrices, they must have the same shape.
         """
         
-        if isinstance(other, (int, float, list, tuple)):
+        if isinstance(other, (int, float, list, tuple, np.ndarray)):
             return Matrix(0, 0, np.add(self.data, other))
         
         if not isinstance(other, Matrix):
@@ -290,7 +298,7 @@ class Matrix(object):
         return Matrix(0, 0, np.transpose(self.data))
     
     @staticmethod
-    def identity(dims):
+    def identity(*dims):
         """
             Get the identity matrix of given dimensions.\n
             NOTE: matrix must be square.
@@ -321,6 +329,7 @@ class Matrix(object):
         """
         return Matrix(0, 0, np.ones((rows, cols)))
     
+    
     @staticmethod
     def full(cols, rows, value):
         """
@@ -343,7 +352,7 @@ class Matrix(object):
         return Matrix(0, 0, np.random.normal(mean, std, (rows, cols)))
     
     @staticmethod
-    def normalize(matrix, axis=0):
+    def normalize(matrix, axis=1):
         """
             Normalize the given Matrix.
         """
@@ -356,11 +365,11 @@ class Matrix(object):
     
 def test_representation():
     # simple test case
-    m = Matrix(3,4)
+    m = Matrix(4, 3)
     print(f"Matrix: {m}")
     print(m.shape())
     m[1, 1] = 99
-    m[2, 3] = 88
+    m[3, 2] = 88
     print(m[1, 1])
     print(m)
     
@@ -373,9 +382,9 @@ def test_add():
     print("Additions...\n_____________\n")
     m = Matrix(4,4)
     m[1, 1] = 99
-    m[1, 2] = 88
+    m[2, 1] = 88
     m[3, 3] = 66
-    m[2, 3] = 88
+    m[3, 2] = 88
     print(m)
     print(m + m)
     print(m + 2)
@@ -385,9 +394,9 @@ def test_sub():
     print("Subtraction\n__________\n")
     m = Matrix(4,4)
     m[1, 1] = 99
-    m[1, 2] = 88
+    m[2, 1] = 88
     m[3, 3] = 66
-    m[2, 3] = 88
+    m[3, 2] = 88
     print(m)
     print(m - m)
     print(m - 2)
@@ -402,7 +411,7 @@ def test_sub():
 def test_mult():
     m = Matrix(4,4)
     m[1, 1] = 99
-    m[2, 3] = 88
+    m[3, 2] = 88
     print(m)
     print(m * m)
     print(m * 2)
@@ -411,7 +420,7 @@ def test_mult():
 def test_div():
     m = Matrix(4,4)
     m[1, 1] = 99
-    m[2, 3] = 88
+    m[3, 2] = 88
     print(m)
     print(m / 2)
     # print(m / 0) #! breakpoint -- raises an exception.
@@ -430,26 +439,42 @@ def other_tests():
     print(mat)
     print(Matrix.normalize(mat))
     
+    test = Matrix(2, 3)
+    print(test)
+    
+    z2 = Matrix.zeros(2, 3)
+    print(z2)
+    
+    id3 = Matrix.identity(3)
+    print(id3)
+    
+    r4 = Matrix.random(2, 3, low=5, high = 27)
+    print(r4)
+    
+def test_fib():
+    mat = Matrix(0, 0, [[1,1], [1,0]])
+    vec = Matrix(0, 0, [[1],[0]])
+    
+    print(mat)
+    print(vec)
+    print(mat * vec)
+    
+    for i in range(1, 21, 1):
+        vec = mat * vec
+        print(f"The fibonacci number {i} is {vec[1]}")
+    
         
         
 if __name__ == "__main__":
-    # test_add()
-    # test_sub()
-    # test_mult()
-    # test_div()
-    other_tests(0)
+    test_add()
+    test_sub()
+    test_mult()
+    test_div()
+    other_tests() 
+    test_fib()
     
-    # test = Matrix(2, 3)
-    # print(test)
+        
     
-    # z2 = Matrix.zeros(2, 3)
-    # print(z2)
-    
-    # id3 = Matrix.identity(3)
-    # print(id3)
-    
-    # r4 = Matrix.random(2, 3, low=5, high = 27)
-    # print(r4)
     
         
         
