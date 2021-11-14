@@ -21,14 +21,14 @@ class HMM:
         self.maze = Maze(filename)
         
         # initialize matrices for sensor probabilities of detecting each color.
-        self.sensor_probabilities = dict()
+        self.sensor_probabilities = dict()          # color -> probabilities of that color being read for each position in Maze
         for color in self.maze.colors:
             self.sensor_probabilities[color] = Matrix(self.maze.width, self.maze.height)
             
-        self.transitions = dict()
-        self.position_distribution = Matrix(self.maze.width, self.maze.height)
-        self.color_count
-        self.initialize_probabilities()
+        self.transitions = None                                                     # transition probabilities between every possible position in Maze
+        self.position_distribution = Matrix(self.maze.width, self.maze.height)      # probabilities of each position being the robot's starting position
+        self.steps = []                                                             # list of matrices of probabilities for each step in the sequences
+        self.initialize_probabilities() 
         
     def initialize_probabilities(self):
         """
@@ -69,34 +69,43 @@ class HMM:
             Return the transition matrix for the given x, y position.
         """
         
+        current_index = self.maze.index(x, y)
         stay_put = 0
-        matrix = Matrix(x, y)
+        matrix = Matrix(self.maze.count_positions(), self.maze.count_positions())
+        
         north = self.maze.get_char(x, y - 1)
+        north_index = self.maze.index(x, y - 1)
+        
         south = self.maze.get_char(x, y + 1)
+        south_index = self.maze.index(x, y + 1)
+        
         east = self.maze.get_char(x + 1, y)
+        east_index = self.maze.index(x + 1, y)
+        
         west = self.maze.get_char(x - 1, y)
+        west_index = self.maze.index(x - 1, y)
         
         if north and north != '#':
-            matrix[x, y - 1] = NORTH_PROBABILITY
+            matrix[north_index, current_index] = NORTH_PROBABILITY
         else:
             stay_put += NORTH_PROBABILITY
             
         if south and south != '#':
-            matrix[x, y + 1] = SOUTH_PROBABILITY
+            matrix[south_index, current_index] = SOUTH_PROBABILITY
         else:
             stay_put += SOUTH_PROBABILITY
         if east and east != '#':
-            matrix[x + 1, y]= EAST_PROBABILITY
+            matrix[east_index, current_index] = EAST_PROBABILITY
         else:
             stay_put += EAST_PROBABILITY
         if west and west != '#':
-            matrix[x - 1, y]= WEST_PROBABILITY
+            matrix[west_index, current_index] = WEST_PROBABILITY
         else:
             stay_put += WEST_PROBABILITY
             
-        matrix[x, y] = stay_put
+        matrix[current_index, current_index] = stay_put
         
-        self.transitions[(x, y)] = matrix
+        self.transitions = matrix
         
     def compute_distribution(self, x, y, total):
         """
@@ -104,4 +113,32 @@ class HMM:
         """
         if self.maze.get_char(x, y) != '#':
             self.position_distribution[x, y] = 1 / total
+            
+    def forward(self, readings: list):
+        
+        for reading in readings:
+            if reading not in self.maze.colors:
+                raise ValueError(f"Invalid color: {reading} not in working set {self.maze.colors}")
+            
+        distribution = Matrix.copy(self.position_distribution)                  # probabilities of each position being the robot's starting position
+        
+        # reset sequences (might have been set on a previous run)
+        if self.steps:
+            self.steps = []
+            
+        # append starting position position to steps.
+        self.steps.append(distribution)
+        
+        for step in range(len(readings)):
+            
+            # get current reading
+            reading = readings[step]
+            
+            # update the distribution
+            distribution = self.transitions * distribution
+            
+            distribution = self.sensor_probabilities[reading] * distribution
+            
+            self.sequences.append(distribution)
+        
     

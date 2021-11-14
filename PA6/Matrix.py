@@ -334,6 +334,23 @@ class Matrix(object):
             Returns a Matrix filled with random values in the given range.
         """
         return Matrix(0, 0, np.random.uniform(low, high, (rows, cols)))
+    
+    @staticmethod
+    def normal(cols, rows, mean=0, std=1):
+        """
+            Returns a Matrix filled with normal values with given mean and standard deviation.
+        """
+        return Matrix(0, 0, np.random.normal(mean, std, (rows, cols)))
+    
+    @staticmethod
+    def normalize(matrix, axis=0):
+        """
+            Normalize the given Matrix.
+        """
+        if not isinstance(matrix, Matrix):
+            return NotImplemented
+        
+        return Matrix(0, 0, matrix.data / matrix.data.sum(axis=axis, keepdims=True))
         
     
     
@@ -408,6 +425,11 @@ def test_div():
     m4 = m3 / m2
     print(f"m4 = {m4}")
     
+def other_tests():
+    mat = Matrix(0, 0, [[1,2,3], [4,5,6], [7,8,9], [10,11,12]])
+    print(mat)
+    print(Matrix.normalize(mat))
+    
         
         
 if __name__ == "__main__":
@@ -415,18 +437,19 @@ if __name__ == "__main__":
     # test_sub()
     # test_mult()
     # test_div()
+    other_tests(0)
     
-    test = Matrix(2, 3)
-    print(test)
+    # test = Matrix(2, 3)
+    # print(test)
     
-    z2 = Matrix.zeros(2, 3)
-    print(z2)
+    # z2 = Matrix.zeros(2, 3)
+    # print(z2)
     
-    id3 = Matrix.identity(3)
-    print(id3)
+    # id3 = Matrix.identity(3)
+    # print(id3)
     
-    r4 = Matrix.random(2, 3, low=5, high = 27)
-    print(r4)
+    # r4 = Matrix.random(2, 3, low=5, high = 27)
+    # print(r4)
     
         
         
