@@ -35,6 +35,9 @@ class HMM:
         Initializes the probabilities dictionary.
         """
         possible_positions = self.maze.count_positions()
+        
+        if not possible_positions:
+            raise ValueError('No possible positions in maze.')
                 
         for x in range(self.maze.width):
             for y in range(self.maze.height):

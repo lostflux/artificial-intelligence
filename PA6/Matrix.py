@@ -61,6 +61,7 @@ class Matrix(object):
             self.rows = rows
             self.cols = cols
             self.data = np.array(rows * [cols * [0]])
+            print(f"rows = {rows}, cols = {cols}, data = {self.data}")
         
         else:
             raise ValueError("Invalid Matrix dimensions.\n\
@@ -277,14 +278,6 @@ class Matrix(object):
         
         return NotImplemented
     
-    @staticmethod
-    def identity(dims):
-        """
-            Get the identity matrix of given dimensions.\n
-            NOTE: matrix must be square.
-        """
-        return Matrix(0, 0, np.identity(dims))
-    
     def transpose(self):
         """
             Returns the transpose of a Matrix.\n
@@ -295,6 +288,50 @@ class Matrix(object):
             ```
         """
         return Matrix(0, 0, np.transpose(self.data))
+    
+    @staticmethod
+    def identity(dims):
+        """
+            Get the identity matrix of given dimensions.\n
+            NOTE: matrix must be square.
+        """
+        return Matrix(0, 0, np.identity(dims))
+    
+    @staticmethod
+    def copy(matrix):
+        """
+            Returns a copy of the given Matrix.
+        """
+        return Matrix(0, 0, np.copy(matrix.data))
+    
+    @staticmethod
+    def zeros(cols, rows):
+        """
+            Returns a Matrix of zeros.
+        """
+        return Matrix(0, 0, np.zeros((rows, cols)))
+    
+    @staticmethod
+    def ones(cols, rows):
+        """
+            Returns a Matrix of ones.
+        """
+        return Matrix(0, 0, np.ones((rows, cols)))
+    
+    @staticmethod
+    def full(cols, rows, value):
+        """
+            Returns a Matrix filled with given value.
+        """
+        return Matrix(0, 0, np.full((rows, cols), value))
+    
+    @staticmethod
+    def random(cols, rows, low=0, high=1):
+        """
+            Returns a Matrix filled with random values in the given range.
+        """
+        return Matrix(0, 0, np.random.uniform(low, high, (rows, cols)))
+        
     
     
 def test_representation():
@@ -371,13 +408,22 @@ def test_div():
         
         
 if __name__ == "__main__":
-    test_add()
-    test_sub()
-    test_mult()
-    test_div()
+    # test_add()
+    # test_sub()
+    # test_mult()
+    # test_div()
+    
+    test = Matrix(2, 3)
+    print(test)
+    
+    z2 = Matrix.zeros(2, 3)
+    print(z2)
     
     id3 = Matrix.identity(3)
     print(id3)
+    
+    r4 = Matrix.random(2, 3, low=5, high = 27)
+    print(r4)
     
         
         
