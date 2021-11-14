@@ -156,6 +156,27 @@ class HMM:
             
             self.steps.append(distribution)
             
+    def forward_backward(self, readings: str):
+        """
+            Run forward and backward algorithm.
+        """
+        self.forward(readings)
+        
+        # reverse the steps
+        self.steps.reverse()
+        
+        # compute the backward distribution
+        backward_distribution = Matrix.copy(self.steps[0])
+        
+        for step in range(1, len(self.steps)):
+            backward_distribution = backward_distribution * (self.steps[step] * self.transitions)
+            
+        Matrix.normalize(backward_distribution)
+        
+        # add the two distributions together
+        self.steps.append(backward_distribution)
+        self.steps.reverse()
+            
             
     def backward(self, readings: str):
         """
@@ -169,6 +190,10 @@ class HMM:
             self.forward(readings)
             
         for step in range(len(self.steps) - 1, 0, -1):
+            Matrix.normalize(vector)
+            print(f"backward: {vector}")
+            self.steps[step] = self.steps[step].multiply(vector)
+            Matrix.normalize(self.steps[step])
             vector = self.transitions * (self.sensor_probabilities[readings[step - 1]] * vector)
             
     def viterbi(self, readings: str):
@@ -179,27 +204,30 @@ class HMM:
         count = len(readings)
         path_costs = []
         transition_costs = []
-        path_costs = []
+        path = []
         transition_costs.append(Matrix.zeros(self.total_positions, self.total_positions))
-        path_costs.append(Matrix.zeros(self.total_positions, count))
+        path_costs.append(Matrix.ones(self.total_positions, count))
+        path_costs[0] /= self.total_positions
+        print(f"trans: {transition_costs[-1]}")
+        print(f"paths: {path_costs[-1]}")
         
         for pos in range(self.total_positions):
-            (x, y) = self.maze.de_index(pos)
-            path_costs[0][pos, 0] = self.position_distribution[y, x]
+            path_costs[0][pos, 0] = self.position_distribution[pos, 0]
             
         for observation in range(1, count):
             transition_costs.append(Matrix.zeros(self.total_positions, self.total_positions))
             path_costs.append(Matrix.zeros(self.total_positions, count))
             
+
+            
             for pos in range(self.total_positions):
-                (x, y) = self.maze.de_index(pos)
                 for prev_pos in range(self.total_positions):
-                    (prev_x, prev_y) = self.maze.de_index(prev_pos)
-                    transition_costs[observation][pos, prev_pos] = self.transitions[prev_pos, pos]
-                    path_costs[observation][pos, observation] = self.sensor_probabilities[readings[observation]][pos, prev_pos] * path_costs[observation - 1][prev_pos, observation - 1]
+                    path_costs[-1][pos, observation] = max(self.transitions[prev_pos, pos], path_costs[-1][pos, observation])
+                    # Matrix.normalize(path_costs[-1])
                     
-            print(f"trans: {transition_costs[-1]}")
-            print(f"paths: {path_costs[-1]}")
+                    print(f"trans: {transition_costs[-1]}")
+                    print(f"paths: {path_costs[-1]}")
+                    
                 
                 
         
@@ -263,9 +291,9 @@ def test2():
     #     print(f"{color} = {engine.sensor_probabilities[color]}")
     engine.forward("RGRG")
     engine.print("output/maze1_f.out")
-    engine.backward("RGRG")
+    engine.forward_backward("RGRG")
     engine.print("output/maze1_b.out")
-    engine.viterbi("RGRG")
+    # engine.viterbi("RGRG")
     
 
 if __name__ == "__main__":

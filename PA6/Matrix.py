@@ -297,6 +297,22 @@ class Matrix(object):
         """
         return Matrix(0, 0, np.transpose(self.data))
     
+    def multiply(self, other):
+        """
+            Returns the element-wise product of two matrices.\n
+            Example usage:\n
+            ```python
+            matrix1.multiply( matrix2)
+            ```
+            NOTE: using the `*` operator calls __mul__ instead of this method.
+        """
+        if isinstance(other, (int, float)):
+            return Matrix(0, 0, np.multiply(self.data, other))
+        
+        if isinstance(other, Matrix):
+            return Matrix(0, 0, np.multiply(self.data, other.data))
+        return NotImplemented
+    
     @staticmethod
     def identity(*dims):
         """
