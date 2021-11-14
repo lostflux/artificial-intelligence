@@ -135,7 +135,7 @@ class HMM:
             
         distribution = Matrix.copy(self.position_distribution)                  # probabilities of each position being the robot's starting position
         
-        print(f"Initial = {distribution}")
+        # print(f"Initial = {distribution}")
         # reset sequences (might have been set on a previous run)
         if self.steps:
             self.steps = []
@@ -170,6 +170,48 @@ class HMM:
             
         for step in range(len(self.steps) - 1, 0, -1):
             vector = self.transitions * (self.sensor_probabilities[readings[step - 1]] * vector)
+            
+    def viterbi(self, readings: str):
+        """
+            Compute the most likely sequence of states for the given readings.
+        """
+        readings = readings.lower()
+        count = len(readings)
+        path_costs = []
+        transition_costs = []
+        path_costs = []
+        transition_costs.append(Matrix.zeros(self.total_positions, self.total_positions))
+        path_costs.append(Matrix.zeros(self.total_positions, count))
+        
+        for pos in range(self.total_positions):
+            (x, y) = self.maze.de_index(pos)
+            path_costs[0][pos, 0] = self.position_distribution[y, x]
+            
+        for observation in range(1, count):
+            transition_costs.append(Matrix.zeros(self.total_positions, self.total_positions))
+            path_costs.append(Matrix.zeros(self.total_positions, count))
+            
+            for pos in range(self.total_positions):
+                (x, y) = self.maze.de_index(pos)
+                for prev_pos in range(self.total_positions):
+                    (prev_x, prev_y) = self.maze.de_index(prev_pos)
+                    transition_costs[observation][pos, prev_pos] = self.transitions[prev_pos, pos]
+                    path_costs[observation][pos, observation] = self.sensor_probabilities[readings[observation]][pos, prev_pos] * path_costs[observation - 1][prev_pos, observation - 1]
+                    
+            print(f"trans: {transition_costs[-1]}")
+            print(f"paths: {path_costs[-1]}")
+                
+                
+        
+        
+        # vector = Matrix.ones(self.maze.count_positions(), 1)
+        # if not self.steps:
+        #     self.forward(readings)
+            
+        # for step in range(len(self.steps) - 1, 0, -1):
+        #     vector = self.transitions * (self.sensor_probabilities[readings[step - 1]] * vector)
+            
+        # return vector
             
     def print(self, filename):
         """
@@ -223,6 +265,7 @@ def test2():
     engine.print("output/maze1_f.out")
     engine.backward("RGRG")
     engine.print("output/maze1_b.out")
+    engine.viterbi("RGRG")
     
 
 if __name__ == "__main__":
