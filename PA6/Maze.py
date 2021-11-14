@@ -60,7 +60,7 @@ class Maze:
             for line in f:
                 
                 # remove trailing / beginning spaces
-                line = line.strip()
+                line = line.strip().lower()
                 
                 # if blank, skip
                 # otherwise, save the line
@@ -101,7 +101,15 @@ class Maze:
         return iter(self.map)
 
     def index(self, x, y):
-        return x + (y * self.width)
+        if 0 <= x < self.width and 0 <= y < self.height:
+            return y * self.width + x
+        return None
+    
+    def de_index(self, index):
+        # print(f"\n\nwidth = %d, height = %d" % (self.width, self.height))
+        # print(f"index = {index}")
+        # print(f"computed values = {(index % self.width, index // self.width)}")
+        return (index % self.width, index // self.width)
 
 
     # returns True if the location is a floor
@@ -111,7 +119,7 @@ class Maze:
         """
         
         if 0 <= x < self.width and 0 <= y < self.height:
-            return self.map[x, y]
+            return self.map[y][x]
         
         return None
     

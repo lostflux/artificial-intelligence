@@ -197,7 +197,7 @@ class Matrix(object):
         
         if isinstance(other, Matrix):
             if self.cols != other.rows:
-                raise ValueError("Matrices are not compatible for multiplication.")
+                raise ValueError(f"\n\nmat1: {self}\n mat2: {other}\nMatrices are not compatible for multiplication.")
         
             return Matrix(0, 0, np.dot(self.data, other.data))
         return NotImplemented
@@ -316,14 +316,14 @@ class Matrix(object):
         return NotImplemented
     
     @staticmethod
-    def zeros(cols, rows):
+    def zeros(rows, cols):
         """
             Returns a Matrix of zeros.
         """
         return Matrix(0, 0, np.zeros((rows, cols)))
     
     @staticmethod
-    def ones(cols, rows):
+    def ones(rows, cols):
         """
             Returns a Matrix of ones.
         """
@@ -331,35 +331,35 @@ class Matrix(object):
     
     
     @staticmethod
-    def full(cols, rows, value):
+    def full(rows, cols, value):
         """
             Returns a Matrix filled with given value.
         """
         return Matrix(0, 0, np.full((rows, cols), value))
     
     @staticmethod
-    def random(cols, rows, low=0, high=1):
+    def random(rows, cols, low=0, high=1):
         """
             Returns a Matrix filled with random values in the given range.
         """
         return Matrix(0, 0, np.random.uniform(low, high, (rows, cols)))
     
     @staticmethod
-    def normal(cols, rows, mean=0, std=1):
+    def normal(rows, cols, mean=0, std=1):
         """
             Returns a Matrix filled with normal values with given mean and standard deviation.
         """
         return Matrix(0, 0, np.random.normal(mean, std, (rows, cols)))
     
     @staticmethod
-    def normalize(matrix, axis=1):
+    def normalize(matrix, axis=0):
         """
             Normalize the given Matrix.
         """
         if not isinstance(matrix, Matrix):
             return NotImplemented
         
-        return Matrix(0, 0, matrix.data / matrix.data.sum(axis=axis, keepdims=True))
+        matrix.data = matrix.data / matrix.data.sum(axis=axis, keepdims=True)
         
     
     
@@ -472,9 +472,4 @@ if __name__ == "__main__":
     test_div()
     other_tests() 
     test_fib()
-    
-        
-    
-    
-        
         
