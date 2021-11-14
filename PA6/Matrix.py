@@ -302,7 +302,10 @@ class Matrix(object):
         """
             Returns a copy of the given Matrix.
         """
-        return Matrix(0, 0, np.copy(matrix.data))
+        if isinstance(matrix, Matrix):
+            return Matrix(0, 0, np.copy(matrix.data))
+        
+        return NotImplemented
     
     @staticmethod
     def zeros(cols, rows):
