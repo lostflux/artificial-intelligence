@@ -40,7 +40,7 @@ class HMM:
                 self.compute_sensor_values(x, y)
                         
                 # Save the transition probabilities
-                self.transitions[(x, y)] = self.compute_transition_matrix(x, y)
+                self.compute_transition_matrix(x, y)
                 
     def compute_sensor_values(self, x, y):
         """
