@@ -4,12 +4,12 @@
 """
     This module contains an HMM class for robot location.\n
 """
-
 __author__ = ["Amittai"]
 __copyright__ = "Copyright 2021"
 __credits__ = ["Amittai"]
 __email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
 __github__ = "@siavava"
+
 
 from Maze import Maze
 from Matrix import Matrix
@@ -24,6 +24,12 @@ MOVE_PROBABILITY = 1/4                  # 1/4 chance of moving in any direction
 NORTH_PROBABILITY = SOUTH_PROBABILITY = EAST_PROBABILITY = WEST_PROBABILITY = MOVE_PROBABILITY
 
 class HMM:
+    """
+        This class implements a solver for Hidden Markov Models.\n
+        It's capable of locating a likely position for a robot in a Maze.\n
+        With a little generalization it should be able to handle general\n
+        Hidden Markov Model problems.\n
+    """
     def __init__(self, filename):
         """
             Create a new HMM based on the given map file.
@@ -34,9 +40,14 @@ class HMM:
             raise ValueError('No possible positions in maze.')
         
         # initialize matrices for sensor probabilities of detecting each color.
-        self.sensor_probabilities = dict()          # color -> probabilities of that color being read for each position in Maze
-        for color in self.maze.colors:
-            self.sensor_probabilities[color] = Matrix(self.total_positions, self.total_positions)
+        
+        # color -> probabilities of that color being read for each position in Maze
+        self.sensor_probabilities = dict()
+        
+        self.sensor_probabilities = {color: Matrix(self.total_positions, self.total_positions) for color in self.maze.colors}
+              
+        # for color in self.maze.colors:
+        #     self.sensor_probabilities[color] = Matrix(self.total_positions, self.total_positions)
             
         self.transitions = Matrix(self.maze.count_positions(), self.maze.count_positions())                                                   # transition probabilities between every possible position in Maze
         self.position_distribution = Matrix(self.maze.width, self.maze.height)      # probabilities of each position being the robot's starting position
