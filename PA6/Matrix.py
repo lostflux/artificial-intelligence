@@ -66,8 +66,14 @@ class Matrix(object):
                              Please provide either a Python list to initialize with,\
                                  or specify columns and rows.")
             
-        self.rows = self.data.shape[0]
-        self.cols = self.data.shape[1]
+        try: 
+            self.rows = self.data.shape[0]
+            try: 
+                self.cols = self.data.shape[1]
+            except IndexError: 
+                self.cols = 0
+        except IndexError: 
+            self.rows = 0
         # print(f"rows = {rows}, cols = {cols}, data = {self.data}")
             
     def shape(self):
@@ -91,9 +97,12 @@ class Matrix(object):
         if isinstance(pos, (tuple, list)):
             (row, col) = pos
             
-        elif isinstance(pos, int):
-            row = pos
-            col = 0
+        elif isinstance(pos, (int, np.int64)):
+            return self.data[pos]
+            
+        else:
+            print(f"index type {type(pos)} not supported.\n")
+        
         
         return self.data[row, col]
     
@@ -195,8 +204,15 @@ class Matrix(object):
         if isinstance(other, (int, float)):
             return Matrix(0, 0, np.multiply(self.data, other))
         
+        
         if isinstance(other, Matrix):
-            if self.cols != other.rows:
+            # singular-dimension matrix? broadcast.
+            # print(f"mat 2 -- {other.cols}, {other.rows}")
+            if other.cols == other.rows == 1:
+                return Matrix(0, 0, np.dot(self.data, other.data))
+            
+            # otherwise... only multily if compatible.
+            elif self.cols != other.rows:
                 raise ValueError(f"\n\nmat1: {self}\n mat2: {other}\nMatrices are not compatible for multiplication.")
         
             return Matrix(0, 0, np.dot(self.data, other.data))
@@ -297,7 +313,8 @@ class Matrix(object):
         """
         return Matrix(0, 0, np.transpose(self.data))
     
-    def multiply(self, other):
+    @staticmethod
+    def multiply(m1, m2):
         """
             Returns the element-wise product of two matrices.\n
             Example usage:\n
@@ -306,11 +323,11 @@ class Matrix(object):
             ```
             NOTE: using the `*` operator calls __mul__ instead of this method.
         """
-        if isinstance(other, (int, float)):
-            return Matrix(0, 0, np.multiply(self.data, other))
+        if isinstance(m2, (int, float, list)):
+            return Matrix(0, 0, np.multiply(m1.data, m2))
         
-        if isinstance(other, Matrix):
-            return Matrix(0, 0, np.multiply(self.data, other.data))
+        if isinstance(m1, Matrix) and isinstance(m2, Matrix):
+            return Matrix(0, 0, np.multiply(m1.data, m2.data))
         return NotImplemented
     
     @staticmethod
@@ -376,6 +393,36 @@ class Matrix(object):
             return NotImplemented
         
         matrix.data = matrix.data / matrix.data.sum(axis=axis, keepdims=True)
+        
+    @staticmethod
+    def max(matrix, axis=1):
+        """
+            Returns the maximum values along the given axis.\n
+            This method returns the values whose indices would be returned by `argmax`.\n
+            Default axis is 1.
+        """
+        if not isinstance(matrix, Matrix):
+            return NotImplemented
+        
+        if matrix.data.ndim == 1:
+            return np.amax(matrix.data)
+        
+        return Matrix(0, 0, np.amax(matrix.data, axis=axis))
+        
+    @staticmethod
+    def argmax(matrix, axis=1):
+        """
+            Returns the indices of the maximum values along the given axis.\n
+            This method returns the indices of the values that would be returned by `max`.\n
+            Default axis is 1.
+        """
+        if not isinstance(matrix, Matrix):
+            return NotImplemented
+        
+        if matrix.data.ndim == 1:
+            return Matrix(0, 0, np.argmax(matrix.data))
+        
+        return Matrix(0, 0, np.argmax(matrix.data, axis=axis))
         
     
     

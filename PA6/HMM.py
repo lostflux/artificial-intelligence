@@ -3,6 +3,7 @@
 
 from Maze import Maze
 from Matrix import Matrix
+import numpy as np
 
 CORRECT_COLOR = .88                     # Robot reading accuracy probability = .88
 WRONG_COLOR = 1 - CORRECT_COLOR         # Robot reading accuracy probability = .
@@ -156,26 +157,6 @@ class HMM:
             
             self.steps.append(distribution)
             
-    def forward_backward(self, readings: str):
-        """
-            Run forward and backward algorithm.
-        """
-        self.forward(readings)
-        
-        # reverse the steps
-        self.steps.reverse()
-        
-        # compute the backward distribution
-        backward_distribution = Matrix.copy(self.steps[0])
-        
-        for step in range(1, len(self.steps)):
-            backward_distribution = backward_distribution * (self.steps[step] * self.transitions)
-            
-        Matrix.normalize(backward_distribution)
-        
-        # add the two distributions together
-        self.steps.append(backward_distribution)
-        self.steps.reverse()
             
             
     def backward(self, readings: str):
@@ -190,57 +171,65 @@ class HMM:
             self.forward(readings)
             
         for step in range(len(self.steps) - 1, 0, -1):
-            Matrix.normalize(vector)
-            print(f"backward: {vector}")
-            self.steps[step] = self.steps[step].multiply(vector)
+            self.steps[step] = Matrix.multiply(self.steps[step], vector)
             Matrix.normalize(self.steps[step])
+            
             vector = self.transitions * (self.sensor_probabilities[readings[step - 1]] * vector)
             
     def viterbi(self, readings: str):
         """
             Compute the most likely sequence of states for the given readings.
         """
-        readings = readings.lower()
-        count = len(readings)
-        path_costs = []
-        transition_costs = []
-        path = []
-        transition_costs.append(Matrix.zeros(self.total_positions, self.total_positions))
-        path_costs.append(Matrix.ones(self.total_positions, count))
-        path_costs[0] /= self.total_positions
-        print(f"trans: {transition_costs[-1]}")
-        print(f"paths: {path_costs[-1]}")
+        
+        # normalize readings
+        readings = readings.lower()                         # y
+        
+        # get transition matrix
+        transitions = self.transitions                      # A
+        
+        # get emission matrices
+        emissions = self.sensor_probabilities               # B
+        
+        # get initial distribution
+        initial_probabilities = self.position_distribution  # pi
+        
+        delta = Matrix.zeros(len(readings), self.total_positions)
+        predecessors = Matrix.copy(delta)
         
         for pos in range(self.total_positions):
-            path_costs[0][pos, 0] = self.position_distribution[pos, 0]
+            delta[0, pos] = initial_probabilities[pos, 0] * transitions[pos, pos]
             
-        for observation in range(1, count):
-            transition_costs.append(Matrix.zeros(self.total_positions, self.total_positions))
-            path_costs.append(Matrix.zeros(self.total_positions, count))
             
-
-            
-            for pos in range(self.total_positions):
-                for prev_pos in range(self.total_positions):
-                    path_costs[-1][pos, observation] = max(self.transitions[prev_pos, pos], path_costs[-1][pos, observation])
-                    # Matrix.normalize(path_costs[-1])
+        for t in range(1, len(readings)):
+            for curr in range(self.total_positions):
+                for prev in range(self.total_positions):
+                    if delta[t, curr] < delta[t-1, prev] * transitions[prev, curr]:
+                        delta[t, curr] = delta[t-1, prev] * transitions[prev, curr]
+                        predecessors[t, curr] = prev
+                        Matrix.normalize(delta)
                     
-                    print(f"trans: {transition_costs[-1]}")
-                    print(f"paths: {path_costs[-1]}")
-                    
+                delta[t, curr] *= emissions[readings[t]][curr, curr]
+            # Matrix.normalize(delta)
+        print(f"delta = {delta}")
                 
+        max_probability = 0
+        path = np.zeros(len(readings))
+        for step in range(self.total_positions):
+            if max_probability < delta[len(readings) - 1, step]:
+                max_probability = delta[len(readings) - 1, step]
+                path[len(readings) - 1] = step
                 
-        
-        
-        # vector = Matrix.ones(self.maze.count_positions(), 1)
-        # if not self.steps:
-        #     self.forward(readings)
+        print(f"pred = {predecessors}")
+                
+        for t in range(1, len(readings)):
+            index = len(readings) - t
+            # print(f"path @ index = {path[index]}")
+            path[index - 1] = predecessors[index, int(path[index])]
             
-        # for step in range(len(self.steps) - 1, 0, -1):
-        #     vector = self.transitions * (self.sensor_probabilities[readings[step - 1]] * vector)
-            
-        # return vector
-            
+        print(path)
+        return path
+ 
+                                
     def print(self, filename):
         """
             Print the maze and the probability of each position.
@@ -266,13 +255,11 @@ def test0():
         Test the HMM on the first maze.
     """
     engine = HMM("./mazes/maze0.maz")
-    # print("probabilities:\n")
-    # for color in engine.maze.colors:
-    #     print(f"{color} = {engine.sensor_probabilities[color]}")
     engine.forward("RRRRRRRRRRRRRRRRRR")
     engine.print("output/maze0_f.out")
     engine.backward("RRRRRRRRRRRRRRRRRR")
     engine.print("output/maze0_b.out")
+    engine.viterbi("RGRGRGRG")
                 
 def test1():
     """
@@ -286,15 +273,14 @@ def test1():
     
 def test2():
     engine = HMM("./mazes/maze1.maz")
-    # print("probabilities:\n")
-    # for color in engine.maze.colors:
-    #     print(f"{color} = {engine.sensor_probabilities[color]}")
     engine.forward("RGRG")
     engine.print("output/maze1_f.out")
-    engine.forward_backward("RGRG")
+    engine.backward("RGRG")
     engine.print("output/maze1_b.out")
-    # engine.viterbi("RGRG")
+    engine.viterbi("RRGRRGRR")
     
 
 if __name__ == "__main__":
     test2()
+    
+    
