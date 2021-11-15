@@ -36,6 +36,11 @@ class HMM:
         """
         self.maze = Maze(filename)
         self.total_positions = self.maze.count_positions()
+        self.valid_positions = self.maze.valid_positions()
+        self.viterbi_path = None
+        self.path_actual_data = None
+        self.viterbi_info = None
+        self.sensor_data = None
         if not self.total_positions:
             raise ValueError('No possible positions in maze.')
         
@@ -86,9 +91,7 @@ class HMM:
                     # of robot starting on that position.
                     # Compute that probability -- (just 1 / total possible positions).
                     index = self.maze.index(x, y)
-                    self.position_distribution[index, 0] = 1 / self.total_positions
-                    
-        print(f"sensor probabilities = {[str(mat) for mat in self.sensor_probabilities.values()]}")
+                    self.position_distribution[index, 0] = 1 / self.valid_positions
                 
     def compute_sensor_values(self, x, y, c):
         """
@@ -96,12 +99,11 @@ class HMM:
             NOTE: This is a helper method to `initialize_probabilities`.
         """
         pos = self.maze.index(x, y)
-        if c and c != '#':
-            for color in self.maze.colors:
-                if color == c:
-                    self.sensor_probabilities[color][pos, pos] = CORRECT_COLOR
-                else:
-                    self.sensor_probabilities[color][pos, pos] = WRONG_COLOR / (self.maze.color_count - 1)
+        for color in self.maze.colors:
+            if color == c:
+                self.sensor_probabilities[color][pos, pos] = CORRECT_COLOR
+            else:
+                self.sensor_probabilities[color][pos, pos] = WRONG_COLOR / (self.maze.color_count - 1)
    
     def compute_transition_matrix(self, x, y, c):
         """
@@ -130,6 +132,7 @@ class HMM:
     def forward(self, readings: str):
         
         readings = readings.lower()
+        self.sensor_data = readings
         
         for reading in readings:
             if reading not in self.maze.colors:
@@ -137,7 +140,6 @@ class HMM:
             
         distribution = Matrix.copy(self.position_distribution)                  # probabilities of each position being the robot's starting position
         
-        # print(f"Initial = {distribution}")
         # reset sequences (might have been set on a previous run)
         if self.steps:
             self.steps = []
@@ -165,6 +167,7 @@ class HMM:
             after the given readings.
         """
         readings = readings.lower()
+        self.sensor_data = readings
         
         vector = Matrix.ones(self.maze.count_positions(), 1)
         if not self.steps:
@@ -181,59 +184,64 @@ class HMM:
             Compute the most likely sequence of states for the given readings.
         """
         
-        # normalize readings
-        readings = readings.lower()                         # y
+        # normalize readings -- lower or upercase doesn't matter.
+        readings = readings.lower()
+        self.sensor_data = readings
         
         # get transition matrix
-        transitions = self.transitions                      # A
+        T = self.transitions
         
         # get emission matrices
-        emissions = self.sensor_probabilities               # B
+        emissions = self.sensor_probabilities
         
         # get initial distribution
-        initial_probabilities = self.position_distribution  # pi
+        IP = self.position_distribution 
         
+        
+        # Initialization
         delta = Matrix.zeros(len(readings), self.total_positions)
         predecessors = Matrix.copy(delta)
-        
         for pos in range(self.total_positions):
-            delta[0, pos] = initial_probabilities[pos, 0] * transitions[pos, pos]
+            delta[0, pos] = IP[pos, 0] * T[pos, pos]
             
-            
+        # Dynamic Programming step.
+        # NOTE: 
+        #   1. t -> time
+        #   2. c -> current
+        #   3. p -> previous
         for t in range(1, len(readings)):
-            for curr in range(self.total_positions):
-                for prev in range(self.total_positions):
-                    if delta[t, curr] < delta[t-1, prev] * transitions[prev, curr]:
-                        delta[t, curr] = delta[t-1, prev] * transitions[prev, curr]
-                        predecessors[t, curr] = prev
+            for c in range(self.total_positions):
+                for p in range(self.total_positions):
+                    if delta[t, c] < delta[t-1, p] * T[p, c]:
+                        delta[t, c] = delta[t-1, p] * T[p, c]
+                        predecessors[t, c] = p
                     
-                delta[t, curr] *= emissions[readings[t]][curr, curr]
-            # Matrix.normalize(delta)
+                delta[t, c] *= emissions[readings[t]][c, c]
         Matrix.normalize(delta, axis=1)
-        print(f"delta = {delta}")
                 
+        # backtrack to find the most likely 
+        # states for each time step.
+        # and rebuild actual path
         max_probability = 0
         path = [0] * len(readings)
-        for step in range(self.total_positions):
-            if max_probability < delta[len(readings) - 1, step]:
-                max_probability = delta[len(readings) - 1, step]
-                path[len(readings) - 1] = step
-                
-        print(f"pred = {predecessors}")
-                
+        for pos in range(self.total_positions):
+            if max_probability < delta[len(readings) - 1, pos]:
+                max_probability = delta[len(readings) - 1, pos]
+                path[len(readings) - 1] = pos
         for t in range(1, len(readings)):
             index = len(readings) - t
             path[index - 1] = predecessors[index, int(path[index])]
+                
+
             
-        paths_with_delta = []
-            
+        # just an array to show useful information.
+        compounded = []
         for i in range(len(path)):
-            paths_with_delta.append(f"{i}: position = {int(path[i])}, probability = {delta[i, int(path[i])]}")
+            s = f"t = {i}: loc = {int(path[i])}, prob = {delta[i, int(path[i])]}"
+            compounded.append(s)
             
-        # print(paths)
         
         delta_list = []
-        print(delta)
         for step in delta:
             L = len(step)
             
@@ -241,15 +249,14 @@ class HMM:
             
             for index in range(len(step)):
                 m[index, 0] = step[index]
-                
-            # print(m)
             
             delta_list.append(m)
-            
+        
+        # save probabilities, path, and info to HMM
         self.steps = delta_list
-                
-                
-        return path, paths_with_delta
+        self.viterbi_path = [self.maze.de_index(x) for x in path]
+        self.path_actual_data = [self.maze.get_char(x, y) for (x, y) in self.viterbi_path]
+        self.viterbi_info = compounded
  
                                 
     def print(self, filename, steps=None):
@@ -258,10 +265,17 @@ class HMM:
         """
         steps = self.steps if steps is None else steps
         
-        # print(f"self.steps = {self.steps}")
         
         with open(filename, 'w') as f:
-            s = ""
+            s = f"sensor readings = {self.sensor_data}\n\n"
+            
+            if self.viterbi_path:
+                s += f"Viterbi path: {self.viterbi_path}\n"
+                s += f"Actual values on map: {self.path_actual_data}\n"
+                for info in self.viterbi_info:
+                    s += f"{info}\n"
+                s += f"\n\n"
+            
             for step in range(len(steps)):
                 s += f"Step {step}\n"
                 
@@ -275,55 +289,82 @@ class HMM:
             f.write(s)
             print(s)
                 
+def test(filename, observations: str):
+    """
+        Test the HMM on the first maze.
+    """
+    basename = filename.split("/")[-1].split(".")[0]
+    
+    forward = f"output/{basename}.forward"
+    backward = f"output/{basename}.backward"
+    viterbi = f"output/{basename}.viterbi"
+    
+    engine = HMM(filename)
+    engine.forward(observations)
+    engine.print(forward)
+    engine.backward(observations)
+    engine.print(backward)
+    engine.viterbi(observations)
+    engine.print(viterbi)
+    
+
 def test0():
     """
         Test the HMM on the first maze.
     """
-    engine = HMM("./mazes/maze0.maz")
-    engine.forward("RRRRRRRRRRRRRRRRRR")
-    engine.print("output/maze0_f.out")
-    engine.backward("RRRRRRRRRRRRRRRRRR")
-    engine.print("output/maze0_b.out")
-    engine.viterbi("RGRGRGRG")
+    
+    test("./mazes/maze0.maz", "RGBGPQ")
                 
 def test1():
     """
         Test the HMM on the first maze.
     """
-    engine = HMM("./mazes/maze1.maz")
-    engine.forward("RGB")
-    engine.print("maze1_f.out")
-    engine.backward("BAC")
-    engine.print("maze1_b.out")
+    
+    test("./mazes/maze1.maz", "RGB")
     
 def test2():
-    engine = HMM("./mazes/maze1.maz")
-    engine.forward("RGRG")
-    engine.print("output/maze1_f.out")
-    engine.backward("RGRG")
-    engine.print("output/maze1_b.out")
-    (paths, compounded) = engine.viterbi("RRGRRGRR")
-    engine.print("output/maze1_viterbi.out")
+    """
+        Test the HMM on the first maze.
+    """
     
-    for item in compounded:
-        print(item)
-        
-def test_viterbi():
-    engine = HMM("./mazes/maze0.maz")
-    (path, compounded) = engine.viterbi("RRGRRGRR")
+    test("./mazes/maze2.maz", "RGB")
     
-    print(f"path found by viterbi algorithm: {path}")
+def test5():
+    """
+        Test the HMM on maze 5.
+    """
     
-    print(f"probability distributions. \
-          NOTE: each row is a step in the")
+    test("./mazes/maze5.maz", "POMONACOLLEGE")
     
-    engine.print("output/maze1_viterbi.out")
+def test3():
+    """
+        Test the HMM on the first maze.
+    """
     
-    for item in compounded:
-        print(item)
+    test("./mazes/maze3.maz", "ABCDEFGHIJK")
+    
+def test4():
+    """
+        Test the HMM on the first maze.
+    """
+    
+    test("./mazes/maze4.maz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    
+def test_text():
+    """
+        Test HMM on map file with comprehensible text.
+    """
+    test("./mazes/text.maz", "temporalprobabilisticmodel")
+    
     
 
 if __name__ == "__main__":
-    test2()
+    
+    test0()
+    test1()
+    test3()
+    test4()
+    test5()
+    # test_text() # This takes some time but should finish in about a minute.
     
     
