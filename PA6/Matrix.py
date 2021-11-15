@@ -349,11 +349,11 @@ class Matrix(object):
         return NotImplemented
     
     @staticmethod
-    def zeros(rows, cols):
+    def zeros(*args):
         """
             Returns a Matrix of zeros.
         """
-        return Matrix(0, 0, np.zeros((rows, cols)))
+        return Matrix(0, 0, np.zeros(args))
     
     @staticmethod
     def ones(rows, cols):

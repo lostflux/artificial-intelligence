@@ -1,9 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""
+    This module contains an HMM class for robot location.\n
+"""
+
+__author__ = ["Amittai"]
+__copyright__ = "Copyright 2021"
+__credits__ = ["Amittai"]
+__email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
+__github__ = "@siavava"
+
 from Maze import Maze
 from Matrix import Matrix
-import numpy as np
 
 CORRECT_COLOR = .88                     # Robot reading accuracy probability = .88
 WRONG_COLOR = 1 - CORRECT_COLOR         # Robot reading accuracy probability = .
@@ -149,8 +158,7 @@ class HMM:
             # get current reading
             reading = readings[step]
             
-            # update the distribution       
-            print(f"transitions.transpose: {self.transitions.transpose()}")     
+            # update the distribution  
             distribution = self.sensor_probabilities[reading] * (self.transitions.transpose() * distribution)
             
             Matrix.normalize(distribution)
@@ -206,14 +214,14 @@ class HMM:
                     if delta[t, curr] < delta[t-1, prev] * transitions[prev, curr]:
                         delta[t, curr] = delta[t-1, prev] * transitions[prev, curr]
                         predecessors[t, curr] = prev
-                        Matrix.normalize(delta)
                     
                 delta[t, curr] *= emissions[readings[t]][curr, curr]
             # Matrix.normalize(delta)
+        Matrix.normalize(delta, axis=1)
         print(f"delta = {delta}")
                 
         max_probability = 0
-        path = np.zeros(len(readings))
+        path = [0] * len(readings)
         for step in range(self.total_positions):
             if max_probability < delta[len(readings) - 1, step]:
                 max_probability = delta[len(readings) - 1, step]
@@ -223,27 +231,52 @@ class HMM:
                 
         for t in range(1, len(readings)):
             index = len(readings) - t
-            # print(f"path @ index = {path[index]}")
             path[index - 1] = predecessors[index, int(path[index])]
             
-        print(path)
-        return path
+        paths_with_delta = []
+            
+        for i in range(len(path)):
+            paths_with_delta.append(f"{i}: position = {int(path[i])}, probability = {delta[i, int(path[i])]}")
+            
+        # print(paths)
+        
+        delta_list = []
+        print(delta)
+        for step in delta:
+            L = len(step)
+            
+            m = Matrix(L, 1)
+            
+            for index in range(len(step)):
+                m[index, 0] = step[index]
+                
+            # print(m)
+            
+            delta_list.append(m)
+            
+        self.steps = delta_list
+                
+                
+        return path, paths_with_delta
  
                                 
-    def print(self, filename):
+    def print(self, filename, steps=None):
         """
             Print the maze and the probability of each position.
         """
+        steps = self.steps if steps is None else steps
+        
+        # print(f"self.steps = {self.steps}")
         
         with open(filename, 'w') as f:
             s = ""
-            for step in range(len(self.steps)):
+            for step in range(len(steps)):
                 s += f"Step {step}\n"
                 
                 state = Matrix(self.maze.height, self.maze.width)
-                for pos in range(0, self.steps[step].rows):
+                for pos in range(0, steps[step].rows):
                     x, y = self.maze.de_index(pos)
-                    state[y, x] = self.steps[step][pos, 0]
+                    state[y, x] = steps[step][pos, 0]
                 
                 s += str(state)
                 s += "\n\n\n"
@@ -277,7 +310,25 @@ def test2():
     engine.print("output/maze1_f.out")
     engine.backward("RGRG")
     engine.print("output/maze1_b.out")
-    engine.viterbi("RRGRRGRR")
+    (paths, compounded) = engine.viterbi("RRGRRGRR")
+    engine.print("output/maze1_viterbi.out")
+    
+    for item in compounded:
+        print(item)
+        
+def test_viterbi():
+    engine = HMM("./mazes/maze0.maz")
+    (path, compounded) = engine.viterbi("RRGRRGRR")
+    
+    print(f"path found by viterbi algorithm: {path}")
+    
+    print(f"probability distributions. \
+          NOTE: each row is a step in the")
+    
+    engine.print("output/maze1_viterbi.out")
+    
+    for item in compounded:
+        print(item)
     
 
 if __name__ == "__main__":
