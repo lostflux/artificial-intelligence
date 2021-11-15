@@ -41,52 +41,61 @@ class HMM:
         
         # initialize matrices for sensor probabilities of detecting each color.
         
-        # color -> probabilities of that color being read for each position in Maze
-        self.sensor_probabilities = dict()
-        
-        self.sensor_probabilities = {color: Matrix(self.total_positions, self.total_positions) for color in self.maze.colors}
-              
-        # for color in self.maze.colors:
-        #     self.sensor_probabilities[color] = Matrix(self.total_positions, self.total_positions)
+        # color -> probabilities of that color being read for each position in Maze        
+        self.sensor_probabilities = {
+            color: Matrix(self.total_positions, self.total_positions) for color in self.maze.colors
+            }
             
-        self.transitions = Matrix(self.maze.count_positions(), self.maze.count_positions())                                                   # transition probabilities between every possible position in Maze
-        self.position_distribution = Matrix(self.maze.width, self.maze.height)      # probabilities of each position being the robot's starting position
-        self.steps = []                                                             # list of matrices of probabilities for each step in the sequences
+        # initialize transition matrix for each position and adjacents.
+        self.transitions = Matrix(self.total_positions, self.total_positions)
+        
+        # initialize initial distribution for robot location in Maze
+        
+        self.position_distribution = Matrix(self.total_positions, 1)
+        
+        # initialize list of steps in Mase -- used with algorithms.
+        self.steps = []
+        
+        # call helper method to initialize variables.
         self.initialize_probabilities() 
         
     def initialize_probabilities(self):
         """
         Initializes the probabilities dictionary.
         """
-        self.position_distribution = Matrix(self.total_positions, 1)
         
-
-                
+        # iterate over all possible positions in Maze,
         for x in range(self.maze.width):
             for y in range(self.maze.height):
                 
+                # get character at position
                 curr_char = self.maze.get_char(x, y)
                 
+                # if character means position is valid...
                 if curr_char is not None and curr_char != '#':
                 
-                    # save the sensor detection probabilities
-                    self.compute_sensor_values(x, y)
-                            
-                    # Save the transition probabilities
-                    self.compute_transition_matrix(x, y)
+                    # compute sensor detection probabilities
+                    # (how likely is each color to be detected when on that square?)
+                    self.compute_sensor_values(x, y, curr_char)
                     
-                    # Find the probability for robot's starting position being at current position
+                    # compute probabilities for next transition 
+                    # (whether to stay put or move, and to where)
+                    self.compute_transition_matrix(x, y, curr_char)
+                    
+                    # Since it's a valid position, there is some probability
+                    # of robot starting on that position.
+                    # Compute that probability -- (just 1 / total possible positions).
                     index = self.maze.index(x, y)
                     self.position_distribution[index, 0] = 1 / self.total_positions
+                    
+        print(f"sensor probabilities = {[str(mat) for mat in self.sensor_probabilities.values()]}")
                 
-    def compute_sensor_values(self, x, y):
+    def compute_sensor_values(self, x, y, c):
         """
-            Compute the transition matrix for the given x, y position.
+            Compute the transition matrix for the given x, y position.\n
+            NOTE: This is a helper method to `initialize_probabilities`.
         """
-        
         pos = self.maze.index(x, y)
-        # Save the state probabilities
-        c = self.maze.get_char(x, y)
         if c and c != '#':
             for color in self.maze.colors:
                 if color == c:
@@ -94,50 +103,22 @@ class HMM:
                 else:
                     self.sensor_probabilities[color][pos, pos] = WRONG_COLOR / (self.maze.color_count - 1)
    
-    def compute_transition_matrix(self, x, y):
+    def compute_transition_matrix(self, x, y, c):
         """
             Return the transition matrix for the given x, y position.
         """
         
-        curr = self.maze.get_char(x, y)
         current_index = self.maze.index(x, y)
         
-        if curr is not None and curr != '#':
-            print("curr = %s" % curr)
-            stay_put = 0
-            
-            north = self.maze.get_char(x, y - 1)
-            north_index = self.maze.index(x, y - 1)
-            
-            south = self.maze.get_char(x, y + 1)
-            south_index = self.maze.index(x, y + 1)
-            
-            east = self.maze.get_char(x + 1, y)
-            east_index = self.maze.index(x + 1, y)
-            
-            west = self.maze.get_char(x - 1, y)
-            west_index = self.maze.index(x - 1, y)
-            
-            if north is not None and north != '#':
-                print(f"North char = {north}")
-                self.transitions[north_index, current_index] = NORTH_PROBABILITY
+        for dx, dy in zip([-1, 1, 0, 0], [0, 0, 1, -1]):
+            cx, cy = x + dx, y + dy
+            c = self.maze.get_char(cx, cy)
+            if c is not None and c != '#':
+                next_index = self.maze.index(cx, cy)
+                self.transitions[current_index, next_index] = MOVE_PROBABILITY
             else:
-                stay_put += NORTH_PROBABILITY
+                self.transitions[current_index, current_index] = MOVE_PROBABILITY
                 
-            if south is not None and south != '#':
-                self.transitions[south_index, current_index] = SOUTH_PROBABILITY
-            else:
-                stay_put += SOUTH_PROBABILITY
-            if east is not None and east != '#':
-                self.transitions[east_index, current_index] = EAST_PROBABILITY
-            else:
-                stay_put += EAST_PROBABILITY
-            if west is not None and west != '#':
-                self.transitions[west_index, current_index] = WEST_PROBABILITY
-            else:
-                stay_put += WEST_PROBABILITY
-                
-            self.transitions[current_index, current_index] = stay_put
         
     def compute_distribution(self, x, y, total):
         """
