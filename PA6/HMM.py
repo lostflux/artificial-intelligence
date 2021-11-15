@@ -138,7 +138,8 @@ class HMM:
             if reading not in self.maze.colors:
                 raise ValueError(f"Invalid color: {reading} not in working set {self.maze.colors}")
             
-        distribution = Matrix.copy(self.position_distribution)                  # probabilities of each position being the robot's starting position
+        # probabilities of each position being the robot's starting position.
+        distribution = Matrix.copy(self.position_distribution)                  
         
         # reset sequences (might have been set on a previous run)
         if self.steps:
@@ -181,7 +182,8 @@ class HMM:
             
     def viterbi(self, readings: str):
         """
-            Compute the most likely sequence of states for the given readings.
+            Compute the most likely sequence of states for the given readings\n
+            using the Viterbi algorithm.
         """
         
         # normalize readings -- lower or upercase doesn't matter.
@@ -202,7 +204,7 @@ class HMM:
         delta = Matrix.zeros(len(readings), self.total_positions)
         predecessors = Matrix.copy(delta)
         for pos in range(self.total_positions):
-            delta[0, pos] = IP[pos, 0] * T[pos, pos]
+            delta[0, pos] = IP[pos] * T[pos, pos]
             
         # Dynamic Programming step.
         # NOTE: 
