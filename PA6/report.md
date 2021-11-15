@@ -3,7 +3,7 @@
 
 ## Programming Assignment 6: Hidden Markov Models
 
-### Student: Amittai Wekesa (github: @siavava)
+### Student: Amittai Wekesa
 
 ### Fall 2021
 
