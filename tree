@@ -85,7 +85,106 @@
 │   ├── report.pdf
 │   ├── test_chess.py
 │   └── TranspositionTable.py
+├── PA4
+│   ├── backtracking.py
+│   ├── CircuitProblem.py
+│   ├── CSP.py
+│   ├── erratum.py
+│   ├── heuristics.py
+│   ├── inferences.py
+│   ├── Makefile
+│   ├── Queue.py
+│   ├── README.md
+│   ├── report.md
+│   ├── report.pdf
+│   └── test_csp.py
+├── PA5
+│   ├── all_cells.cnf
+│   ├── all_cells.sol
+│   ├── display.py
+│   ├── erratum.py
+│   ├── one_cell.cnf
+│   ├── one_cell.sol
+│   ├── puzzle1.cnf
+│   ├── puzzle1.sol
+│   ├── puzzle1.sud
+│   ├── puzzle2.cnf
+│   ├── puzzle2.sol
+│   ├── puzzle2.sud
+│   ├── puzzle_bonus.cnf
+│   ├── puzzle_bonus.sud
+│   ├── __pycache__
+│   │   ├── display.cpython-37.pyc
+│   │   ├── erratum.cpython-37.pyc
+│   │   ├── SAT.cpython-37.pyc
+│   │   ├── Sudoku.cpython-37.pyc
+│   │   └── TwoWayDict.cpython-37.pyc
+│   ├── README.md
+│   ├── report.md
+│   ├── report.pdf
+│   ├── rows_and_cols.cnf
+│   ├── rows_and_cols.sol
+│   ├── rows.cnf
+│   ├── rows.sol
+│   ├── rules.cnf
+│   ├── rules.sol
+│   ├── runtimes
+│   │   ├── all_cells.out
+│   │   ├── one_cell.out
+│   │   ├── puzzle1.out
+│   │   ├── puzzle2.out
+│   │   ├── README.md
+│   │   ├── rows_and_cols.out
+│   │   ├── rows.out
+│   │   └── rules.out
+│   ├── SAT.py
+│   ├── solve_sudoku.py
+│   ├── sudoku2cnf.py
+│   ├── Sudoku.py
+│   └── TwoWayDict.py
+├── PA6
+│   ├── dump.py
+│   ├── HMM.py
+│   ├── Matrix.py
+│   ├── Maze.py
+│   ├── mazes
+│   │   ├── maze0.maz
+│   │   ├── maze1.maz
+│   │   ├── maze2.maz
+│   │   ├── maze3.maz
+│   │   ├── maze4.maz
+│   │   ├── maze5.maz
+│   │   ├── README.md
+│   │   └── text.maz
+│   ├── output
+│   │   ├── maze0.backward
+│   │   ├── maze0.forward
+│   │   ├── maze0.viterbi
+│   │   ├── maze1.backward
+│   │   ├── maze1.forward
+│   │   ├── maze1.viterbi
+│   │   ├── maze3.backward
+│   │   ├── maze3.forward
+│   │   ├── maze3.viterbi
+│   │   ├── maze4.backward
+│   │   ├── maze4.forward
+│   │   ├── maze4.viterbi
+│   │   ├── maze5.backward
+│   │   ├── maze5.forward
+│   │   ├── maze5.viterbi
+│   │   ├── README.md
+│   │   ├── text.backward
+│   │   ├── text.forward
+│   │   └── text.viterbi
+│   ├── __pycache__
+│   │   ├── Matrix.cpython-310.pyc
+│   │   ├── Matrix.cpython-37.pyc
+│   │   ├── Maze.cpython-310.pyc
+│   │   └── Maze.cpython-37.pyc
+│   ├── README.md
+│   ├── report.md
+│   └── report.pdf
 ├── README.md
 └── tree
 
-6 directories, 82 files
+14 directories, 173 files
