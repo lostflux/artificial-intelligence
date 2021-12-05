@@ -14,7 +14,7 @@ __email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
 __github__ = "@siavava"
 
 from SearchSolution import SearchSolution
-from priorityqueue import PriorityQueue
+from PriorityQueue import PriorityQueue
 
 # define global constant for infinite weight
 INFINITY = 2**20
