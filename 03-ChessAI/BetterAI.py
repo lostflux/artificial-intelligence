@@ -15,7 +15,7 @@ from erratum import (log_error, log_info, log_debug_info)   # logging functions.
 from EnhancedAlphaBetaAI import EnhancedAlphaBetaAI         # A/B AI for searching.
 from EnhancedAlphaBetaAI import OrderedMove
 
-from priorityqueue import PriorityQueue                    # Priority queue for move reordering.
+from PriorityQueue import PriorityQueue                    # Priority queue for move reordering.
 class BetterAI():
     """
         A Chess AI that uses Alpha-Beta pruning with the Minimax algorithm to search for the best move.

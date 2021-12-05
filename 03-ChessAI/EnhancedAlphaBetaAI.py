@@ -19,7 +19,7 @@ from random import shuffle                                  # function to shuffl
 
 from erratum import (log_error, log_info, log_debug_info)   # logging functions. see [./erratum.py] for more info.
 from TranspositionTable import TranspositionTable           # Transposition table.  see [./TranspositionTable.py] for more info.
-from priorityqueue import PriorityQueue                     # Priority queue. see [./priorityqueue.py] for more info.
+from PriorityQueue import PriorityQueue                     # Priority queue. see [./priorityqueue.py] for more info.
 
 
 ################## Added abstraction for reordering moves ##################
