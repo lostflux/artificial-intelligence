@@ -10,8 +10,6 @@ __credits__ = ["Amittai"]
 __email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
 __github__ = "@siavava"
 
-from typing import List, Optional
-
 INDEX_ERROR = "Index out of range"
 NODE_ERROR = "Node not found."
 
@@ -153,8 +151,12 @@ class LinkedList(List):
         self.__size += 1
             
     def __locate(self, index: int):
+        """
+            Navigate to node at specified index in LL.
+            Raises IndexError if index is out of range.
+        """
         # /// if valid index, proceed with location ///
-        if 0 < index < self.__size \
+        if 0 <= index < self.__size \
             or -self.__size <= index < 0:
             # /// check target against midpoint,
             # /// use path that gives better performance! ///
@@ -171,6 +173,7 @@ class LinkedList(List):
         
 
     def __getitem__(self, index):
+        """Get item at index"""
         target = self.__locate(index)       # /// throws exception
         return target.value
     
@@ -246,31 +249,72 @@ class LinkedList(List):
         return False
 
     def __iter__(self):
-        current = self.head
+        current = self.__head
         while current:
             yield current.value
             current = current.next
 
     def __reversed__(self):
-        current = self.tail
+        current = self.__tail
         while current:
             yield current.value
             current = current.prev
             
 if __name__ == '__main__':
     
-    import random
     lst = LinkedList()
     print(lst)
     
+    print("TESTING APPEND")
     for i in range(10):
-        lst.append(random.randint(0, 1000))
+        lst.append(i)
         print(lst)
         
-    # print(f"size = {len(lst)}")
+    print("TESTING LENGTH")
+    print(f"size = {len(lst)}")
+    
+    print("\n\nTESTING iter()")
+    for val in lst:
+        print(val, end=" ")
+    print("\n")
+    
+    print("\n\nTESTING []")
+    for i in range(len(lst)):
+        print(lst[i], end=" ")
         
+    print("\n")
+    
+    print("\n\nTESTING reversed(list")
+    for val in reversed(lst):
+        print(val, end=" ")
+    print("\n")
+    
+    print("\n\nTESTING pop(0)")
     while lst:
-        lst.pop()
+        lst.pop(0)
         print(lst)
         # print(f"size = {len(lst)}")
+        
+    print("\n\nTESTING enqueue()")
+    for i in range(10):
+        lst.enqueue(i)
+        print(lst)
+    
+    print("\n\nTESTING dequeue()")
+    while lst:
+        print(lst.dequeue(), end=" ")
+    print("\n")
+    
+    print("\n\nTESTING push()")
+    for i in range(10):
+        lst.push(i)
+        print(lst)
+    
+    print("\n\nTESTING pop()")
+    while lst:
+        print(lst.pop(), end=" ")
+    print("\n")
+    
+    print(lst)
+        
                 
