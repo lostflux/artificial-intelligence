@@ -12,6 +12,9 @@ __github__ = "@siavava"
 
 INDEX_ERROR = "Index out of range"
 NODE_ERROR = "Node not found."
+TYPE_ERROR = "Expected a LinkedList, got different type."
+
+from typing import List
 
 class _Node:
     """Internal node for the LL"""
@@ -259,6 +262,14 @@ class LinkedList(List):
         while current:
             yield current.value
             current = current.prev
+            
+    def merge(self, other):
+        """ Merge two LinkedLists """
+        if not isinstance(other, LinkedList):
+            raise TypeError(TYPE_ERROR)
+        self.__tail.chain(other.__head)
+        self.__tail = other.__tail
+        self.__size += other.__size
             
 if __name__ == '__main__':
     

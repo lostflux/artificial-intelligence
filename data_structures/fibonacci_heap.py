@@ -9,3 +9,8 @@ __copyright__ = "Copyright 2021"
 __credits__ = ["Amittai"]
 __email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
 __github__ = "@siavava"
+
+from linked_list import LinkedList
+from binary_tree import Tree
+
+class FibonacciTree():
