@@ -172,8 +172,7 @@ class LinkedList(List):
                 target_node: _Node = self.__tail.rewind(steps)
             return target_node
         # /// invalid index, raise error ///
-        raise IndexError(INDEX_ERROR)
-        
+        raise IndexError(INDEX_ERROR)        
 
     def __getitem__(self, index):
         """Get item at index"""
