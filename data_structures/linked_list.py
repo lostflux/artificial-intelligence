@@ -7,7 +7,7 @@
 __author__ = "Amittai"
 __copyright__ = "Copyright 2021"
 __credits__ = ["Amittai"]
-__email__ = "Amittai.J.Wekesa.24@dartmouth.edu"
+__email__ = "amittaijoel@outlook.com"
 __github__ = "@siavava"
 
 INDEX_ERROR = "Index out of range"
